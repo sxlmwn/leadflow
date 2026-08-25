@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import { getCurrentBrand } from '@/lib/brand';
 import DevBrandSwitcher from '@/components/DevBrandSwitcher';
+import ClickTracker from '@/components/ClickTracker';
+import DynamicForm from '@/components/DynamicForm';
+import { FormSchema } from '@/components/DynamicForm';
 
 export const revalidate = 0; // Disable static caching for local dev brand switching
 
@@ -11,7 +14,7 @@ export default async function HomePage() {
     return (
       <main className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
         <DevBrandSwitcher currentSlug="unknown" />
-        
+
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full glass-panel !bg-slate-900/90 !border-slate-800 rounded-2xl p-8 text-center shadow-2xl">
             <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-5 border border-red-500/20">
@@ -37,6 +40,10 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-slate-50">
+      {/* Click Tracking Beacon */}
+      <ClickTracker brandId={brand.id} />
+
+      {/* Dev Brand Switcher Bar */}
       <DevBrandSwitcher currentSlug={brand.slug} />
 
       {/* Brand Navigation Header */}
@@ -69,9 +76,9 @@ export default async function HomePage() {
         </div>
       </header>
 
-      {/* Hero Shell */}
-      <section className="relative overflow-hidden py-20 px-6 bg-gradient-to-b from-white to-slate-100 border-b border-slate-200">
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+      {/* Hero & Form Section */}
+      <section className="relative overflow-hidden py-12 md:py-16 px-6 bg-gradient-to-b from-white to-slate-100 border-b border-slate-200">
+        <div className="max-w-4xl mx-auto text-center relative z-10 mb-8">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 bg-slate-100 text-slate-800 border border-slate-200">
             <span
               className="w-2 h-2 rounded-full inline-block"
@@ -80,23 +87,22 @@ export default async function HomePage() {
             {brand.sub_vertical || brand.vertical}
           </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight mb-4">
             {theme_config.headline}
           </h1>
 
-          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Welcome to <strong className="text-slate-900">{brand.name}</strong>. Powered by the LeadFlow multi-brand architecture. Theme, styling, and configuration loaded dynamically from Supabase.
+          <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Welcome to <strong className="text-slate-900">{brand.name}</strong>. Complete the quick form below to get instant quotes & assistance.
           </p>
-
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <button
-              className="px-8 py-3.5 text-white font-bold rounded-xl shadow-lg transition-transform hover:scale-[1.02] cursor-pointer"
-              style={{ backgroundColor: theme_config.primary_color }}
-            >
-              Get Started Shell Button
-            </button>
-          </div>
         </div>
+
+        {/* Dynamic Brand Form Renderer */}
+        <DynamicForm
+          brandId={brand.id}
+          brandSlug={brand.slug}
+          formSchema={brand.form_schema as unknown as FormSchema}
+          themeConfig={theme_config}
+        />
       </section>
 
       {/* Active Brand Metadata Inspection Card */}
@@ -117,26 +123,7 @@ export default async function HomePage() {
               <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Slug / Domain</div>
               <div className="text-sm font-mono text-slate-800">{brand.slug} ({brand.domain})</div>
             </div>
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Primary Color</div>
-              <div className="text-sm font-mono text-slate-800 flex items-center gap-2">
-                <span
-                  className="w-4 h-4 rounded border border-slate-300 inline-block"
-                  style={{ backgroundColor: theme_config.primary_color }}
-                />
-                {theme_config.primary_color}
-              </div>
-            </div>
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Font Style</div>
-              <div className="text-sm font-mono text-slate-800">{theme_config.font_style}</div>
-            </div>
           </div>
-
-          <div className="text-xs text-slate-500 font-mono mb-2">Raw theme_config jsonb:</div>
-          <pre className="p-4 bg-slate-900 text-slate-200 rounded-lg text-xs font-mono overflow-x-auto">
-            {JSON.stringify(theme_config, null, 2)}
-          </pre>
         </div>
       </section>
     </main>
