@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LeadFlow — Multi-Brand Lead-Gen Platform
+
+LeadFlow is a multi-brand lead-generation platform built with Next.js App Router, TypeScript, Tailwind CSS, and Supabase.
+
+## Monorepo Architecture (npm Workspaces)
+
+```text
+leadflow/
+├── apps/
+│   ├── funnel/         # Multi-brand landing & lead capture application (Port 3000)
+│   └── admin/          # Admin management dashboard (Port 3001)
+├── packages/
+│   └── shared/         # Shared TypeScript interfaces (Brand, Lead, Buyer, Verification types)
+├── supabase/           # Single shared source of truth database migrations & config
+├── docs/               # Platform documentation & task guidelines
+└── scratch/            # Cross-cutting integration test scripts
+```
 
 ## Getting Started
 
-First, run the development server:
-
+### 1. Install Dependencies
+Run `npm install` from the root directory to link all workspace packages:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Running Applications
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Run Funnel App (Default Landing Pages)**:
+  ```bash
+  npm run dev:funnel
+  ```
+  App will start at `http://localhost:3000`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Run Admin Dashboard**:
+  ```bash
+  npm run dev:admin
+  ```
+  App will start at `http://localhost:3001`.
 
-## Learn More
+### 3. Build & Quality Checks
 
-To learn more about Next.js, take a look at the following resources:
+Run workspace commands across all apps:
+```bash
+npm run build    # Builds both funnel and admin apps
+npm run lint     # Lints all workspace packages
+npm run tsc      # Type-checks all workspace packages
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4. Local Brand Testing (Funnel App)
+Switch between brands dynamically using dev overrides:
+- **WindowHound**: `http://localhost:3000/?brand=windowhound`
+- **MedTrialMatch**: `http://localhost:3000/?brand=medtrialmatch`
+- **ReliefOlogist**: `http://localhost:3000/?brand=reliefologist`

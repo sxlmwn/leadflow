@@ -1,29 +1,19 @@
 {
-  "name": "leadflow",
+  "name": "leadflow-monorepo",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "@supabase/ssr": "^0.12.5",
-    "@supabase/supabase-js": "^2.112.4",
-    "next": "16.3.2",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.3.2",
-    "supabase": "^2.115.0",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "dev": "npm run dev --workspace=@leadflow/funnel",
+    "dev:funnel": "npm run dev --workspace=@leadflow/funnel",
+    "dev:admin": "npm run dev --workspace=@leadflow/admin",
+    "build:funnel": "npm run build --workspace=@leadflow/funnel",
+    "build:admin": "npm run build --workspace=@leadflow/admin",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "tsc": "npm run tsc --workspaces --if-present"
   }
 }
