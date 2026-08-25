@@ -1,0 +1,1319 @@
+{
+  "uuid": "ad799033-1148-4724-ab77-c24eaa0b7fa2",
+  "name": "Internship task guidance",
+  "summary": "**Conversation Overview**\n\nThe person is an intern at Risen Results (owned by Ibrahim Khan) who received intern task documentation (intern-brief.md and intern-tasks.md) and was trying to understand what they needed to do. The conversation began with Claude reading the internship files and explaining the brief, which outlined three lanes of no-code work (Lane A: Conversion & Copy, Lane B: Market Research, Lane C: Tracking & Data Specs) with deliverables limited to docs, spreadsheets, and specs — no coding or production access. Claude also flagged a potential conflict between the brief's no-code scope and a separate WhatsApp message from Ibrahim asking for \"a full fledge working system that can be integrated anywhere, make sure it's robust and ideal.\"\n\nAs the conversation progressed, the person clarified that Ibrahim's intent was indeed to build a full production system, not just documentation deliverables. The person asked foundational questions to understand the domain: what a lead is, how the lead-gen system works end-to-end, and who buys leads. Claude explained these concepts in simple Urdu-mixed conversational language — leads as form-filled individuals seeking services, the flow from visitor to verified lead to buyer API delivery, and buyers as businesses (contractors, pharma companies, etc.) who pay per lead rather than run their own marketing. The person confirmed they understood the multi-brand model (WindowHound, Med Trial Match, RatedGutters, etc. on one codebase).\n\nThe person confirmed the full scope: production/live system, full multi-brand build all at once, with tech stack left to Claude's recommendation. Claude recommended Next.js + Supabase (consistent with the person's other projects) and outlined six sequential build parts: database schema, multi-brand frontend, form submission with subID capture, verification/scoring, buyer delivery via API, and admin dashboard. Claude proposed starting with Step 1 (database schema design) and building incrementally with confirmation at each step. The person communicates casually in Roman Urdu mixed with English and prefers simple, plain-language explanations before technical depth.",
+  "model": "claude-sonnet-5",
+  "created_at": "2026-08-25T09:58:51.431582Z",
+  "updated_at": "2026-08-25T14:18:28.747656Z",
+  "settings": {
+    "enabled_web_search": true,
+    "enabled_monkeys_in_a_barrel": true,
+    "enabled_saffron": true,
+    "tool_search_mode": "auto",
+    "preview_feature_uses_artifacts": true,
+    "enabled_turmeric": true,
+    "thinking_mode": "auto",
+    "effort_level": "medium"
+  },
+  "is_starred": false,
+  "is_temporary": false,
+  "platform": "CLAUDE_AI",
+  "is_wiggle_enabled": true,
+  "effective_thinking_mode": "auto",
+  "current_leaf_message_uuid": "01a03949-1d4c-7071-a044-e973c2eb32a2",
+  "chat_messages": [
+    {
+      "uuid": "01a0385b-ba46-7778-8f77-b4a8dd84480d",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T09:58:52.623986Z",
+          "stop_timestamp": "2026-08-25T09:58:52.623986Z",
+          "type": "text",
+          "text": "bhai naya task mila hai internship mn yh dekh kr btao kia krna hai",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 0,
+      "created_at": "2026-08-25T09:58:52.624115Z",
+      "updated_at": "2026-08-25T09:58:52.624115Z",
+      "truncated": false,
+      "attachments": [
+        {
+          "id": "fad44b35-c7f7-42f1-b89c-4dc9eb4436ee",
+          "file_name": "intern-brief.md",
+          "file_size": 11949,
+          "file_type": "text/markdown",
+          "extracted_content": "# Intern Brief — Risen Results\n\n**Read this first. It takes ten minutes and it will save you a week.**\n\nLast updated: 2026-08-25 · Owner: Ibrahim Khan\n\n---\n\n## 1. What Risen Results is\n\nRisen Results is a **lead-generation business** with a technology platform behind it.\n\nThe short version: we run websites that ask visitors to fill in a form. Each\ncompleted form is a **lead** — a real person who wants something (a home\nimprovement quote, a paid clinical trial, a product). We check the lead is real,\nscore how good it is, and then sell or hand it to a **buyer** who wants to talk\nto that person. We get paid per lead, and sometimes again when the buyer closes\na sale.\n\nThe unusual part is that it is **one codebase serving many different brands**.\nWindowHound, RatedGutters, Med Trial Match, ReliefOlogist, Genetic Elements,\nClientCrates and others all run on the same software. Each brand has its own\ndomain, its own look, its own form questions, its own legal copy and its own\nbuyers — but underneath it is one system. When you write copy or design a funnel,\nyou are usually writing it for **one brand**, and the pattern gets reused across\nothers.\n\nThere is also an internal side — admin, buyer and client portals — but you will\nnot touch those. Your work is on the **public-facing funnel** and the **research\nthat decides what we build next**.\n\n---\n\n## 2. How the money actually works\n\nYou need this to understand why some of the tasks look pedantic. They are not.\n\n**Path 1 — we sell the lead.**\nVisitor lands → fills the form → we validate and score them → we deliver the lead\nto a buyer via an API call → the buyer pays us. If the buyer later closes a sale\nthey may send back a \"converted\" signal, which tells us that source was good.\n\n**Path 2 — someone else sent us the traffic (revshare).**\nA lot of our traffic comes from **affiliates** and third-party media buyers. They\nsend visitors to our pages with a tracking code stuck on the URL — a **subID**.\nSomething like:\n\n```\nhttps://windowhound.com/?sub1=facebook_grp3&sid2=creative_7&clickid=abc123\n```\n\nWhen that person converts, the affiliate is owed a share. Which affiliate gets\npaid is decided by **first touch** — whoever sent the person the *first* time\nowns them, even if they come back later through a different route. That is why\nour system deliberately keeps the subID of the *first* submission and rejects\nlater duplicates rather than the other way around.\n\n**If a subID is lost anywhere along the chain, someone does not get paid, or the\nwrong person gets paid.** There is no way to reconstruct it afterwards. This is\nthe single most fragile thing in the business, and it is why Lane C exists.\n\n**Path 3 — offer clicks.**\nOn some brands, after someone submits a form we show them a wall of relevant\noffers. When they click through and convert on the partner's site, we earn. Those\nclicks go through our own redirect first so we can record who clicked what.\n\n---\n\n## 3. The only number that matters right now\n\nOn **2026-08-20** leadership reset the priorities. The full recap is in\n`meeting-insights/2026-08-20-precision-risen-daily-standup.md`. The headline:\n\n> Conversion — not platform features — is now the whole job. Site traffic\n> converts at ~1% while warming campaigns are about to push real volume, so\n> every non-conversion project is paused for at least a week.\n\nThe numbers behind it:\n\n| Metric | Where it is | What it should be |\n|---|---|---|\n| Visit → lead conversion | **~1%** | Direct-response funnels in this space run 5–15% |\n| Email open rate | **56%** (good) | — |\n| Email click rate | **Unacceptably low** | This is the gap: they open, then do nothing |\n| Domain/IP warming ramp | 30–45 days to full volume | In progress now |\n\nTwo decisions from that meeting shape everything you do:\n\n> *\"Landing pages get an 'in-your-face' CTA as the first element seen.\"* —\n> because the audience responds to direct benefit copy, not polish.\n\n> *\"The Precision platform is good enough — stop polishing, start earning.\"*\n\n**What this means for you:** if your instinct is \"this page needs a nicer hero\nimage and more whitespace\", suppress it. The comps we are copying — **Good Labs,\nDay One Lab, Bright Fire** — are deliberately ugly and deliberately effective.\nBig blunt promise, form immediately, no scrolling required. Study them.\n\n---\n\n## 4. Who we are talking to\n\nFor Med Trial Match specifically, and broadly across brands: our visitors are\noften **people who need money or need medical help**. They are not sophisticated\nweb users. They are on a phone, possibly an old one, possibly on a slow\nconnection, and they are skimming.\n\nThat leads to hard rules for copy:\n\n- **Benefit first, in the first 5 words.** \"Earn up to $5,000\" beats \"Discover\n  paid research opportunities near you.\"\n- **Plain language.** No industry words. No cleverness. No puns.\n- **Say the number.** Dollar amounts, timeframes, \"takes 60 seconds\".\n- **Mobile is the design.** Desktop is the afterthought, not the other way round.\n- **One action per screen.** If there are two things to click, you have made it\n  worse.\n\n---\n\n## 5. Where you fit — the three lanes\n\n| Lane | Focus | Best fit | Priority |\n|---|---|---|---|\n| **A — Conversion & Copy** | Landing pages, CTAs, funnel variants, email bodies | Marketing-leaning | **1st** |\n| **B — Market & Tooling Research** | Competitor platforms, verification vendors, deliverability | Generalist | 2nd |\n| **C — Tracking & Data Specs** | SubID lifecycle, revenue reconciliation, API and provider specs | Dev-leaning | 3rd |\n\nWith **three interns**, take one lane each. With **two**, one person takes Lane A\nand the other runs B then C in sequence.\n\nYour actual assignments are in [intern-tasks.md](intern-tasks.md). Each task card\ntells you exactly what to produce and how we will judge whether it is done.\n\n---\n\n## 6. Ground rules\n\n**Access**\n\n- You do **not** get repository access. You are not writing code, and no task\n  requires it. Everything you produce is a document, a spreadsheet, a wireframe\n  or a copy deck.\n- You do **not** get production data access.\n- **Never work with real lead records.** Our lead rows contain real people's\n  email addresses and phone numbers. If someone sends you a data sample,\n  stop and tell Ibrahim. Where a task needs example data, **invent it** —\n  synthetic rows only.\n\n**Deliverables**\n\n- Everything goes in the shared drive, using the **exact filename** the task card\n  specifies. Ibrahim integrates your work by hand; consistent names are what make\n  that cheap instead of painful.\n- Markdown or Google Docs for prose. Google Sheets or CSV for anything tabular.\n- **Cite your sources.** A claim about a competitor's pricing without a link is\n  not usable — we cannot act on it.\n- **Say when you are unsure.** \"Vendor does not publish pricing; sales-gated\" is\n  a useful finding. A confident guess is not.\n\n**Working**\n\n- Weekly check-in with Ibrahim. Bring what you finished and what blocked you.\n- **Ask before expanding scope.** Every task card has a \"Don't do\" line. It is\n  there because that work is either already done, already assigned, or not worth\n  doing yet. Sticking to the box is the job.\n- If a task turns out to be wrong or impossible, say so early. That is a finding,\n  not a failure.\n\n---\n\n## 7. What already exists — do not re-specify this\n\nA lot more is built than you would guess. Specifying something that already ships\nis the most common way to waste a fortnight here. Check this table before you\nstart, and ask if you are unsure.\n\n| Thing | Status | Notes |\n|---|---|---|\n| Capturing subIDs off the URL and storing them on the lead | ✅ **Built** | Handles ~15 parameter naming conventions today |\n| First-touch duplicate handling that protects subID credit | ✅ **Built** | The kept lead keeps the credit |\n| DNC / TCPA-litigator phone scrubbing (Blacklist Alliance) | ✅ **Built and live** | Fails closed — holds the lead if the check is unreachable |\n| TrustedForm certificate verification (ActiveProspect) | ✅ **Built and live** | |\n| A/B test engine — split traffic across funnel variants, with a holdback | ✅ **Built** | The plumbing exists; what is missing is the *content* of the variants |\n| Step-by-step funnel tracking, including abandonment | ✅ **Built** | We can already see which step people quit on |\n| First-party click tracking on offers and partner links | ✅ **Built** | |\n| Buyer postbacks — buyers telling us a lead sold/converted | ✅ **Built** | Signed, and it carries a price field |\n| Reporting on which traffic source produces revenue | ✅ **Built** | |\n| Email sending across SendGrid / Resend / SES, with open and click tracking | ✅ **Built** | |\n| Everflow connection | 🟡 **Partial** | We pull the offer catalogue and generate tracking links. We do **not** pull conversions back. → Task C3 |\n| Email / phone / IP verification providers | 🟡 **Registered, not working** | 33 providers are wired into the settings screen but the actual API calls are empty placeholders. → Task C4 |\n| Tracking an anonymous click *before* a form is submitted | ❌ **Missing** | Today attribution starts at the lead |\n| A conversions/revenue table, and uploading revenue by hand | ❌ **Missing** | → Task C2 |\n| Inbox-placement / seed-list deliverability tooling | ❌ **Missing** | → Task B3 |\n\n---\n\n## 8. Glossary\n\n| Term | Meaning |\n|---|---|\n| **Brand** | One white-label site on its own domain (WindowHound, Med Trial Match…). Has its own theme, form questions, legal copy and buyers. |\n| **Vertical / sub-vertical** | The category tree above a brand. Vertical = broad (home improvement), sub-vertical = specific (window replacement). A brand's form questions are inherited from these. |\n| **Lead** | One submitted form = one real person who wants something. The product we sell. |\n| **Buyer** | The company that buys leads from us. |\n| **Funnel** | The path from landing on a page to submitting the form. Usually multi-step. |\n| **CTA** | Call to action — the button or form we want the visitor to engage with. |\n| **SubID** | A tracking code on the URL identifying which affiliate/campaign/creative sent this visitor. Written as `sub1`, `sid2`, `clickid`, `aff_sub3` and about a dozen other spellings depending on the network. |\n| **First-touch attribution** | The rule that the *first* source to send a person owns them for revshare, even if they come back via another route later. |\n| **Postback** | A server-to-server HTTP call reporting that something happened — e.g. an advertiser telling us \"that lead converted, here is the revenue\". The alternative to a tracking pixel. |\n| **Pixel** | A tracking image/script fired in the browser to report a conversion. Less reliable than a postback; some advertisers use neither, which is why manual revenue upload matters. |\n| **Scrub** | Compliance checks run before we contact or sell a lead — is this number on a Do-Not-Call list, is it a known TCPA litigator. |\n| **Enrichment** | Adding data we were not given: is this email deliverable, is this phone a mobile or a VoIP number, is this IP a proxy. Feeds the lead score. |\n| **Scoring** | Rating lead quality so we route the good ones to the buyers who pay most. |\n| **Warming** | Slowly ramping email volume on a new domain/IP over 30–45 days so mailbox providers trust you. Send too much too fast and you land in spam permanently. |\n| **10DLC** | US carrier registration required to send business SMS. Without it, texts get blocked. |\n| **TrustedForm** | An ActiveProspect product that produces a certificate proving a person really did consent on a real form. Legal protection. |\n| **Everflow** | The affiliate-tracking network we benchmark against and partly integrate with. |\n| **Precision** | Our email/marketing distribution product. |\n\n---\n\n## 9. Questions\n\nAsk Ibrahim. A question on Monday is cheaper than a wrong deliverable on Friday.\n",
+          "created_at": "2026-08-25T09:58:52.586126Z"
+        }
+      ],
+      "files": [
+        {
+          "success": true,
+          "path": "/mnt/user-data/uploads/intern-tasks.md",
+          "file_kind": "blob",
+          "file_uuid": "6c34b372-5cd3-4e0a-86e0-93b05b4cab11",
+          "file_name": "intern-tasks.md",
+          "created_at": "2026-08-25T09:58:27.890643Z",
+          "size_bytes": 25734,
+          "uuid": "6c34b372-5cd3-4e0a-86e0-93b05b4cab11"
+        },
+        {
+          "success": true,
+          "file_kind": "image",
+          "file_uuid": "b83463eb-893c-4762-ad5e-cdf60499a431",
+          "file_name": "1787651910135_image.png",
+          "created_at": "2026-08-25T09:58:31.488195Z",
+          "thumbnail_url": "/api/d8ae3db0-d030-4c31-b01d-48eef998a599/files/b83463eb-893c-4762-ad5e-cdf60499a431/thumbnail",
+          "preview_url": "/api/d8ae3db0-d030-4c31-b01d-48eef998a599/files/b83463eb-893c-4762-ad5e-cdf60499a431/preview",
+          "thumbnail_asset": {
+            "url": "/api/d8ae3db0-d030-4c31-b01d-48eef998a599/files/b83463eb-893c-4762-ad5e-cdf60499a431/thumbnail",
+            "file_variant": "thumbnail",
+            "primary_color": "0a0c0d",
+            "image_width": 400,
+            "image_height": 253
+          },
+          "preview_asset": {
+            "url": "/api/d8ae3db0-d030-4c31-b01d-48eef998a599/files/b83463eb-893c-4762-ad5e-cdf60499a431/preview",
+            "file_variant": "preview",
+            "primary_color": "0a0c0d",
+            "image_width": 446,
+            "image_height": 282
+          },
+          "uuid": "b83463eb-893c-4762-ad5e-cdf60499a431"
+        }
+      ],
+      "sync_sources": [],
+      "parent_message_uuid": "00000000-0000-4000-8000-000000000000"
+    },
+    {
+      "uuid": "01a0385b-ba47-71c2-a829-a2302233a12b",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T09:58:52.472324Z",
+          "stop_timestamp": "2026-08-25T09:58:56.872753Z",
+          "type": "thinking",
+          "thinking": "",
+          "summaries": [
+            {
+              "summary": "Identified missing document to locate task details."
+            }
+          ],
+          "cut_off": false,
+          "truncated": true,
+          "hidden": false,
+          "thinking_hidden": true
+        },
+        {
+          "start_timestamp": "2026-08-25T09:58:56.873255Z",
+          "stop_timestamp": "2026-08-25T09:58:57.600717Z",
+          "type": "tool_use",
+          "id": "toolu_01PdYdU51Hft4jiKS3Bo5a34",
+          "name": "view",
+          "input": {
+            "path": "/mnt/user-data/uploads/intern-tasks.md",
+            "description": "Reading the intern tasks file for Risen Results internship"
+          },
+          "message": "Reading the intern tasks file for Risen Results internship",
+          "integration_name": "File Creation",
+          "icon_name": "bookText",
+          "display_content": {
+            "type": "text",
+            "text": "Reading the intern tasks file for Risen Results internship"
+          },
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T09:58:59.547759Z",
+          "stop_timestamp": "2026-08-25T09:58:59.547784Z",
+          "type": "tool_result",
+          "tool_use_id": "toolu_01PdYdU51Hft4jiKS3Bo5a34",
+          "name": "view",
+          "content": [
+            {
+              "type": "text",
+              "text": "     1\t# Intern Task Cards\n     2\t\n     3\tRead [intern-brief.md](intern-brief.md) first — it explains the business and the\n     4\tground rules. This file is just the work.\n     5\t\n     6\tLast updated: 2026-08-25 · Owner: Ibrahim Khan\n     7\t\n     8\t---\n     9\t\n    10\t## How to read a card\n    11\t\n    12\tEvery card has the same seven lines:\n    13\t\n    14\t- **Goal** — what you are producing, in one sentence.\n    15\t- **Why it matters** — the business reason, tied to a real number.\n    16\t- **Steps** — the route. Follow it; deviate only after asking.\n    17\t- **Deliverable** — the exact filename and format. Use it verbatim.\n    18\t- **Done when** — the checklist Ibrahim reviews against.\n    19\t- **Time box** — if you are past this, stop and raise it.\n    20\t- **Don't do** — the scope guard. Everything listed is either already built,\n    21\t  already assigned, or deliberately deferred.\n    22\t\n    23\t**Nothing here requires writing code or touching production data.**\n    24\t\n    25\t---\n    26\t\n    27\t## Assignment and sequencing\n    28\t\n    29\t| Lane | Owner | Tasks |\n    30\t|---|---|---|\n    31\t| **A — Conversion & Copy** | Marketing-leaning intern | A1, A2, A3 |\n    32\t| **B — Market & Tooling Research** | Generalist intern | B1, B2, B3 |\n    33\t| **C — Tracking & Data Specs** | Dev-leaning intern | C1, C2, C3, C4 |\n    34\t\n    35\t**Schedule**\n    36\t\n    37\t| When | Tasks in flight |\n    38\t|---|---|\n    39\t| Week 1–2 | **A1**, **A2**, **B1** |\n    40\t| Week 3–4 | **A3**, **B2**, **B3**, **C1** |\n    41\t| Week 5+ | **C2**, **C3**, **C4** |\n    42\t\n    43\tWith only two interns: one takes Lane A, the other runs Lane B first and then\n    44\tLane C. Lane C slips rather than running in parallel — Lane A is the priority\n    45\tunder the 2026-08-20 reset and does not slip.\n    46\t\n    47\t---\n    48\t\n    49\t# Lane A — Conversion & Copy\n    50\t\n    51\t> Priority 1. Visit → lead conversion is ~1%. This lane is the direct attack on\n    52\t> that number, and it is what leadership is asking about in standups.\n    53\t\n    54\t## A1 — Landing page teardown → copy deck\n    55\t\n    56\t**Goal**\n    57\tProduce the copy and above-the-fold layout for a rebuilt landing page, modelled\n    58\ton the direct-response sites that actually convert in this space.\n    59\t\n    60\t**Why it matters**\n    61\t~1% of visitors become leads. Leadership decided on 2026-08-20 that the fix is an\n    62\taggressive, immediately-visible CTA — this deck is the raw material for that\n    63\trebuild, which is currently blocked on copy.\n    64\t\n    65\t**Steps**\n    66\t1. Tear down six direct-response comps. Three are mandatory: **Good Labs**,\n    67\t   **Day One Lab**, **Bright Fire**. Pick three more in lead-gen, paid trials, or\n    68\t   home services. For each, screenshot the mobile view above the fold and note:\n    69\t   the promise in the headline, how many words before the form, how many fields\n    70\t   are visible without scrolling, what the button says, and what proof elements\n    71\t   (badges, counts, testimonials) appear and where.\n    72\t2. Write down the pattern the six share. This is the deliverable's spine — if all\n    73\t   six put the form above the fold on mobile, that is a rule, not an option.\n    74\t3. For each of our three brand types (home improvement e.g. WindowHound; paid\n    75\t   clinical trials e.g. Med Trial Match; health/product e.g. ReliefOlogist),\n    76\t   write **5 headline variants × 2 sub-headline angles × 3 CTA button labels**.\n    77\t4. One of the trial headlines must use Jeff and Matt's angle: **\"earn up to\n    78\t   $5,000\"**. Build variations around a concrete dollar figure.\n    79\t5. Draw the mobile above-the-fold layout you are recommending. An annotated\n    80\t   screenshot, a Figma frame or a labelled box sketch are all fine — the point is\n    81\t   the stacking order and what is visible without scrolling, not the visual\n    82\t   design.\n    83\t6. Rank your variants. Say which single headline + CTA pair you would ship first\n    84\t   and why.\n    85\t\n    86\t**Deliverable**\n    87\t`A1-landing-copy-deck.md` (or Google Doc) + `A1-comp-screenshots/` folder.\n    88\t\n    89\t**Done when**\n    90\t- [ ] Six comps torn down, each with a mobile screenshot and the five noted attributes\n    91\t- [ ] A written \"what they all do\" pattern list\n    92\t- [ ] 30 headlines, 12 sub-headlines, 9 CTA labels across the three brand types\n    93\t- [ ] At least one variant built on a concrete dollar figure\n    94\t- [ ] One mobile above-the-fold layout recommendation\n    95\t- [ ] A ranked #1 pick with a stated reason\n    96\t\n    97\t**Time box** — 6 working days\n    98\t\n    99\t**Don't do**\n   100\tDo not design a full page, pick fonts, or produce brand visuals. Do not write\n   101\tcopy for the pages *below* the fold yet. We need the top of the page settled first.\n   102\t\n   103\t---\n   104\t\n   105\t## A2 — Funnel A/B variant plan\n   106\t\n   107\t**Goal**\n   108\tSpecify two complete, competing multi-step funnels — field by field — so they can\n   109\tbe built as `/funnel-a` and `/funnel-b` and split-tested against each other.\n   110\t\n   111\t**Why it matters**\n   112\tThe A/B engine, traffic splitting, holdback and per-step abandonment tracking are\n   113\t**already built**. The only thing missing is the content of the two variants.\n   114\tThis card unblocks a test that can start the week it lands.\n   115\t\n   116\t**Steps**\n   117\t1. Pick one brand to test on. Med Trial Match is the likely candidate — confirm\n   118\t   with Ibrahim before starting.\n   119\t2. Write down the current funnel as-is: every step, every field, exact question\n   120\t   wording. Ibrahim will give you access to the live page to work from.\n   121\t3. Design **Variant A** and **Variant B** around *opposing hypotheses*, not\n   122\t   cosmetic differences. Examples of a real opposition: few long steps vs. many\n   123\t   short ones; ask for contact details first vs. last; qualifying questions\n   124\t   before the reward is stated vs. after.\n   125\t4. For each variant specify, per step: the step's question(s), the exact wording,\n   126\t   field type (text / choice / date / phone…), whether it is required, the\n   127\t   button label, and any helper text.\n   128\t5. State the hypothesis for each variant in one sentence — \"B will beat A because…\".\n   129\t6. State the **decision metric** and the stopping rule: which number decides the\n   130\t   winner (submitted leads per visitor, most likely), and roughly how many\n   131\t   visitors per arm before we call it.\n   132\t\n   133\t**Deliverable**\n   134\t`A2-funnel-variants.md` with a step-by-step table per variant.\n   135\t\n   136\t**Done when**\n   137\t- [ ] Current funnel documented as a baseline\n   138\t- [ ] Two variants specified field-by-field, with exact user-facing wording\n   139\t- [ ] Hypotheses stated and genuinely opposed\n   140\t- [ ] Decision metric and rough sample size stated\n   141\t- [ ] Both variants are buildable from the doc alone — no \"and then some\n   142\t      qualifying questions\" hand-waving\n   143\t\n   144\t**Time box** — 4 working days\n   145\t\n   146\t**Don't do**\n   147\tDo not design the tracking, the URL structure, or the traffic split — all built.\n   148\tDo not specify more than two variants; a three-way test needs traffic we do not\n   149\thave yet.\n   150\t\n   151\t---\n   152\t\n   153\t## A3 — Email click-rate rescue\n   154\t\n   155\t**Goal**\n   156\tRewrite our campaign email bodies so that the 56% of people who open them\n   157\tactually click.\n   158\t\n   159\t**Why it matters**\n   160\tA 56% open rate is strong. The click rate is described as unacceptable. That\n   161\tcombination is diagnostic: **the subject lines are working and the bodies are\n   162\tnot.** With warming ramping volume over the next 30–45 days, fixing the body now\n   163\tmultiplies across every future send.\n   164\t\n   165\t**Steps**\n   166\t1. Get the current campaign emails from Ibrahim. For each, note: length, number\n   167\t   of distinct links, where the first link sits, whether the CTA is a button or\n   168\t   inline text, and what the reader is actually being asked to do.\n   169\t2. Diagnose. The usual killers are: too many competing links, the CTA below the\n   170\t   fold on mobile, a vague ask (\"learn more\"), and a body that re-sells rather\n   171\t   than closing what the subject line already sold.\n   172\t3. Rewrite **10 email bodies**. Hard constraints: one dominant CTA per email,\n   173\t   that CTA visible without scrolling on a phone, benefit restated in the first\n   174\t   line, under 150 words unless you can justify longer.\n   175\t4. Write a **link-placement rubric** — a half-page of rules any future email must\n   176\t   follow. Number of links, placement, button vs. text, what the label may and\n   177\t   may not say.\n   178\t5. Recommend send times and days, with a source. Note explicitly if this is\n\t< truncated lines 179-406 >\n   407\t## C2 — Manual revenue reconciliation template\n   408\t\n   409\t**Goal**\n   410\tDefine the spreadsheet format and matching rules for uploading conversion revenue\n   411\tfrom advertisers who do not fire a pixel or postback.\n   412\t\n   413\t**Why it matters**\n   414\tSome advertisers simply email a spreadsheet of conversions at month end. Today we\n   415\thave no defined way to take that money and attribute it back to the affiliate who\n   416\tearned it. This spec is what makes that possible.\n   417\t\n   418\t**Steps**\n   419\t1. Define the CSV columns an advertiser upload must contain. Think about: what\n   420\t   identifies the person or click, when it happened, how much it is worth,\n   421\t   currency, the advertiser's own reference, and the conversion type. Mark each\n   422\t   column required or optional.\n   423\t2. Define the **match key precedence** — the order we try to attach a row to\n   424\t   something we already know. Suggested starting ladder, refine it: subID →\n   425\t   our click ID → hashed email → phone → date + campaign bucket. Say what\n   426\t   confidence level each match carries.\n   427\t3. Define **duplicate handling**. The same advertiser re-uploading last month's\n   428\t   file must not double-count revenue. Specify what makes two rows the same row.\n   429\t4. Define **unmatched-row behaviour**. A row matching nothing is not an error —\n   430\t   per the ticket, revenue tracks to the closest parent bucket available. Say\n   431\t   what that means concretely and how it appears in reporting.\n   432\t5. Cover the edge cases: refunds and negative amounts, non-USD currency,\n   433\t   conversions dated before the click, partial payouts, an advertiser correcting\n   434\t   a prior file.\n   435\t6. Produce **20 rows of synthetic sample data** demonstrating a clean subID\n   436\t   match, a fallback match, a duplicate, an unmatched row, and a refund.\n   437\t   **Invent every value — no real data.**\n   438\t\n   439\t**Deliverable**\n   440\t`C2-revenue-upload-spec.md` + `C2-sample-upload.csv`\n   441\t\n   442\t**Done when**\n   443\t- [ ] Column spec complete, each marked required/optional with format and example\n   444\t- [ ] Match precedence ladder with a confidence level per rung\n   445\t- [ ] Duplicate rule defined precisely enough to implement\n   446\t- [ ] Unmatched-row behaviour defined\n   447\t- [ ] All six edge cases addressed\n   448\t- [ ] 20 synthetic rows covering the five listed scenarios\n   449\t\n   450\t**Time box** — 4 working days\n   451\t\n   452\t**Don't do**\n   453\tDo not design the upload UI or the database schema. Do not use any real\n   454\tadvertiser file, even redacted.\n   455\t\n   456\t---\n   457\t\n   458\t## C3 — Everflow API endpoint map\n   459\t\n   460\t**Goal**\n   461\tDocument Everflow's conversion and reporting API well enough that a developer can\n   462\tbuild a scheduled conversion pull without reopening Everflow's docs.\n   463\t\n   464\t**Why it matters**\n   465\tEverflow is the benchmark for the attribution system we want. We already talk to\n   466\ttheir API — but only to pull the offer catalogue and generate tracking links. We\n   467\thave never pulled conversions back, which is the half that produces revenue data.\n   468\t\n   469\t**Steps**\n   470\t1. Work through Everflow's public API documentation. Note what we already use:\n   471\t   the paged offers catalogue endpoint, the single-offer detail fetch, and the\n   472\t   click tracking-link generation endpoint, all authenticated with an\n   473\t   `X-Eflow-API-Key` header against `api.eflow.team/v1/`.\n   474\t2. Map the **conversion** endpoints: how conversions are reported into Everflow,\n   475\t   how they are queried back out, what filters and date ranges are supported,\n   476\t   and what one conversion record actually contains field by field.\n   477\t3. Map the **reporting** endpoints: what aggregate reports exist, what dimensions\n   478\t   you can group by, and what the response looks like.\n   479\t4. Document the **postback URL macros** — the `{transaction_id}`-style tokens\n   480\t   Everflow substitutes when calling a partner's postback URL. List every macro\n   481\t   with its meaning. This is the vocabulary our own postback endpoint has to\n   482\t   speak.\n   483\t5. Document **authentication, rate limits and paging**. Note the published\n   484\t   request-per-second cap and how paging is signalled in responses. (We currently\n   485\t   self-throttle below their cap — confirm the cap and note if it has changed.)\n   486\t6. Answer the practical question in writing: **to pull yesterday's conversions on\n   487\t   a schedule, exactly which endpoint would we call, with what parameters, and\n   488\t   what comes back?** Include a worked example request and response.\n   489\t\n   490\t**Deliverable**\n   491\t`C3-everflow-api-map.md`\n   492\t\n   493\t**Done when**\n   494\t- [ ] Conversion endpoints documented with full request/response field lists\n   495\t- [ ] Reporting endpoints documented with available dimensions\n   496\t- [ ] Complete postback macro list\n   497\t- [ ] Auth, rate limits and paging documented\n   498\t- [ ] A worked \"pull yesterday's conversions\" example, request and response\n   499\t- [ ] Every endpoint has a link to the source doc page\n   500\t\n   501\t**Time box** — 4 working days\n   502\t\n   503\t**Don't do**\n   504\tDo not call the live API — we do not hand out API keys, and the account is\n   505\tIP-restricted. This is documentation research. Do not design our own conversion\n   506\tschema; that is C1 and C2.\n   507\t\n   508\t---\n   509\t\n   510\t## C4 — Enrichment provider spec sheets\n   511\t\n   512\t**Goal**\n   513\tWrite an implementation-ready spec sheet for each verification provider, so a\n   514\tdeveloper can write the integration from the sheet alone.\n   515\t\n   516\t**Why it matters**\n   517\tThirty-three providers are already wired into our settings screen, but every one\n   518\tof the actual API calls is an empty placeholder that throws \"not implemented\".\n   519\tEnrichment is what tells us whether an email is real and whether a phone number is\n   520\ta mobile — which drives lead score, which drives what buyers pay. This card\n   521\tconverts the ticket \"implement lead enrichment\" from a research problem into a\n   522\ttyping problem.\n   523\t\n   524\t**Steps**\n   525\t1. Write one sheet for each of: **ZeroBounce**, **NeverBounce**, **Kickbox**\n   526\t   (email verification); **Twilio Lookup**, **IPQS** (phone); **ipinfo** (IP).\n   527\t2. Each sheet must contain: authentication method (header name, key format);\n   528\t   the exact request — URL, method, every parameter; the **exact response JSON**,\n   529\t   copied from their docs, with every field explained; error responses and what\n   530\t   each status code means; rate limits; and cost per call at volume.\n   531\t3. Then the important part — the **field mapping**. Our scoring system reads a\n   532\t   fixed set of normalised fields regardless of which provider produced them:\n   533\t\n   534\t   | Our field | Type | Meaning |\n   535\t   |---|---|---|\n   536\t   | `email_deliverable` | true/false | Will mail to this address actually arrive |\n   537\t   | `email_catchall` | true/false | Domain accepts everything, so we cannot really tell |\n   538\t   | `phone_line_type` | `mobile` / `landline` / `voip` / `tollfree` / `unknown` | |\n   539\t   | `ip_country` | 2-letter code or null | |\n   540\t   | `ip_is_proxy` | true/false | VPN, proxy or datacentre IP |\n   541\t\n   542\t   For each provider, state **exactly which response field maps to which of ours,\n   543\t   and how the values translate**. Provider status strings vary — ZeroBounce\n   544\t   returns things like `valid` / `invalid` / `catch-all`, others use different\n   545\t   vocabularies. Write the translation table explicitly, including what an\n   546\t   unrecognised value should map to.\n   547\t4. Note the **latency** of each provider. Anything slower than ~2.5 seconds\n   548\t   cannot run inside a live form submission and would have to run afterwards.\n   549\t   Flag which providers fall on which side of that line.\n   550\t5. Recommend one provider per category — email, phone, IP — with a stated reason.\n   551\t   Cost, accuracy and latency are the three axes.\n   552\t\n   553\t**Deliverable**\n   554\t`C4-enrichment-specs.md` — one clearly separated section per provider.\n   555\t\n   556\t**Done when**\n   557\t- [ ] Six sheets, each with auth, exact request, exact response, errors, rate\n   558\t      limits and cost\n   559\t- [ ] A field-mapping table per provider covering all five of our normalised fields\n   560\t- [ ] Value-translation table per provider, including the unrecognised-value case\n   561\t- [ ] Latency noted, with the ~2.5s threshold applied\n   562\t- [ ] One recommendation per category with a reason\n   563\t- [ ] A developer could write the integration from your sheet without opening the\n   564\t      vendor's docs — test this by reading it back cold\n   565\t\n   566\t**Time box** — 6 working days\n   567\t\n   568\t**Don't do**\n   569\tDo not write code or pseudocode. Do not spec the other 27 registered providers —\n   570\tthese six are the ones that matter now. Do not sign up for paid plans.\n   571\t\n   572\t---\n   573\t\n   574\t## Ticket coverage\n   575\t\n   576\tFor Ibrahim's reference — how these cards map back to the tickets they serve.\n   577\t\n   578\t| Ticket | Covered by |\n   579\t|---|---|\n   580\t| **CG-3386** — research email/lead management and verification tools | B1, B2, B3 |\n   581\t| **SubID conversion lifecycle tracking** | C1, C2 |\n   582\t| **Implement lead enrichment from pipeline findings** | C4 |\n   583\t| **Everflow API investigation** | C3 |\n   584\t| **2026-08-20 conversion reset** (standing priority) | A1, A2, A3 |\n   585\t",
+              "uuid": "cf446935-4fa6-4342-9e42-eb4940b4857c"
+            }
+          ],
+          "is_error": false,
+          "meta": {
+            "output_format_category": "md"
+          },
+          "integration_name": "File Creation",
+          "icon_name": "bookText",
+          "display_content": {
+            "type": "json_block",
+            "json_block": "{\"language\": \"markdown\", \"code\": \"# Intern Task Cards\\n\\nRead [intern-brief.md](intern-brief.md) first \\u2014 it explains the business and the\\nground rules. This file is just the work.\\n\\nLast updated: 2026-08-25 \\u00b7 Owner: Ibrahim Khan\\n\\n---\\n\\n## How to read a card\\n\\nEvery card has the same seven lines:\\n\\n- **Goal** \\u2014 what you are producing, in one sentence.\\n- **Why it matters** \\u2014 the business reason, tied to a real number.\\n- **Steps** \\u2014 the route. Follow it; deviate only after asking.\\n- **Deliverable** \\u2014 the exact filename and format. Use it verbatim.\\n- **Done when** \\u2014 the checklist Ibrahim reviews against.\\n- **Time box** \\u2014 if you are past this, stop and raise it.\\n- **Don't do** \\u2014 the scope guard. Everything listed is either already built,\\n  already assigned, or deliberately deferred.\\n\\n**Nothing here requires writing code or touching production data.**\\n\\n---\\n\\n## Assignment and sequencing\\n\\n| Lane | Owner | Tasks |\\n|---|---|---|\\n| **A \\u2014 Conversion & Copy** | Marketing-leaning intern | A1, A2, A3 |\\n| **B \\u2014 Market & Tooling Research** | Generalist intern | B1, B2, B3 |\\n| **C \\u2014 Tracking & Data Specs** | Dev-leaning intern | C1, C2, C3, C4 |\\n\\n**Schedule**\\n\\n| When | Tasks in flight |\\n|---|---|\\n| Week 1\\u20132 | **A1**, **A2**, **B1** |\\n| Week 3\\u20134 | **A3**, **B2**, **B3**, **C1** |\\n| Week 5+ | **C2**, **C3**, **C4** |\\n\\nWith only two interns: one takes Lane A, the other runs Lane B first and then\\nLane C. Lane C slips rather than running in parallel \\u2014 Lane A is the priority\\nunder the 2026-08-20 reset and does not slip.\\n\\n---\\n\\n# Lane A \\u2014 Conversion & Copy\\n\\n> Priority 1. Visit \\u2192 lead conversion is ~1%. This lane is the direct attack on\\n> that number, and it is what leadership is asking about in standups.\\n\\n## A1 \\u2014 Landing page teardown \\u2192 copy deck\\n\\n**Goal**\\nProduce the copy and above-the-fold layout for a rebuilt landing page, modelled\\non the direct-response sites that actually convert in this space.\\n\\n**Why it matters**\\n~1% of visitors become leads. Leadership decided on 2026-08-20 that the fix is an\\naggressive, immediately-visible CTA \\u2014 this deck is the raw material for that\\nrebuild, which is currently blocked on copy.\\n\\n**Steps**\\n1. Tear down six direct-response comps. Three are mandatory: **Good Labs**,\\n   **Day One Lab**, **Bright Fire**. Pick three more in lead-gen, paid trials, or\\n   home services. For each, screenshot the mobile view above the fold and note:\\n   the promise in the headline, how many words before the form, how many fields\\n   are visible without scrolling, what the button says, and what proof elements\\n   (badges, counts, testimonials) appear and where.\\n2. Write down the pattern the six share. This is the deliverable's spine \\u2014 if all\\n   six put the form above the fold on mobile, that is a rule, not an option.\\n3. For each of our three brand types (home improvement e.g. WindowHound; paid\\n   clinical trials e.g. Med Trial Match; health/product e.g. ReliefOlogist),\\n   write **5 headline variants \\u00d7 2 sub-headline angles \\u00d7 3 CTA button labels**.\\n4. One of the trial headlines must use Jeff and Matt's angle: **\\\"earn up to\\n   $5,000\\\"**. Build variations around a concrete dollar figure.\\n5. Draw the mobile above-the-fold layout you are recommending. An annotated\\n   screenshot, a Figma frame or a labelled box sketch are all fine \\u2014 the point is\\n   the stacking order and what is visible without scrolling, not the visual\\n   design.\\n6. Rank your variants. Say which single headline + CTA pair you would ship first\\n   and why.\\n\\n**Deliverable**\\n`A1-landing-copy-deck.md` (or Google Doc) + `A1-comp-screenshots/` folder.\\n\\n**Done when**\\n- [ ] Six comps torn down, each with a mobile screenshot and the five noted attributes\\n- [ ] A written \\\"what they all do\\\" pattern list\\n- [ ] 30 headlines, 12 sub-headlines, 9 CTA labels across the three brand types\\n- [ ] At least one variant built on a concrete dollar figure\\n- [ ] One mobile above-the-fold layout recommendation\\n- [ ] A ranked #1 pick with a stated reason\\n\\n**Time box** \\u2014 6 working days\\n\\n**Don't do**\\nDo not design a full page, pick fonts, or produce brand visuals. Do not write\\ncopy for the pages *below* the fold yet. We need the top of the page settled first.\\n\\n---\\n\\n## A2 \\u2014 Funnel A/B variant plan\\n\\n**Goal**\\nSpecify two complete, competing multi-step funnels \\u2014 field by field \\u2014 so they can\\nbe built as `/funnel-a` and `/funnel-b` and split-tested against each other.\\n\\n**Why it matters**\\nThe A/B engine, traffic splitting, holdback and per-step abandonment tracking are\\n**already built**. The only thing missing is the content of the two variants.\\nThis card unblocks a test that can start the week it lands.\\n\\n**Steps**\\n1. Pick one brand to test on. Med Trial Match is the likely candidate \\u2014 confirm\\n   with Ibrahim before starting.\\n2. Write down the current funnel as-is: every step, every field, exact question\\n   wording. Ibrahim will give you access to the live page to work from.\\n3. Design **Variant A** and **Variant B** around *opposing hypotheses*, not\\n   cosmetic differences. Examples of a real opposition: few long steps vs. many\\n   short ones; ask for contact details first vs. last; qualifying questions\\n   before the reward is stated vs. after.\\n4. For each variant specify, per step: the step's question(s), the exact wording,\\n   field type (text / choice / date / phone\\u2026), whether it is required, the\\n   button label, and any helper text.\\n5. State the hypothesis for each variant in one sentence \\u2014 \\\"B will beat A because\\u2026\\\".\\n6. State the **decision metric** and the stopping rule: which number decides the\\n   winner (submitted leads per visitor, most likely), and roughly how many\\n   visitors per arm before we call it.\\n\\n**Deliverable**\\n`A2-funnel-variants.md` with a step-by-step table per variant.\\n\\n**Done when**\\n- [ ] Current funnel documented as a baseline\\n- [ ] Two variants specified field-by-field, with exact user-facing wording\\n- [ ] Hypotheses stated and genuinely opposed\\n- [ ] Decision metric and rough sample size stated\\n- [ ] Both variants are buildable from the doc alone \\u2014 no \\\"and then some\\n      qualifying questions\\\" hand-waving\\n\\n**Time box** \\u2014 4 working days\\n\\n**Don't do**\\nDo not design the tracking, the URL structure, or the traffic split \\u2014 all built.\\nDo not specify more than two variants; a three-way test needs traffic we do not\\nhave yet.\\n\\n---\\n\\n## A3 \\u2014 Email click-rate rescue\\n\\n**Goal**\\nRewrite our campaign email bodies so that the 56% of people who open them\\nactually click.\\n\\n**Why it matters**\\nA 56% open rate is strong. The click rate is described as unacceptable. That\\ncombination is diagnostic: **the subject lines are working and the bodies are\\nnot.** With warming ramping volume over the next 30\\u201345 days, fixing the body now\\nmultiplies across every future send.\\n\\n**Steps**\\n1. Get the current campaign emails from Ibrahim. For each, note: length, number\\n   of distinct links, where the first link sits, whether the CTA is a button or\\n   inline text, and what the reader is actually being asked to do.\\n2. Diagnose. The usual killers are: too many competing links, the CTA below the\\n   fold on mobile, a vague ask (\\\"learn more\\\"), and a body that re-sells rather\\n   than closing what the subject line already sold.\\n3. Rewrite **10 email bodies**. Hard constraints: one dominant CTA per email,\\n   that CTA visible without scrolling on a phone, benefit restated in the first\\n   line, under 150 words unless you can justify longer.\\n4. Write a **link-placement rubric** \\u2014 a half-page of rules any future email must\\n   follow. Number of links, placement, button vs. text, what the label may and\\n   may not say.\\n5. Recommend send times and days, with a source. Note explicitly if this is\\n< truncated lines 179-406 >\\n## C2 \\u2014 Manual revenue reconciliation template\\n\\n**Goal**\\nDefine the spreadsheet format and matching rules for uploading conversion revenue\\nfrom advertisers who do not fire a pixel or postback.\\n\\n**Why it matters**\\nSome advertisers simply email a spreadsheet of conversions at month end. Today we\\nhave no defined way to take that money and attribute it back to the affiliate who\\nearned it. This spec is what makes that possible.\\n\\n**Steps**\\n1. Define the CSV columns an advertiser upload must contain. Think about: what\\n   identifies the person or click, when it happened, how much it is worth,\\n   currency, the advertiser's own reference, and the conversion type. Mark each\\n   column required or optional.\\n2. Define the **match key precedence** \\u2014 the order we try to attach a row to\\n   something we already know. Suggested starting ladder, refine it: subID \\u2192\\n   our click ID \\u2192 hashed email \\u2192 phone \\u2192 date + campaign bucket. Say what\\n   confidence level each match carries.\\n3. Define **duplicate handling**. The same advertiser re-uploading last month's\\n   file must not double-count revenue. Specify what makes two rows the same row.\\n4. Define **unmatched-row behaviour**. A row matching nothing is not an error \\u2014\\n   per the ticket, revenue tracks to the closest parent bucket available. Say\\n   what that means concretely and how it appears in reporting.\\n5. Cover the edge cases: refunds and negative amounts, non-USD currency,\\n   conversions dated before the click, partial payouts, an advertiser correcting\\n   a prior file.\\n6. Produce **20 rows of synthetic sample data** demonstrating a clean subID\\n   match, a fallback match, a duplicate, an unmatched row, and a refund.\\n   **Invent every value \\u2014 no real data.**\\n\\n**Deliverable**\\n`C2-revenue-upload-spec.md` + `C2-sample-upload.csv`\\n\\n**Done when**\\n- [ ] Column spec complete, each marked required/optional with format and example\\n- [ ] Match precedence ladder with a confidence level per rung\\n- [ ] Duplicate rule defined precisely enough to implement\\n- [ ] Unmatched-row behaviour defined\\n- [ ] All six edge cases addressed\\n- [ ] 20 synthetic rows covering the five listed scenarios\\n\\n**Time box** \\u2014 4 working days\\n\\n**Don't do**\\nDo not design the upload UI or the database schema. Do not use any real\\nadvertiser file, even redacted.\\n\\n---\\n\\n## C3 \\u2014 Everflow API endpoint map\\n\\n**Goal**\\nDocument Everflow's conversion and reporting API well enough that a developer can\\nbuild a scheduled conversion pull without reopening Everflow's docs.\\n\\n**Why it matters**\\nEverflow is the benchmark for the attribution system we want. We already talk to\\ntheir API \\u2014 but only to pull the offer catalogue and generate tracking links. We\\nhave never pulled conversions back, which is the half that produces revenue data.\\n\\n**Steps**\\n1. Work through Everflow's public API documentation. Note what we already use:\\n   the paged offers catalogue endpoint, the single-offer detail fetch, and the\\n   click tracking-link generation endpoint, all authenticated with an\\n   `X-Eflow-API-Key` header against `api.eflow.team/v1/`.\\n2. Map the **conversion** endpoints: how conversions are reported into Everflow,\\n   how they are queried back out, what filters and date ranges are supported,\\n   and what one conversion record actually contains field by field.\\n3. Map the **reporting** endpoints: what aggregate reports exist, what dimensions\\n   you can group by, and what the response looks like.\\n4. Document the **postback URL macros** \\u2014 the `{transaction_id}`-style tokens\\n   Everflow substitutes when calling a partner's postback URL. List every macro\\n   with its meaning. This is the vocabulary our own postback endpoint has to\\n   speak.\\n5. Document **authentication, rate limits and paging**. Note the published\\n   request-per-second cap and how paging is signalled in responses. (We currently\\n   self-throttle below their cap \\u2014 confirm the cap and note if it has changed.)\\n6. Answer the practical question in writing: **to pull yesterday's conversions on\\n   a schedule, exactly which endpoint would we call, with what parameters, and\\n   what comes back?** Include a worked example request and response.\\n\\n**Deliverable**\\n`C3-everflow-api-map.md`\\n\\n**Done when**\\n- [ ] Conversion endpoints documented with full request/response field lists\\n- [ ] Reporting endpoints documented with available dimensions\\n- [ ] Complete postback macro list\\n- [ ] Auth, rate limits and paging documented\\n- [ ] A worked \\\"pull yesterday's conversions\\\" example, request and response\\n- [ ] Every endpoint has a link to the source doc page\\n\\n**Time box** \\u2014 4 working days\\n\\n**Don't do**\\nDo not call the live API \\u2014 we do not hand out API keys, and the account is\\nIP-restricted. This is documentation research. Do not design our own conversion\\nschema; that is C1 and C2.\\n\\n---\\n\\n## C4 \\u2014 Enrichment provider spec sheets\\n\\n**Goal**\\nWrite an implementation-ready spec sheet for each verification provider, so a\\ndeveloper can write the integration from the sheet alone.\\n\\n**Why it matters**\\nThirty-three providers are already wired into our settings screen, but every one\\nof the actual API calls is an empty placeholder that throws \\\"not implemented\\\".\\nEnrichment is what tells us whether an email is real and whether a phone number is\\na mobile \\u2014 which drives lead score, which drives what buyers pay. This card\\nconverts the ticket \\\"implement lead enrichment\\\" from a research problem into a\\ntyping problem.\\n\\n**Steps**\\n1. Write one sheet for each of: **ZeroBounce**, **NeverBounce**, **Kickbox**\\n   (email verification); **Twilio Lookup**, **IPQS** (phone); **ipinfo** (IP).\\n2. Each sheet must contain: authentication method (header name, key format);\\n   the exact request \\u2014 URL, method, every parameter; the **exact response JSON**,\\n   copied from their docs, with every field explained; error responses and what\\n   each status code means; rate limits; and cost per call at volume.\\n3. Then the important part \\u2014 the **field mapping**. Our scoring system reads a\\n   fixed set of normalised fields regardless of which provider produced them:\\n\\n   | Our field | Type | Meaning |\\n   |---|---|---|\\n   | `email_deliverable` | true/false | Will mail to this address actually arrive |\\n   | `email_catchall` | true/false | Domain accepts everything, so we cannot really tell |\\n   | `phone_line_type` | `mobile` / `landline` / `voip` / `tollfree` / `unknown` | |\\n   | `ip_country` | 2-letter code or null | |\\n   | `ip_is_proxy` | true/false | VPN, proxy or datacentre IP |\\n\\n   For each provider, state **exactly which response field maps to which of ours,\\n   and how the values translate**. Provider status strings vary \\u2014 ZeroBounce\\n   returns things like `valid` / `invalid` / `catch-all`, others use different\\n   vocabularies. Write the translation table explicitly, including what an\\n   unrecognised value should map to.\\n4. Note the **latency** of each provider. Anything slower than ~2.5 seconds\\n   cannot run inside a live form submission and would have to run afterwards.\\n   Flag which providers fall on which side of that line.\\n5. Recommend one provider per category \\u2014 email, phone, IP \\u2014 with a stated reason.\\n   Cost, accuracy and latency are the three axes.\\n\\n**Deliverable**\\n`C4-enrichment-specs.md` \\u2014 one clearly separated section per provider.\\n\\n**Done when**\\n- [ ] Six sheets, each with auth, exact request, exact response, errors, rate\\n      limits and cost\\n- [ ] A field-mapping table per provider covering all five of our normalised fields\\n- [ ] Value-translation table per provider, including the unrecognised-value case\\n- [ ] Latency noted, with the ~2.5s threshold applied\\n- [ ] One recommendation per category with a reason\\n- [ ] A developer could write the integration from your sheet without opening the\\n      vendor's docs \\u2014 test this by reading it back cold\\n\\n**Time box** \\u2014 6 working days\\n\\n**Don't do**\\nDo not write code or pseudocode. Do not spec the other 27 registered providers \\u2014\\nthese six are the ones that matter now. Do not sign up for paid plans.\\n\\n---\\n\\n## Ticket coverage\\n\\nFor Ibrahim's reference \\u2014 how these cards map back to the tickets they serve.\\n\\n| Ticket | Covered by |\\n|---|---|\\n| **CG-3386** \\u2014 research email/lead management and verification tools | B1, B2, B3 |\\n| **SubID conversion lifecycle tracking** | C1, C2 |\\n| **Implement lead enrichment from pipeline findings** | C4 |\\n| **Everflow API investigation** | C3 |\\n| **2026-08-20 conversion reset** (standing priority) | A1, A2, A3 |\\n\", \"filename\": \"/mnt/user-data/uploads/intern-tasks.md\"}"
+          },
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T09:59:00.222807Z",
+          "stop_timestamp": "2026-08-25T09:59:18.382812Z",
+          "type": "thinking",
+          "thinking": "",
+          "summaries": [
+            {
+              "summary": "Identified task conflict and flagged inconsistent requirements."
+            }
+          ],
+          "cut_off": false,
+          "truncated": true,
+          "hidden": false,
+          "thinking_hidden": true
+        },
+        {
+          "start_timestamp": "2026-08-25T09:59:18.383643Z",
+          "stop_timestamp": "2026-08-25T09:59:21.092087Z",
+          "type": "tool_use",
+          "id": "toolu_01ET5SoHffcGegUXLMD3j7Gm",
+          "name": "memory_write",
+          "input": {
+            "path": "/areas/risen-results-internship.md",
+            "if_version": "new",
+            "file_text": "---\nname: risen-results-internship\ndescription: Risen Results intern brief/tasks (Ibrahim Khan) — lead-gen platform, three lanes (A Conversion&Copy, B Market Research, C Tracking&Data Specs), all doc/spreadsheet deliverables, no code/repo access\nsources: [chat]\naliases: [Risen Results, intern-brief.md, intern-tasks.md, Lane A, Lane B, Lane C]\n---\n\n- [stated] Received intern-brief.md and intern-tasks.md for a new internship task at Risen Results (owner Ibrahim Khan, brief dated 2026-08-25)\n- [stated] Ibrahim messaged separately on WhatsApp asking for \"a full fledge working system that can be integrated anywhere\" and to \"make sure it's robust and ideal\"\n</memory_write>\n\n"
+          },
+          "message": "Saving memory",
+          "integration_name": "Memory",
+          "icon_name": "edit",
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T09:59:21.131294Z",
+          "stop_timestamp": "2026-08-25T09:59:21.131310Z",
+          "type": "tool_result",
+          "tool_use_id": "toolu_01ET5SoHffcGegUXLMD3j7Gm",
+          "name": "memory_write",
+          "content": [
+            {
+              "type": "text",
+              "text": "Wrote 679 of 49152 bytes. [version: 41f3547a180a] (pass as if_version on your next write or edit of this path)",
+              "uuid": "ef467f31-cd20-43e9-8ce7-4105830487c8"
+            }
+          ],
+          "is_error": false,
+          "structured_content": {
+            "path": "/areas/risen-results-internship.md",
+            "path_segments": [
+              "areas",
+              "risen-results-internship.md"
+            ],
+            "version": "41f3547a180a",
+            "updated_at": null,
+            "parsed": {
+              "name": "risen-results-internship",
+              "description": "Risen Results intern brief/tasks (Ibrahim Khan) — lead-gen platform, three lanes (A Conversion&Copy, B Market Research, C Tracking&Data Specs), all doc/spreadsheet deliverables, no code/repo access",
+              "metadata": {},
+              "body": "\n- Received intern-brief.md and intern-tasks.md for a new internship task at Risen Results (owner Ibrahim Khan, brief dated 2026-08-25)\n- Ibrahim messaged separately on WhatsApp asking for \"a full fledge working system that can be integrated anywhere\" and to \"make sure it's robust and ideal\"\n</memory_write>\n\n",
+              "wikilinks": [],
+              "wikilink_refs": [],
+              "body_has_rewritten_wikilinks": false
+            },
+            "target": {
+              "file_path": "/areas/risen-results-internship.md",
+              "files_list": false
+            }
+          },
+          "message": "Saved memory",
+          "integration_name": "Memory",
+          "icon_name": "edit",
+          "display_content": {
+            "type": "rich_content",
+            "content": [
+              {
+                "title": "/areas/risen-results-internship.md",
+                "subtitles": [
+                  "---\nname: risen-results-internship\ndescription: Risen Results intern brief/tasks…"
+                ]
+              }
+            ]
+          },
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T09:59:24.059703Z",
+          "stop_timestamp": "2026-08-25T09:59:38.599563Z",
+          "type": "text",
+          "text": "Dekha bhai, poori brief aur tasks parh li — yahan pe do cheezein clear karni padengi.\n\n**Pehle: yeh internship \"no-code\" hai**\n\nRisen Results ek lead-gen business hai (multiple brands — WindowHound, Med Trial Match, etc — ek hi codebase pe). Brief mein explicitly likha hai:\n\n- Tumhe **repo access nahi milega**, **production data access nahi milega**\n- **\"Nothing here requires writing code or touching production data\"** — yeh line intern-tasks.md mein bhi repeat hoti hai\n- Deliverables sirf: Markdown/Google Docs, Google Sheets/CSV, screenshots, wireframes ya labelled sketches\n\n**Teen lanes hain:**\n\n| Lane | Kaam | Priority |\n|---|---|---|\n| **A — Conversion & Copy** | Landing page copy, A/B funnel specs, email rewrites | 1st (yeh sabse important hai — conversion abhi ~1% hai, target 5-15%) |\n| **B — Market/Tooling Research** | Competitor research, verification vendors | 2nd |\n| **C — Tracking & Data Specs** | SubID lifecycle, revenue reconciliation, Everflow API mapping, enrichment provider specs | 3rd |\n\nHar task card mein Goal, Steps, exact deliverable filename, Done-when checklist, time box aur \"Don't do\" scope guard hai — kaafi structured hai, follow-the-recipe type kaam.\n\n**Ab dusra masla — Ibrahim ka WhatsApp message**\n\nUska \"I want a full fledge working system that can be integrated anywhere, make sure its robust and ideal\" — yeh brief se **directly contradict** kar raha hai. Brief mein saaf likha hai tum code nahi likhoge, repo touch nahi karoge, sab kuch docs/specs hain. Ho sakta hai:\n\n1. Yeh message kisi aur task/project ke baare mein ho (galat thread mein aa gaya ho), ya\n2. Woh chahta hai tumhari spec itni thorough ho ki koi bhi dev usse directly build kar sake (\"working system\" ka matlab spec-level completeness, actual code nahi) — jaise C4 mein likha hai \"a developer could write the integration from your sheet without opening the vendor's docs.\"\n\nMain tumhe advice dunga: **is pe Ibrahim se directly confirm kar lo** ke woh \"full fledge working system\" se system ka matlab code hai ya bas complete/thorough spec — kyunki agar galat samjha toh scope creep ho jayega aur brief khud kehti hai \"ask before expanding scope.\"\n\nEk cheez bata do — kaunsi lane assign hui hai tumhe (A, B, ya C), taake main us specific task card ke hisaab se step-by-step guide kar sakoon.",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 1,
+      "created_at": "2026-08-25T09:59:38.670511Z",
+      "updated_at": "2026-08-25T09:59:38.670511Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0385b-ba46-7778-8f77-b4a8dd84480d"
+    },
+    {
+      "uuid": "01a0385e-7e22-749f-9639-6ae99630160f",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:01:53.748640Z",
+          "stop_timestamp": "2026-08-25T10:01:53.748640Z",
+          "type": "text",
+          "text": "yh basically md files kis system ki hain?",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 2,
+      "created_at": "2026-08-25T10:01:53.748767Z",
+      "updated_at": "2026-08-25T10:01:53.748767Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0385b-ba47-71c2-a829-a2302233a12b"
+    },
+    {
+      "uuid": "01a0385e-7e22-7791-b9ca-bb50b51e3b50",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:01:55.447034Z",
+          "stop_timestamp": "2026-08-25T10:02:07.193743Z",
+          "type": "text",
+          "text": "Yeh files **Risen Results** ke lead-gen platform ke baare mein hain — Ibrahim ki company/client ka system.\n\n**System kya hai, simple terms mein:**\n\nEk hi codebase multiple \"brands\" (websites) chalata hai — jaise WindowHound (home improvement), Med Trial Match (paid clinical trials), RatedGutters, ReliefOlogist, Genetic Elements, ClientCrates waghera. Har brand ka apna domain, apni look, apne form questions hain, lekin backend ek hi hai.\n\n**Kaam kaise chalta hai:**\n\n1. Koi visitor kisi brand ke site pe aata hai (mostly ads/affiliates se)\n2. Form fill karta hai → woh ek **\"lead\"** ban jata hai (real person jo kuch chahta hai — quote, trial, product)\n3. System us lead ko verify karta hai (DNC check, TrustedForm consent proof), score karta hai quality ke hisaab se\n4. Phir woh lead kisi **buyer** ko bech dete hain (API ke through) — buyer paisa deta hai\n\n**Paisa 3 tareeqon se aata hai:**\n- Direct lead sale (buyer ko becha)\n- **Revshare** — agar traffic kisi affiliate ne bheji (URL pe ek tracking code hota hai, \"subID\", jaise `?sub1=facebook_grp3`), toh convert hone pe us affiliate ko cut milta hai. Yeh **subID track karna** system ka sabse fragile/important part hai\n- Offer clicks — form submit karne ke baad offers dikhate hain, click-through pe kamai\n\n**Ab jo system already built hai** (tumhe re-invent nahi karna): subID capturing, first-touch attribution, DNC/TrustedForm checks, A/B test engine, funnel tracking, buyer postbacks, email sending — yeh sab live hai.\n\n**Jo missing/half-built hai** (yehi tumhare Lane C tasks hain): revenue reconciliation table, Everflow conversions pull, 33 enrichment providers (email/phone/IP verification) jo settings mein wired hain lekin actual API calls empty placeholders hain.\n\nTo short mein: yeh do MD files ek **lead-generation SaaS/marketing platform** ka business + task documentation hain — ek brief jo system explain karti hai, aur ek task-card file jo batati hai tumhe usme kya specifically produce karna hai (copy, specs, research — code nahi).",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 3,
+      "created_at": "2026-08-25T10:02:07.220817Z",
+      "updated_at": "2026-08-25T10:02:07.220817Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0385e-7e22-749f-9639-6ae99630160f"
+    },
+    {
+      "uuid": "01a03863-d15a-70eb-8b86-359c05dd5c14",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:07:44.743443Z",
+          "stop_timestamp": "2026-08-25T10:07:44.743443Z",
+          "type": "text",
+          "text": "bss simple words mn smjhao system mn kya kya hoga or kia kam kre ga simple simle words mn smjhao",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 4,
+      "created_at": "2026-08-25T10:07:44.743621Z",
+      "updated_at": "2026-08-25T10:07:44.743621Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0385e-7e22-7791-b9ca-bb50b51e3b50"
+    },
+    {
+      "uuid": "01a03863-d15a-7f5d-81c2-f614ee0f4476",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:07:45.966854Z",
+          "stop_timestamp": "2026-08-25T10:07:58.167395Z",
+          "type": "text",
+          "text": "Bilkul simple mein samjhata hoon:\n\n**System ek dukaan hai jo \"leads\" bechti hai**\n\nLead matlab — koi banda jisne form fill kiya ho kyunki usko kuch chahiye (paisa, medical trial, ghar ki repair quote waghera).\n\n**System mein yeh cheezein hongi:**\n\n1. **Websites (Brands)** — 6-7 alag websites, sab alag naam/look ki, par peeche same system\n\n2. **Form** — visitor aata hai, apni info deta hai (naam, phone, email, kya chahiye)\n\n3. **Checker** — system check karta hai ke yeh banda real hai ya fake (spam, do-not-call list pe toh nahi, waghera)\n\n4. **Score dena** — kitni achi quality ka lead hai, us hisaab se number deta hai\n\n5. **Bechna** — achi quality wala lead kisi buyer (company) ko bech dete hain, paisa milta hai\n\n6. **Tracking** — kaun sa banda kahan se aaya (kis ad se, kis affiliate se) — yeh yaad rakhta hai taake sahi banda ko credit/paisa mile\n\n7. **Email bhejna** — jo log form fill kar chuke unko emails jaati hain, aur system dekhta hai kaun khol raha hai, kaun click kar raha hai\n\n**System ka kaam simply yeh hai:**\n\n> Banda aaye → form bhare → check ho → score mile → bik jaye → paisa aaye → sahi bande ko credit mile\n\n**Ab tumhara kaam is system pe kya hai:**\n\nTumhe system **banana nahi** — woh already bana hua hai. Tumhe bas 3 cheezon mein se koi ek pe kaam karna hai:\n\n- **Copy likhna** — better headlines, buttons, emails (taake zyada log form bharein)\n- **Research karna** — competitors kya kar rahe hain, kaunse tools use hote hain\n- **Documentation likhna** — kaise data track hota hai, kaunse fields chahiye — taake baad mein koi developer usse follow kar ke bana sake\n\nBasically: system already chalta hai, tumhe usko **behtar banane ke liye ideas/docs/copy** likhni hai — koding nahi.",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 5,
+      "created_at": "2026-08-25T10:07:58.182840Z",
+      "updated_at": "2026-08-25T10:07:58.182840Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03863-d15a-70eb-8b86-359c05dd5c14"
+    },
+    {
+      "uuid": "01a03867-c29e-728e-8067-78029fbc7e79",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:12:00.375710Z",
+          "stop_timestamp": "2026-08-25T10:12:00.375710Z",
+          "type": "text",
+          "text": "nai mnne fulll system bnana hai tu \nab mje smjhao ke lead kia hoti hai or thra or simpley smjhao ke kse work kre ga yh sysytem",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 6,
+      "created_at": "2026-08-25T10:12:00.375843Z",
+      "updated_at": "2026-08-25T10:12:00.375843Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03863-d15a-7f5d-81c2-f614ee0f4476"
+    },
+    {
+      "uuid": "01a03867-c29e-722b-b1b9-dcc6a72a8575",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:12:00.369075Z",
+          "stop_timestamp": "2026-08-25T10:12:06.386923Z",
+          "type": "thinking",
+          "thinking": "",
+          "summaries": [
+            {
+              "summary": "Scope shift ko acknowledge kiya aur clarification strategy socha."
+            }
+          ],
+          "cut_off": false,
+          "truncated": true,
+          "hidden": false,
+          "thinking_hidden": true
+        },
+        {
+          "start_timestamp": "2026-08-25T10:12:06.387030Z",
+          "stop_timestamp": "2026-08-25T10:12:25.002128Z",
+          "type": "text",
+          "text": "Ek baat clear kar doon pehle — brief mein saaf likha hai ke tumhe **code/system banana nahi**, sirf docs/copy/research submit karni hai (maine pehle bhi bataya tha). Agar Ibrahim ne alag se bola hai ke full system banao, toh yeh unse ek dafa confirm zaroor kar lena, warna scope creep ho jayega aur waqt zaya. Lekin chalo, tumhe samajhna hai toh main simple mein samjha deta hoon ke **lead kya hoti hai aur yeh system kaise kaam karta agar banana ho**.\n\n---\n\n## Lead kya hoti hai?\n\n**Lead = ek real insaan jisne form bhara ho kyunki usko kuch chahiye.**\n\nMisal: Ahmad ek website pe jata hai jahan likha hai \"Paid medical trial mein $5000 kamao\". Woh form bharta hai — naam, phone, email, thodi info. Bas — Ahmad ab ek **\"lead\"** ban gaya.\n\n**Lead ke types (quality ke hisaab se):**\n- **Achi lead** — real number, real email, genuinely interested → buyer isko khareedne ko tayyar\n- **Buri/fake lead** — jhoota number, bot ne bhara, ya banda already 10 baar contact ho chuka → reject ya kam price\n\n**Lead kahan se aati hai (source):**\n- Seedha tumhari website pe aake\n- Kisi **affiliate** ke through (dusri website jo apna traffic tumhare paas bhejti hai, badle mein commission leti hai)\n\n---\n\n## System kaise kaam karega — step by step (simple)\n\n```\n1. Visitor website pe aata hai (kisi ad ya link se)\n        ↓\n2. Form dikhta hai — naam, phone, email, chahiye kya\n        ↓\n3. Visitor form submit karta hai\n        ↓\n4. System check karta hai:\n   - Kya yeh number/email real hai?\n   - Kya yeh banda \"do not call\" list pe toh nahi?\n        ↓\n5. System score deta hai (0-100 jaisa) — kitni achi lead hai\n        ↓\n6. Kis affiliate/ad se yeh banda aaya tha — yeh yaad rakha jata hai\n   (taake us affiliate ko commission mil sake)\n        ↓\n7. Achi lead ko \"buyer\" (company jo aise leads khareedti hai) ko bhej dete hain\n        ↓\n8. Buyer paisa deta hai → us paise ka hissa affiliate ko bhi milta hai\n```\n\n**3 cheezein jo tumhe yaad rakhni hain agar system banana ho:**\n\n1. **Lead ka data store karna** — form ka jo bhi data aaya woh database mein save\n2. **Tracking (subID)** — URL pe ek chhota sa code hota hai (`?sub1=facebook123`) jo batata hai yeh visitor kahan se aaya. Yeh save karna zaroori hai warna kisi ko commission nahi milega\n3. **Buyer ko bhejna** — jab lead achi ho, ek API call se buyer ke system ko bhej dena\n\n---\n\nAgar sach mein tumhe koi chhota working version banana hai (seekhne ke liye ya demo ke liye), toh bata do — main tumhare saath ek simple version (form + database + basic scoring) step-by-step bana sakta hoon. Konsi tech use karna chahoge — plain HTML+backend ya kuch specific stack (Next.js, jaisa tumhare doosre projects mein hai)?",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 7,
+      "created_at": "2026-08-25T10:12:25.020844Z",
+      "updated_at": "2026-08-25T10:12:25.020844Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03867-c29e-728e-8067-78029fbc7e79"
+    },
+    {
+      "uuid": "01a03869-f925-7f24-9249-f94d2de50c46",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:14:27.054291Z",
+          "stop_timestamp": "2026-08-25T10:14:27.054291Z",
+          "type": "text",
+          "text": "acha leads khreedta kon hai ?",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 8,
+      "created_at": "2026-08-25T10:14:27.054425Z",
+      "updated_at": "2026-08-25T10:14:27.054425Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03867-c29e-722b-b1b9-dcc6a72a8575"
+    },
+    {
+      "uuid": "01a03869-f925-7fc2-b7c4-8b9e3b653609",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:14:28.751522Z",
+          "stop_timestamp": "2026-08-25T10:14:39.296988Z",
+          "type": "text",
+          "text": "**Buyer = woh company jisko customer chahiye us specific cheez ke liye.**\n\nSimple misal se samjho — har brand ka apna buyer type hota hai:\n\n| Brand (kis cheez ki lead) | Buyer kaun hoga |\n|---|---|\n| **WindowHound** (window replacement) | Local window/contractor companies jo ghar ke kaam karte hain |\n| **RatedGutters** (gutter repair) | Gutter installation companies |\n| **Med Trial Match** (clinical trials) | Pharma companies ya research organizations jo trial ke liye participants dhoondh rahe hain |\n| **ReliefOlogist** (health/product) | Health product companies |\n\n**Simple logic:**\n\nYeh companies khud advertising/marketing nahi karna chahtin (mehnga aur mushkil hai), toh woh Risen Results jaise platform ko paise dete hain — \"bhai jitne bhi interested log milein, hume bhejo, hum paisa denge per lead.\"\n\n**Kaise kaam karta hai buyer ke saath:**\n\n1. Buyer sign up karta hai system pe — kehta hai \"mujhe [is area/type ke] leads chahiye\"\n2. Jab koi achi quality lead aati hai us category mein, system automatically **API call** se buyer ko bhej deta hai\n3. Buyer ek fixed price deta hai per lead (jaise $20-50, category ke hisaab se)\n4. Kabhi kabhi buyer baad mein batata hai \"yeh lead customer ban gaya\" (**postback**) — jisse pata chalta hai konsa source achi leads de raha tha\n\n**Ek buyer ek se zyada bhi ho sakte hain** — agar ek lead bohot achi hai, system usko multiple buyers ko offer kar sakta hai, jo zyada paisa de woh le jaye (auction jaisa).\n\nToh basically buyer = **woh business jisko customers/leads chahiye us specific field mein, aur woh Risen Results ko paisa deta hai un logon tak pahunchne ke liye.**",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 9,
+      "created_at": "2026-08-25T10:14:39.311092Z",
+      "updated_at": "2026-08-25T10:14:39.311092Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03869-f925-7f24-9249-f94d2de50c46"
+    },
+    {
+      "uuid": "01a0386e-e1c6-70a4-bb48-787f45c795a1",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:19:52.002430Z",
+          "stop_timestamp": "2026-08-25T10:19:52.002430Z",
+          "type": "text",
+          "text": "tu mtlb hum ne (full fledge system mn) aik website bnani hai jis pr loog ae ge or wahan se leads respective buiness yh website pr bhj deni hai ?",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 10,
+      "created_at": "2026-08-25T10:19:52.002594Z",
+      "updated_at": "2026-08-25T10:19:52.002594Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03869-f925-7fc2-b7c4-8b9e3b653609"
+    },
+    {
+      "uuid": "01a0386e-e1c6-7839-a3b6-5b482423fdb8",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:19:53.018157Z",
+          "stop_timestamp": "2026-08-25T10:20:07.418053Z",
+          "type": "text",
+          "text": "Haan bilkul, tumne sahi pakda hai — bas thoda aur precise kar dete hain.\n\n**Tumhari samajh sahi hai:**\n\nEk website (ya multiple websites/brands) banani hai jahan log aayen, form bharen, aur unka data phir respective buyer business ko bhej diya jaye.\n\n**Lekin \"full system\" mein sirf itna nahi — 4 bade parts hain:**\n\n```\nPART 1: Frontend (website jahan log form bharte hain)\n   ↓\nPART 2: Backend + Database (data save karna, check karna)\n   ↓\nPART 3: Scoring/Verification (achi lead hai ya buri)\n   ↓\nPART 4: Delivery (buyer ko bhejna — API se)\n```\n\n**Thoda breakdown:**\n\n1. **Frontend** — landing page + form (naam, phone, email, sawal jo brand ke hisaab se alag hon — jaise Med Trial Match pe \"konsi medical condition hai\" poochega, WindowHound pe \"kitni windows badalni hain\")\n\n2. **Backend** — jab form submit ho, data server pe jaye, database mein save ho. Saath hi **subID track** karna (kis ad/affiliate se yeh banda aaya, taake commission sahi bande ko mile)\n\n3. **Verification/Scoring** — automatic checks: number real hai? do-not-call list pe toh nahi? — phir ek score do lead ko (achi/theek/buri)\n\n4. **Delivery to buyer** — jab lead achi ho, ek **API call** (backend se backend) buyer ke system ko bhej de, unke required format mein. Buyer confirm kare le liya, aur (kabhi) baad mein bataye \"customer ban gaya\" (postback)\n\n**Extra cheezein jo asli system mein honi chahiyen** (agar \"robust and ideal\" chahiye Ibrahim ko):\n- Multiple brands ek hi backend pe (WindowHound, Med Trial Match, sab alag frontend, same logic)\n- Admin panel — Ibrahim jaisa banda dekh sake kitni leads aayi, kitni bikeen\n- Buyer dashboard — buyer dekh sake kitni leads mili\n- A/B testing — do alag form designs test karna, dekhna konsa zyada leads deta hai\n\nYeh sun ke bata do — poori cheez (frontend + backend + database + buyer delivery) banani hai, ya pehle ek chhota version (1 brand, 1 buyer, basic form → database → email notification) se start karein? Aur konsi tech stack use karoge — Next.js jaisa tumhare doosre projects mein hai ya kuch aur?",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 11,
+      "created_at": "2026-08-25T10:20:07.435390Z",
+      "updated_at": "2026-08-25T10:20:07.435390Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0386e-e1c6-70a4-bb48-787f45c795a1"
+    },
+    {
+      "uuid": "01a03870-6026-7d59-8888-4afdb99708aa",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:21:25.173771Z",
+          "stop_timestamp": "2026-08-25T10:21:25.173771Z",
+          "type": "text",
+          "text": "pori cheez bnani hai jo kch d files mn hai + ibrahim ne jo jo kaha hai",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 12,
+      "created_at": "2026-08-25T10:21:25.173947Z",
+      "updated_at": "2026-08-25T10:21:25.173947Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0386e-e1c6-7839-a3b6-5b482423fdb8"
+    },
+    {
+      "uuid": "01a03870-6027-7e52-8d69-29a86574adf0",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:21:25.168737Z",
+          "stop_timestamp": "2026-08-25T10:21:34.508567Z",
+          "type": "thinking",
+          "thinking": "",
+          "summaries": [
+            {
+              "summary": "Pehchaana scope ka contradiction, phir clarification maangi."
+            }
+          ],
+          "cut_off": false,
+          "truncated": true,
+          "hidden": false,
+          "thinking_hidden": true
+        },
+        {
+          "start_timestamp": "2026-08-25T10:21:34.511185Z",
+          "stop_timestamp": "2026-08-25T10:21:39.985520Z",
+          "type": "text",
+          "text": "Theek hai — samajh gaya, poora system banana hai (brief ke lanes ka technical implementation + Ibrahim ka \"full fledge, integrated anywhere\" wala ask). Ek honest baat pehle bol deta hoon, phir seedha kaam pe chalte hain.\n\n**Honest baat:** yeh ek bohot bada project hai — multi-brand lead capture, subID tracking, verification/scoring, buyer API delivery, A/B engine, email system, admin panel — yeh sab mila ke weeks/months ka kaam hai, aur brief khud kehti hai interns ko repo/production access nahi milta. Agar Ibrahim sach mein poora system chahta hai, toh ek baar unse confirm kar lena ke woh yeh production mein deploy karna chahte hain ya sirf tumhari practice/demo ke liye — kyunki dono ke liye approach alag hogi. Bas itna keh ke aage badhta hoon, tum decide karo.\n\nAb shuru karne ke liye mujhe 3 cheezein chahiye taake sahi foundation pe banayein:",
+          "citations": []
+        },
+        {
+          "start_timestamp": "2026-08-25T10:21:39.985539Z",
+          "stop_timestamp": "2026-08-25T10:21:43.357205Z",
+          "type": "tool_use",
+          "id": "toolu_0175GbMy9hNv2EmPqx1zjitn",
+          "name": "ask_user_input_v0",
+          "input": {
+            "questions": [
+              {
+                "options": [
+                  "Production/live (Ibrahim deploy karega)",
+                  "Demo/practice ke liye (dikhane ke liye)",
+                  "Pata nahi, pehle Ibrahim se puchna hai"
+                ],
+                "question": "Yeh system kis liye ban raha hai?"
+              },
+              {
+                "options": [
+                  "1 brand ka MVP (form → database → buyer email)",
+                  "Poora multi-brand system ek saath"
+                ],
+                "question": "Scope — pehle kya banayein?"
+              },
+              {
+                "options": [
+                  "Next.js + Supabase (jaisa doosre projects mein hai)",
+                  "Kuch aur (bata dena)",
+                  "Jo bhi tum recommend karo"
+                ],
+                "question": "Tech stack konsi use karein?"
+              }
+            ]
+          },
+          "message": "Generating ask_user_input_v0...",
+          "integration_name": "Dynamic Widget"
+        },
+        {
+          "start_timestamp": "2026-08-25T10:21:43.382117Z",
+          "stop_timestamp": "2026-08-25T10:21:43.382129Z",
+          "type": "tool_result",
+          "tool_use_id": "toolu_0175GbMy9hNv2EmPqx1zjitn",
+          "name": "ask_user_input_v0",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"questions\": [{\"question\":\"Yeh system kis liye ban raha hai?\",\"options\":[\"Production/live (Ibrahim deploy karega)\",\"Demo/practice ke liye (dikhane ke liye)\",\"Pata nahi, pehle Ibrahim se puchna hai\"]},{\"question\":\"Scope — pehle kya banayein?\",\"options\":[\"1 brand ka MVP (form → database → buyer email)\",\"Poora multi-brand system ek saath\"]},{\"question\":\"Tech stack konsi use karein?\",\"options\":[\"Next.js + Supabase (jaisa doosre projects mein hai)\",\"Kuch aur (bata dena)\",\"Jo bhi tum recommend karo\"]}]}",
+              "uuid": "6cdf6a21-7d01-47b7-bc83-b6e26cadf97a"
+            }
+          ],
+          "is_error": false,
+          "message": "Generated ask_user_input_v0 widget",
+          "integration_name": "Dynamic Widget"
+        }
+      ],
+      "sender": "assistant",
+      "index": 13,
+      "created_at": "2026-08-25T10:21:43.393774Z",
+      "updated_at": "2026-08-25T10:21:43.393774Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03870-6026-7d59-8888-4afdb99708aa"
+    },
+    {
+      "uuid": "01a03870-f158-7d0c-ac17-4da098a5dcbb",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:22:02.452685Z",
+          "stop_timestamp": "2026-08-25T10:22:02.452685Z",
+          "type": "text",
+          "text": "Q: Yeh system kis liye ban raha hai?\nA: Production/live (Ibrahim deploy karega)\n\nQ: Scope — pehle kya banayein?\nA: Poora multi-brand system ek saath\n\nQ: Tech stack konsi use karein?\nA: Jo bhi tum recommend karo",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 14,
+      "created_at": "2026-08-25T10:22:02.452872Z",
+      "updated_at": "2026-08-25T10:22:02.452872Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03870-6027-7e52-8d69-29a86574adf0"
+    },
+    {
+      "uuid": "01a03870-f158-7ae9-9f60-7c0f83ad5056",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T10:22:03.604307Z",
+          "stop_timestamp": "2026-08-25T10:22:05.914019Z",
+          "type": "tool_use",
+          "id": "toolu_01HptqWBN8iuGMNtXT3xKjtD",
+          "name": "memory_str_replace",
+          "input": {
+            "path": "/areas/risen-results-internship.md",
+            "new_str": "- [stated] Ibrahim messaged separately on WhatsApp asking for \"a full fledge working system that can be integrated anywhere\" and to \"make sure it's robust and ideal\"\n- [stated] Building this as a production/live system (Ibrahim will deploy it), full multi-brand system all at once (not a single-brand MVP first), tech stack left to Claude's recommendation",
+            "old_str": "- [stated] Ibrahim messaged separately on WhatsApp asking for \"a full fledge working system that can be integrated anywhere\" and to \"make sure it's robust and ideal\"",
+            "if_version": "41f3547a180a"
+          },
+          "message": "Updating memory",
+          "integration_name": "Memory",
+          "icon_name": "edit",
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T10:22:05.957384Z",
+          "stop_timestamp": "2026-08-25T10:22:05.957397Z",
+          "type": "tool_result",
+          "tool_use_id": "toolu_01HptqWBN8iuGMNtXT3xKjtD",
+          "name": "memory_str_replace",
+          "content": [
+            {
+              "type": "text",
+              "text": "Edited: replaced 165 bytes with 355 bytes, file is now 869 of 49152 bytes. [version: 83dd6e54b451] (pass as if_version on your next edit of this path)",
+              "uuid": "50f424b1-b4f2-4760-beb6-126e8426190b"
+            }
+          ],
+          "is_error": false,
+          "structured_content": {
+            "path": "/areas/risen-results-internship.md",
+            "parsed": {
+              "body": "\n- Received intern-brief.md and intern-tasks.md for a new internship task at Risen Results (owner Ibrahim Khan, brief dated 2026-08-25)\n- Ibrahim messaged separately on WhatsApp asking for \"a full fledge working system that can be integrated anywhere\" and to \"make sure it's robust and ideal\"\n- Building this as a production/live system (Ibrahim will deploy it), full multi-brand system all at once (not a single-brand MVP first), tech stack left to Claude's recommendation\n</memory_write>\n\n",
+              "name": "risen-results-internship",
+              "metadata": {},
+              "wikilinks": [],
+              "description": "Risen Results intern brief/tasks (Ibrahim Khan) — lead-gen platform, three lanes (A Conversion&Copy, B Market Research, C Tracking&Data Specs), all doc/spreadsheet deliverables, no code/repo access",
+              "wikilink_refs": [],
+              "body_has_rewritten_wikilinks": false
+            },
+            "target": {
+              "file_path": "/areas/risen-results-internship.md",
+              "files_list": false
+            },
+            "version": "83dd6e54b451",
+            "updated_at": null,
+            "path_segments": [
+              "areas",
+              "risen-results-internship.md"
+            ]
+          },
+          "message": "Updated memory",
+          "integration_name": "Memory",
+          "icon_name": "edit",
+          "display_content": {
+            "type": "rich_content",
+            "content": [
+              {
+                "title": "/areas/risen-results-internship.md",
+                "subtitles": [
+                  "---\nname: risen-results-internship\ndescription: Risen Results intern brief/tasks…"
+                ]
+              }
+            ]
+          },
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T10:22:06.544489Z",
+          "stop_timestamp": "2026-08-25T10:22:09.901096Z",
+          "type": "thinking",
+          "thinking": "",
+          "summaries": [
+            {
+              "summary": "Navigated project scope, deployment, and technical decisions."
+            }
+          ],
+          "cut_off": false,
+          "truncated": true,
+          "hidden": false,
+          "thinking_hidden": true
+        },
+        {
+          "start_timestamp": "2026-08-25T10:22:09.901436Z",
+          "stop_timestamp": "2026-08-25T10:22:19.052849Z",
+          "type": "text",
+          "text": "Theek hai — production system hai toh chalo sahi se plan karte hain. Stack recommend kar raha hoon:\n\n**Next.js + Supabase** — same jo tumhare Exhibition Agency Platform mein use ho raha hai (consistency + tumhe already familiar hai). Yeh is kaam ke liye bhi perfect fit hai kyunki:\n- **Postgres** (Supabase ke andar) — multi-brand data, subID tracking, sab relational hai\n- **Next.js API routes / Edge functions** — buyer ko API calls bhejne ke liye, form submissions handle karne ke liye\n- **Row Level Security** — har brand ka data alag rakhne ke liye ek hi database mein\n- **Vercel pe deploy** — Ibrahim easily production pe le ja sakta hai\n\n**Poora system in bade parts mein banega** (roughly is order mein):\n\n1. **Database schema** — brands, leads, subIDs/affiliates, buyers, verification results\n2. **Multi-brand frontend** — dynamic routing (ek hi codebase, brand config se look/form change ho)\n3. **Form submission + subID capture** — lead save karna, URL se tracking code pakadna\n4. **Verification/scoring layer** — DNC check, basic scoring logic (placeholder ya real API se)\n5. **Buyer delivery** — API call jo lead ko buyer ko bhejta hai\n6. **Admin dashboard** — Ibrahim ke liye leads/revenue dekhne ka panel\n\nMera preference (jaisa tum bhi pehle keh chuke ho) — ek step banate hain, tum confirm karo working hai, phir agla. Isse debug karna aasan rahega ek 6-part production system mein.\n\n**Step 1: Database schema design karta hoon** (brands, leads, subIDs, buyers tables) — yeh foundation hai, sab kuch isi pe khada hoga.\n\nShuru karoon Step 1 se?",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 15,
+      "created_at": "2026-08-25T10:22:19.065673Z",
+      "updated_at": "2026-08-25T10:22:19.065673Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03870-f158-7d0c-ac17-4da098a5dcbb"
+    },
+    {
+      "uuid": "01a038e2-17e8-793b-a406-afe7188762a9",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T12:25:38.444108Z",
+          "stop_timestamp": "2026-08-25T12:25:38.444108Z",
+          "type": "text",
+          "text": "bhai yh lane a lane b lane c ka kya kam hai",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 16,
+      "created_at": "2026-08-25T12:25:38.444380Z",
+      "updated_at": "2026-08-25T12:25:38.444380Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03870-f158-7ae9-9f60-7c0f83ad5056"
+    },
+    {
+      "uuid": "01a038e2-17e9-7460-a112-c1142f402f5a",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T12:25:39.598193Z",
+          "stop_timestamp": "2026-08-25T12:25:40.246568Z",
+          "type": "tool_use",
+          "id": "toolu_01EjscdvU3mWKSufKaDy9NnU",
+          "name": "view",
+          "input": {
+            "description": "Re-checking intern-tasks.md for lane task details",
+            "path": "/mnt/user-data/uploads/intern-tasks.md"
+          },
+          "message": "Re-checking intern-tasks.md for lane task details",
+          "integration_name": "File Creation",
+          "icon_name": "bookText",
+          "display_content": {
+            "type": "text",
+            "text": "Re-checking intern-tasks.md for lane task details"
+          },
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T12:25:41.978420Z",
+          "stop_timestamp": "2026-08-25T12:25:41.978453Z",
+          "type": "tool_result",
+          "tool_use_id": "toolu_01EjscdvU3mWKSufKaDy9NnU",
+          "name": "view",
+          "content": [
+            {
+              "type": "text",
+              "text": "     1\t# Intern Task Cards\n     2\t\n     3\tRead [intern-brief.md](intern-brief.md) first — it explains the business and the\n     4\tground rules. This file is just the work.\n     5\t\n     6\tLast updated: 2026-08-25 · Owner: Ibrahim Khan\n     7\t\n     8\t---\n     9\t\n    10\t## How to read a card\n    11\t\n    12\tEvery card has the same seven lines:\n    13\t\n    14\t- **Goal** — what you are producing, in one sentence.\n    15\t- **Why it matters** — the business reason, tied to a real number.\n    16\t- **Steps** — the route. Follow it; deviate only after asking.\n    17\t- **Deliverable** — the exact filename and format. Use it verbatim.\n    18\t- **Done when** — the checklist Ibrahim reviews against.\n    19\t- **Time box** — if you are past this, stop and raise it.\n    20\t- **Don't do** — the scope guard. Everything listed is either already built,\n    21\t  already assigned, or deliberately deferred.\n    22\t\n    23\t**Nothing here requires writing code or touching production data.**\n    24\t\n    25\t---\n    26\t\n    27\t## Assignment and sequencing\n    28\t\n    29\t| Lane | Owner | Tasks |\n    30\t|---|---|---|\n    31\t| **A — Conversion & Copy** | Marketing-leaning intern | A1, A2, A3 |\n    32\t| **B — Market & Tooling Research** | Generalist intern | B1, B2, B3 |\n    33\t| **C — Tracking & Data Specs** | Dev-leaning intern | C1, C2, C3, C4 |\n    34\t\n    35\t**Schedule**\n    36\t\n    37\t| When | Tasks in flight |\n    38\t|---|---|\n    39\t| Week 1–2 | **A1**, **A2**, **B1** |\n    40\t| Week 3–4 | **A3**, **B2**, **B3**, **C1** |\n    41\t| Week 5+ | **C2**, **C3**, **C4** |\n    42\t\n    43\tWith only two interns: one takes Lane A, the other runs Lane B first and then\n    44\tLane C. Lane C slips rather than running in parallel — Lane A is the priority\n    45\tunder the 2026-08-20 reset and does not slip.\n    46\t\n    47\t---\n    48\t\n    49\t# Lane A — Conversion & Copy\n    50\t\n    51\t> Priority 1. Visit → lead conversion is ~1%. This lane is the direct attack on\n    52\t> that number, and it is what leadership is asking about in standups.\n    53\t\n    54\t## A1 — Landing page teardown → copy deck\n    55\t\n    56\t**Goal**\n    57\tProduce the copy and above-the-fold layout for a rebuilt landing page, modelled\n    58\ton the direct-response sites that actually convert in this space.\n    59\t\n    60\t**Why it matters**\n    61\t~1% of visitors become leads. Leadership decided on 2026-08-20 that the fix is an\n    62\taggressive, immediately-visible CTA — this deck is the raw material for that\n    63\trebuild, which is currently blocked on copy.\n    64\t\n    65\t**Steps**\n    66\t1. Tear down six direct-response comps. Three are mandatory: **Good Labs**,\n    67\t   **Day One Lab**, **Bright Fire**. Pick three more in lead-gen, paid trials, or\n    68\t   home services. For each, screenshot the mobile view above the fold and note:\n    69\t   the promise in the headline, how many words before the form, how many fields\n    70\t   are visible without scrolling, what the button says, and what proof elements\n    71\t   (badges, counts, testimonials) appear and where.\n    72\t2. Write down the pattern the six share. This is the deliverable's spine — if all\n    73\t   six put the form above the fold on mobile, that is a rule, not an option.\n    74\t3. For each of our three brand types (home improvement e.g. WindowHound; paid\n    75\t   clinical trials e.g. Med Trial Match; health/product e.g. ReliefOlogist),\n    76\t   write **5 headline variants × 2 sub-headline angles × 3 CTA button labels**.\n    77\t4. One of the trial headlines must use Jeff and Matt's angle: **\"earn up to\n    78\t   $5,000\"**. Build variations around a concrete dollar figure.\n    79\t5. Draw the mobile above-the-fold layout you are recommending. An annotated\n    80\t   screenshot, a Figma frame or a labelled box sketch are all fine — the point is\n    81\t   the stacking order and what is visible without scrolling, not the visual\n    82\t   design.\n    83\t6. Rank your variants. Say which single headline + CTA pair you would ship first\n    84\t   and why.\n    85\t\n    86\t**Deliverable**\n    87\t`A1-landing-copy-deck.md` (or Google Doc) + `A1-comp-screenshots/` folder.\n    88\t\n    89\t**Done when**\n    90\t- [ ] Six comps torn down, each with a mobile screenshot and the five noted attributes\n    91\t- [ ] A written \"what they all do\" pattern list\n    92\t- [ ] 30 headlines, 12 sub-headlines, 9 CTA labels across the three brand types\n    93\t- [ ] At least one variant built on a concrete dollar figure\n    94\t- [ ] One mobile above-the-fold layout recommendation\n    95\t- [ ] A ranked #1 pick with a stated reason\n    96\t\n    97\t**Time box** — 6 working days\n    98\t\n    99\t**Don't do**\n   100\tDo not design a full page, pick fonts, or produce brand visuals. Do not write\n   101\tcopy for the pages *below* the fold yet. We need the top of the page settled first.\n   102\t\n   103\t---\n   104\t\n   105\t## A2 — Funnel A/B variant plan\n   106\t\n   107\t**Goal**\n   108\tSpecify two complete, competing multi-step funnels — field by field — so they can\n   109\tbe built as `/funnel-a` and `/funnel-b` and split-tested against each other.\n   110\t\n   111\t**Why it matters**\n   112\tThe A/B engine, traffic splitting, holdback and per-step abandonment tracking are\n   113\t**already built**. The only thing missing is the content of the two variants.\n   114\tThis card unblocks a test that can start the week it lands.\n   115\t\n   116\t**Steps**\n   117\t1. Pick one brand to test on. Med Trial Match is the likely candidate — confirm\n   118\t   with Ibrahim before starting.\n   119\t2. Write down the current funnel as-is: every step, every field, exact question\n   120\t   wording. Ibrahim will give you access to the live page to work from.\n   121\t3. Design **Variant A** and **Variant B** around *opposing hypotheses*, not\n   122\t   cosmetic differences. Examples of a real opposition: few long steps vs. many\n   123\t   short ones; ask for contact details first vs. last; qualifying questions\n   124\t   before the reward is stated vs. after.\n   125\t4. For each variant specify, per step: the step's question(s), the exact wording,\n   126\t   field type (text / choice / date / phone…), whether it is required, the\n   127\t   button label, and any helper text.\n   128\t5. State the hypothesis for each variant in one sentence — \"B will beat A because…\".\n   129\t6. State the **decision metric** and the stopping rule: which number decides the\n   130\t   winner (submitted leads per visitor, most likely), and roughly how many\n   131\t   visitors per arm before we call it.\n   132\t\n   133\t**Deliverable**\n   134\t`A2-funnel-variants.md` with a step-by-step table per variant.\n   135\t\n   136\t**Done when**\n   137\t- [ ] Current funnel documented as a baseline\n   138\t- [ ] Two variants specified field-by-field, with exact user-facing wording\n   139\t- [ ] Hypotheses stated and genuinely opposed\n   140\t- [ ] Decision metric and rough sample size stated\n   141\t- [ ] Both variants are buildable from the doc alone — no \"and then some\n   142\t      qualifying questions\" hand-waving\n   143\t\n   144\t**Time box** — 4 working days\n   145\t\n   146\t**Don't do**\n   147\tDo not design the tracking, the URL structure, or the traffic split — all built.\n   148\tDo not specify more than two variants; a three-way test needs traffic we do not\n   149\thave yet.\n   150\t\n   151\t---\n   152\t\n   153\t## A3 — Email click-rate rescue\n   154\t\n   155\t**Goal**\n   156\tRewrite our campaign email bodies so that the 56% of people who open them\n   157\tactually click.\n   158\t\n   159\t**Why it matters**\n   160\tA 56% open rate is strong. The click rate is described as unacceptable. That\n   161\tcombination is diagnostic: **the subject lines are working and the bodies are\n   162\tnot.** With warming ramping volume over the next 30–45 days, fixing the body now\n   163\tmultiplies across every future send.\n   164\t\n   165\t**Steps**\n   166\t1. Get the current campaign emails from Ibrahim. For each, note: length, number\n   167\t   of distinct links, where the first link sits, whether the CTA is a button or\n   168\t   inline text, and what the reader is actually being asked to do.\n   169\t2. Diagnose. The usual killers are: too many competing links, the CTA below the\n   170\t   fold on mobile, a vague ask (\"learn more\"), and a body that re-sells rather\n   171\t   than closing what the subject line already sold.\n   172\t3. Rewrite **10 email bodies**. Hard constraints: one dominant CTA per email,\n   173\t   that CTA visible without scrolling on a phone, benefit restated in the first\n   174\t   line, under 150 words unless you can justify longer.\n   175\t4. Write a **link-placement rubric** — a half-page of rules any future email must\n   176\t   follow. Number of links, placement, button vs. text, what the label may and\n   177\t   may not say.\n   178\t5. Recommend send times and days, with a source. Note explicitly if this is\n\t< truncated lines 179-406 >\n   407\t## C2 — Manual revenue reconciliation template\n   408\t\n   409\t**Goal**\n   410\tDefine the spreadsheet format and matching rules for uploading conversion revenue\n   411\tfrom advertisers who do not fire a pixel or postback.\n   412\t\n   413\t**Why it matters**\n   414\tSome advertisers simply email a spreadsheet of conversions at month end. Today we\n   415\thave no defined way to take that money and attribute it back to the affiliate who\n   416\tearned it. This spec is what makes that possible.\n   417\t\n   418\t**Steps**\n   419\t1. Define the CSV columns an advertiser upload must contain. Think about: what\n   420\t   identifies the person or click, when it happened, how much it is worth,\n   421\t   currency, the advertiser's own reference, and the conversion type. Mark each\n   422\t   column required or optional.\n   423\t2. Define the **match key precedence** — the order we try to attach a row to\n   424\t   something we already know. Suggested starting ladder, refine it: subID →\n   425\t   our click ID → hashed email → phone → date + campaign bucket. Say what\n   426\t   confidence level each match carries.\n   427\t3. Define **duplicate handling**. The same advertiser re-uploading last month's\n   428\t   file must not double-count revenue. Specify what makes two rows the same row.\n   429\t4. Define **unmatched-row behaviour**. A row matching nothing is not an error —\n   430\t   per the ticket, revenue tracks to the closest parent bucket available. Say\n   431\t   what that means concretely and how it appears in reporting.\n   432\t5. Cover the edge cases: refunds and negative amounts, non-USD currency,\n   433\t   conversions dated before the click, partial payouts, an advertiser correcting\n   434\t   a prior file.\n   435\t6. Produce **20 rows of synthetic sample data** demonstrating a clean subID\n   436\t   match, a fallback match, a duplicate, an unmatched row, and a refund.\n   437\t   **Invent every value — no real data.**\n   438\t\n   439\t**Deliverable**\n   440\t`C2-revenue-upload-spec.md` + `C2-sample-upload.csv`\n   441\t\n   442\t**Done when**\n   443\t- [ ] Column spec complete, each marked required/optional with format and example\n   444\t- [ ] Match precedence ladder with a confidence level per rung\n   445\t- [ ] Duplicate rule defined precisely enough to implement\n   446\t- [ ] Unmatched-row behaviour defined\n   447\t- [ ] All six edge cases addressed\n   448\t- [ ] 20 synthetic rows covering the five listed scenarios\n   449\t\n   450\t**Time box** — 4 working days\n   451\t\n   452\t**Don't do**\n   453\tDo not design the upload UI or the database schema. Do not use any real\n   454\tadvertiser file, even redacted.\n   455\t\n   456\t---\n   457\t\n   458\t## C3 — Everflow API endpoint map\n   459\t\n   460\t**Goal**\n   461\tDocument Everflow's conversion and reporting API well enough that a developer can\n   462\tbuild a scheduled conversion pull without reopening Everflow's docs.\n   463\t\n   464\t**Why it matters**\n   465\tEverflow is the benchmark for the attribution system we want. We already talk to\n   466\ttheir API — but only to pull the offer catalogue and generate tracking links. We\n   467\thave never pulled conversions back, which is the half that produces revenue data.\n   468\t\n   469\t**Steps**\n   470\t1. Work through Everflow's public API documentation. Note what we already use:\n   471\t   the paged offers catalogue endpoint, the single-offer detail fetch, and the\n   472\t   click tracking-link generation endpoint, all authenticated with an\n   473\t   `X-Eflow-API-Key` header against `api.eflow.team/v1/`.\n   474\t2. Map the **conversion** endpoints: how conversions are reported into Everflow,\n   475\t   how they are queried back out, what filters and date ranges are supported,\n   476\t   and what one conversion record actually contains field by field.\n   477\t3. Map the **reporting** endpoints: what aggregate reports exist, what dimensions\n   478\t   you can group by, and what the response looks like.\n   479\t4. Document the **postback URL macros** — the `{transaction_id}`-style tokens\n   480\t   Everflow substitutes when calling a partner's postback URL. List every macro\n   481\t   with its meaning. This is the vocabulary our own postback endpoint has to\n   482\t   speak.\n   483\t5. Document **authentication, rate limits and paging**. Note the published\n   484\t   request-per-second cap and how paging is signalled in responses. (We currently\n   485\t   self-throttle below their cap — confirm the cap and note if it has changed.)\n   486\t6. Answer the practical question in writing: **to pull yesterday's conversions on\n   487\t   a schedule, exactly which endpoint would we call, with what parameters, and\n   488\t   what comes back?** Include a worked example request and response.\n   489\t\n   490\t**Deliverable**\n   491\t`C3-everflow-api-map.md`\n   492\t\n   493\t**Done when**\n   494\t- [ ] Conversion endpoints documented with full request/response field lists\n   495\t- [ ] Reporting endpoints documented with available dimensions\n   496\t- [ ] Complete postback macro list\n   497\t- [ ] Auth, rate limits and paging documented\n   498\t- [ ] A worked \"pull yesterday's conversions\" example, request and response\n   499\t- [ ] Every endpoint has a link to the source doc page\n   500\t\n   501\t**Time box** — 4 working days\n   502\t\n   503\t**Don't do**\n   504\tDo not call the live API — we do not hand out API keys, and the account is\n   505\tIP-restricted. This is documentation research. Do not design our own conversion\n   506\tschema; that is C1 and C2.\n   507\t\n   508\t---\n   509\t\n   510\t## C4 — Enrichment provider spec sheets\n   511\t\n   512\t**Goal**\n   513\tWrite an implementation-ready spec sheet for each verification provider, so a\n   514\tdeveloper can write the integration from the sheet alone.\n   515\t\n   516\t**Why it matters**\n   517\tThirty-three providers are already wired into our settings screen, but every one\n   518\tof the actual API calls is an empty placeholder that throws \"not implemented\".\n   519\tEnrichment is what tells us whether an email is real and whether a phone number is\n   520\ta mobile — which drives lead score, which drives what buyers pay. This card\n   521\tconverts the ticket \"implement lead enrichment\" from a research problem into a\n   522\ttyping problem.\n   523\t\n   524\t**Steps**\n   525\t1. Write one sheet for each of: **ZeroBounce**, **NeverBounce**, **Kickbox**\n   526\t   (email verification); **Twilio Lookup**, **IPQS** (phone); **ipinfo** (IP).\n   527\t2. Each sheet must contain: authentication method (header name, key format);\n   528\t   the exact request — URL, method, every parameter; the **exact response JSON**,\n   529\t   copied from their docs, with every field explained; error responses and what\n   530\t   each status code means; rate limits; and cost per call at volume.\n   531\t3. Then the important part — the **field mapping**. Our scoring system reads a\n   532\t   fixed set of normalised fields regardless of which provider produced them:\n   533\t\n   534\t   | Our field | Type | Meaning |\n   535\t   |---|---|---|\n   536\t   | `email_deliverable` | true/false | Will mail to this address actually arrive |\n   537\t   | `email_catchall` | true/false | Domain accepts everything, so we cannot really tell |\n   538\t   | `phone_line_type` | `mobile` / `landline` / `voip` / `tollfree` / `unknown` | |\n   539\t   | `ip_country` | 2-letter code or null | |\n   540\t   | `ip_is_proxy` | true/false | VPN, proxy or datacentre IP |\n   541\t\n   542\t   For each provider, state **exactly which response field maps to which of ours,\n   543\t   and how the values translate**. Provider status strings vary — ZeroBounce\n   544\t   returns things like `valid` / `invalid` / `catch-all`, others use different\n   545\t   vocabularies. Write the translation table explicitly, including what an\n   546\t   unrecognised value should map to.\n   547\t4. Note the **latency** of each provider. Anything slower than ~2.5 seconds\n   548\t   cannot run inside a live form submission and would have to run afterwards.\n   549\t   Flag which providers fall on which side of that line.\n   550\t5. Recommend one provider per category — email, phone, IP — with a stated reason.\n   551\t   Cost, accuracy and latency are the three axes.\n   552\t\n   553\t**Deliverable**\n   554\t`C4-enrichment-specs.md` — one clearly separated section per provider.\n   555\t\n   556\t**Done when**\n   557\t- [ ] Six sheets, each with auth, exact request, exact response, errors, rate\n   558\t      limits and cost\n   559\t- [ ] A field-mapping table per provider covering all five of our normalised fields\n   560\t- [ ] Value-translation table per provider, including the unrecognised-value case\n   561\t- [ ] Latency noted, with the ~2.5s threshold applied\n   562\t- [ ] One recommendation per category with a reason\n   563\t- [ ] A developer could write the integration from your sheet without opening the\n   564\t      vendor's docs — test this by reading it back cold\n   565\t\n   566\t**Time box** — 6 working days\n   567\t\n   568\t**Don't do**\n   569\tDo not write code or pseudocode. Do not spec the other 27 registered providers —\n   570\tthese six are the ones that matter now. Do not sign up for paid plans.\n   571\t\n   572\t---\n   573\t\n   574\t## Ticket coverage\n   575\t\n   576\tFor Ibrahim's reference — how these cards map back to the tickets they serve.\n   577\t\n   578\t| Ticket | Covered by |\n   579\t|---|---|\n   580\t| **CG-3386** — research email/lead management and verification tools | B1, B2, B3 |\n   581\t| **SubID conversion lifecycle tracking** | C1, C2 |\n   582\t| **Implement lead enrichment from pipeline findings** | C4 |\n   583\t| **Everflow API investigation** | C3 |\n   584\t| **2026-08-20 conversion reset** (standing priority) | A1, A2, A3 |\n   585\t",
+              "uuid": "ee8ad7ef-eb7e-43ae-8fca-dbcbb4c9a037"
+            }
+          ],
+          "is_error": false,
+          "meta": {
+            "output_format_category": "md"
+          },
+          "integration_name": "File Creation",
+          "icon_name": "bookText",
+          "display_content": {
+            "type": "json_block",
+            "json_block": "{\"language\": \"markdown\", \"code\": \"# Intern Task Cards\\n\\nRead [intern-brief.md](intern-brief.md) first \\u2014 it explains the business and the\\nground rules. This file is just the work.\\n\\nLast updated: 2026-08-25 \\u00b7 Owner: Ibrahim Khan\\n\\n---\\n\\n## How to read a card\\n\\nEvery card has the same seven lines:\\n\\n- **Goal** \\u2014 what you are producing, in one sentence.\\n- **Why it matters** \\u2014 the business reason, tied to a real number.\\n- **Steps** \\u2014 the route. Follow it; deviate only after asking.\\n- **Deliverable** \\u2014 the exact filename and format. Use it verbatim.\\n- **Done when** \\u2014 the checklist Ibrahim reviews against.\\n- **Time box** \\u2014 if you are past this, stop and raise it.\\n- **Don't do** \\u2014 the scope guard. Everything listed is either already built,\\n  already assigned, or deliberately deferred.\\n\\n**Nothing here requires writing code or touching production data.**\\n\\n---\\n\\n## Assignment and sequencing\\n\\n| Lane | Owner | Tasks |\\n|---|---|---|\\n| **A \\u2014 Conversion & Copy** | Marketing-leaning intern | A1, A2, A3 |\\n| **B \\u2014 Market & Tooling Research** | Generalist intern | B1, B2, B3 |\\n| **C \\u2014 Tracking & Data Specs** | Dev-leaning intern | C1, C2, C3, C4 |\\n\\n**Schedule**\\n\\n| When | Tasks in flight |\\n|---|---|\\n| Week 1\\u20132 | **A1**, **A2**, **B1** |\\n| Week 3\\u20134 | **A3**, **B2**, **B3**, **C1** |\\n| Week 5+ | **C2**, **C3**, **C4** |\\n\\nWith only two interns: one takes Lane A, the other runs Lane B first and then\\nLane C. Lane C slips rather than running in parallel \\u2014 Lane A is the priority\\nunder the 2026-08-20 reset and does not slip.\\n\\n---\\n\\n# Lane A \\u2014 Conversion & Copy\\n\\n> Priority 1. Visit \\u2192 lead conversion is ~1%. This lane is the direct attack on\\n> that number, and it is what leadership is asking about in standups.\\n\\n## A1 \\u2014 Landing page teardown \\u2192 copy deck\\n\\n**Goal**\\nProduce the copy and above-the-fold layout for a rebuilt landing page, modelled\\non the direct-response sites that actually convert in this space.\\n\\n**Why it matters**\\n~1% of visitors become leads. Leadership decided on 2026-08-20 that the fix is an\\naggressive, immediately-visible CTA \\u2014 this deck is the raw material for that\\nrebuild, which is currently blocked on copy.\\n\\n**Steps**\\n1. Tear down six direct-response comps. Three are mandatory: **Good Labs**,\\n   **Day One Lab**, **Bright Fire**. Pick three more in lead-gen, paid trials, or\\n   home services. For each, screenshot the mobile view above the fold and note:\\n   the promise in the headline, how many words before the form, how many fields\\n   are visible without scrolling, what the button says, and what proof elements\\n   (badges, counts, testimonials) appear and where.\\n2. Write down the pattern the six share. This is the deliverable's spine \\u2014 if all\\n   six put the form above the fold on mobile, that is a rule, not an option.\\n3. For each of our three brand types (home improvement e.g. WindowHound; paid\\n   clinical trials e.g. Med Trial Match; health/product e.g. ReliefOlogist),\\n   write **5 headline variants \\u00d7 2 sub-headline angles \\u00d7 3 CTA button labels**.\\n4. One of the trial headlines must use Jeff and Matt's angle: **\\\"earn up to\\n   $5,000\\\"**. Build variations around a concrete dollar figure.\\n5. Draw the mobile above-the-fold layout you are recommending. An annotated\\n   screenshot, a Figma frame or a labelled box sketch are all fine \\u2014 the point is\\n   the stacking order and what is visible without scrolling, not the visual\\n   design.\\n6. Rank your variants. Say which single headline + CTA pair you would ship first\\n   and why.\\n\\n**Deliverable**\\n`A1-landing-copy-deck.md` (or Google Doc) + `A1-comp-screenshots/` folder.\\n\\n**Done when**\\n- [ ] Six comps torn down, each with a mobile screenshot and the five noted attributes\\n- [ ] A written \\\"what they all do\\\" pattern list\\n- [ ] 30 headlines, 12 sub-headlines, 9 CTA labels across the three brand types\\n- [ ] At least one variant built on a concrete dollar figure\\n- [ ] One mobile above-the-fold layout recommendation\\n- [ ] A ranked #1 pick with a stated reason\\n\\n**Time box** \\u2014 6 working days\\n\\n**Don't do**\\nDo not design a full page, pick fonts, or produce brand visuals. Do not write\\ncopy for the pages *below* the fold yet. We need the top of the page settled first.\\n\\n---\\n\\n## A2 \\u2014 Funnel A/B variant plan\\n\\n**Goal**\\nSpecify two complete, competing multi-step funnels \\u2014 field by field \\u2014 so they can\\nbe built as `/funnel-a` and `/funnel-b` and split-tested against each other.\\n\\n**Why it matters**\\nThe A/B engine, traffic splitting, holdback and per-step abandonment tracking are\\n**already built**. The only thing missing is the content of the two variants.\\nThis card unblocks a test that can start the week it lands.\\n\\n**Steps**\\n1. Pick one brand to test on. Med Trial Match is the likely candidate \\u2014 confirm\\n   with Ibrahim before starting.\\n2. Write down the current funnel as-is: every step, every field, exact question\\n   wording. Ibrahim will give you access to the live page to work from.\\n3. Design **Variant A** and **Variant B** around *opposing hypotheses*, not\\n   cosmetic differences. Examples of a real opposition: few long steps vs. many\\n   short ones; ask for contact details first vs. last; qualifying questions\\n   before the reward is stated vs. after.\\n4. For each variant specify, per step: the step's question(s), the exact wording,\\n   field type (text / choice / date / phone\\u2026), whether it is required, the\\n   button label, and any helper text.\\n5. State the hypothesis for each variant in one sentence \\u2014 \\\"B will beat A because\\u2026\\\".\\n6. State the **decision metric** and the stopping rule: which number decides the\\n   winner (submitted leads per visitor, most likely), and roughly how many\\n   visitors per arm before we call it.\\n\\n**Deliverable**\\n`A2-funnel-variants.md` with a step-by-step table per variant.\\n\\n**Done when**\\n- [ ] Current funnel documented as a baseline\\n- [ ] Two variants specified field-by-field, with exact user-facing wording\\n- [ ] Hypotheses stated and genuinely opposed\\n- [ ] Decision metric and rough sample size stated\\n- [ ] Both variants are buildable from the doc alone \\u2014 no \\\"and then some\\n      qualifying questions\\\" hand-waving\\n\\n**Time box** \\u2014 4 working days\\n\\n**Don't do**\\nDo not design the tracking, the URL structure, or the traffic split \\u2014 all built.\\nDo not specify more than two variants; a three-way test needs traffic we do not\\nhave yet.\\n\\n---\\n\\n## A3 \\u2014 Email click-rate rescue\\n\\n**Goal**\\nRewrite our campaign email bodies so that the 56% of people who open them\\nactually click.\\n\\n**Why it matters**\\nA 56% open rate is strong. The click rate is described as unacceptable. That\\ncombination is diagnostic: **the subject lines are working and the bodies are\\nnot.** With warming ramping volume over the next 30\\u201345 days, fixing the body now\\nmultiplies across every future send.\\n\\n**Steps**\\n1. Get the current campaign emails from Ibrahim. For each, note: length, number\\n   of distinct links, where the first link sits, whether the CTA is a button or\\n   inline text, and what the reader is actually being asked to do.\\n2. Diagnose. The usual killers are: too many competing links, the CTA below the\\n   fold on mobile, a vague ask (\\\"learn more\\\"), and a body that re-sells rather\\n   than closing what the subject line already sold.\\n3. Rewrite **10 email bodies**. Hard constraints: one dominant CTA per email,\\n   that CTA visible without scrolling on a phone, benefit restated in the first\\n   line, under 150 words unless you can justify longer.\\n4. Write a **link-placement rubric** \\u2014 a half-page of rules any future email must\\n   follow. Number of links, placement, button vs. text, what the label may and\\n   may not say.\\n5. Recommend send times and days, with a source. Note explicitly if this is\\n< truncated lines 179-406 >\\n## C2 \\u2014 Manual revenue reconciliation template\\n\\n**Goal**\\nDefine the spreadsheet format and matching rules for uploading conversion revenue\\nfrom advertisers who do not fire a pixel or postback.\\n\\n**Why it matters**\\nSome advertisers simply email a spreadsheet of conversions at month end. Today we\\nhave no defined way to take that money and attribute it back to the affiliate who\\nearned it. This spec is what makes that possible.\\n\\n**Steps**\\n1. Define the CSV columns an advertiser upload must contain. Think about: what\\n   identifies the person or click, when it happened, how much it is worth,\\n   currency, the advertiser's own reference, and the conversion type. Mark each\\n   column required or optional.\\n2. Define the **match key precedence** \\u2014 the order we try to attach a row to\\n   something we already know. Suggested starting ladder, refine it: subID \\u2192\\n   our click ID \\u2192 hashed email \\u2192 phone \\u2192 date + campaign bucket. Say what\\n   confidence level each match carries.\\n3. Define **duplicate handling**. The same advertiser re-uploading last month's\\n   file must not double-count revenue. Specify what makes two rows the same row.\\n4. Define **unmatched-row behaviour**. A row matching nothing is not an error \\u2014\\n   per the ticket, revenue tracks to the closest parent bucket available. Say\\n   what that means concretely and how it appears in reporting.\\n5. Cover the edge cases: refunds and negative amounts, non-USD currency,\\n   conversions dated before the click, partial payouts, an advertiser correcting\\n   a prior file.\\n6. Produce **20 rows of synthetic sample data** demonstrating a clean subID\\n   match, a fallback match, a duplicate, an unmatched row, and a refund.\\n   **Invent every value \\u2014 no real data.**\\n\\n**Deliverable**\\n`C2-revenue-upload-spec.md` + `C2-sample-upload.csv`\\n\\n**Done when**\\n- [ ] Column spec complete, each marked required/optional with format and example\\n- [ ] Match precedence ladder with a confidence level per rung\\n- [ ] Duplicate rule defined precisely enough to implement\\n- [ ] Unmatched-row behaviour defined\\n- [ ] All six edge cases addressed\\n- [ ] 20 synthetic rows covering the five listed scenarios\\n\\n**Time box** \\u2014 4 working days\\n\\n**Don't do**\\nDo not design the upload UI or the database schema. Do not use any real\\nadvertiser file, even redacted.\\n\\n---\\n\\n## C3 \\u2014 Everflow API endpoint map\\n\\n**Goal**\\nDocument Everflow's conversion and reporting API well enough that a developer can\\nbuild a scheduled conversion pull without reopening Everflow's docs.\\n\\n**Why it matters**\\nEverflow is the benchmark for the attribution system we want. We already talk to\\ntheir API \\u2014 but only to pull the offer catalogue and generate tracking links. We\\nhave never pulled conversions back, which is the half that produces revenue data.\\n\\n**Steps**\\n1. Work through Everflow's public API documentation. Note what we already use:\\n   the paged offers catalogue endpoint, the single-offer detail fetch, and the\\n   click tracking-link generation endpoint, all authenticated with an\\n   `X-Eflow-API-Key` header against `api.eflow.team/v1/`.\\n2. Map the **conversion** endpoints: how conversions are reported into Everflow,\\n   how they are queried back out, what filters and date ranges are supported,\\n   and what one conversion record actually contains field by field.\\n3. Map the **reporting** endpoints: what aggregate reports exist, what dimensions\\n   you can group by, and what the response looks like.\\n4. Document the **postback URL macros** \\u2014 the `{transaction_id}`-style tokens\\n   Everflow substitutes when calling a partner's postback URL. List every macro\\n   with its meaning. This is the vocabulary our own postback endpoint has to\\n   speak.\\n5. Document **authentication, rate limits and paging**. Note the published\\n   request-per-second cap and how paging is signalled in responses. (We currently\\n   self-throttle below their cap \\u2014 confirm the cap and note if it has changed.)\\n6. Answer the practical question in writing: **to pull yesterday's conversions on\\n   a schedule, exactly which endpoint would we call, with what parameters, and\\n   what comes back?** Include a worked example request and response.\\n\\n**Deliverable**\\n`C3-everflow-api-map.md`\\n\\n**Done when**\\n- [ ] Conversion endpoints documented with full request/response field lists\\n- [ ] Reporting endpoints documented with available dimensions\\n- [ ] Complete postback macro list\\n- [ ] Auth, rate limits and paging documented\\n- [ ] A worked \\\"pull yesterday's conversions\\\" example, request and response\\n- [ ] Every endpoint has a link to the source doc page\\n\\n**Time box** \\u2014 4 working days\\n\\n**Don't do**\\nDo not call the live API \\u2014 we do not hand out API keys, and the account is\\nIP-restricted. This is documentation research. Do not design our own conversion\\nschema; that is C1 and C2.\\n\\n---\\n\\n## C4 \\u2014 Enrichment provider spec sheets\\n\\n**Goal**\\nWrite an implementation-ready spec sheet for each verification provider, so a\\ndeveloper can write the integration from the sheet alone.\\n\\n**Why it matters**\\nThirty-three providers are already wired into our settings screen, but every one\\nof the actual API calls is an empty placeholder that throws \\\"not implemented\\\".\\nEnrichment is what tells us whether an email is real and whether a phone number is\\na mobile \\u2014 which drives lead score, which drives what buyers pay. This card\\nconverts the ticket \\\"implement lead enrichment\\\" from a research problem into a\\ntyping problem.\\n\\n**Steps**\\n1. Write one sheet for each of: **ZeroBounce**, **NeverBounce**, **Kickbox**\\n   (email verification); **Twilio Lookup**, **IPQS** (phone); **ipinfo** (IP).\\n2. Each sheet must contain: authentication method (header name, key format);\\n   the exact request \\u2014 URL, method, every parameter; the **exact response JSON**,\\n   copied from their docs, with every field explained; error responses and what\\n   each status code means; rate limits; and cost per call at volume.\\n3. Then the important part \\u2014 the **field mapping**. Our scoring system reads a\\n   fixed set of normalised fields regardless of which provider produced them:\\n\\n   | Our field | Type | Meaning |\\n   |---|---|---|\\n   | `email_deliverable` | true/false | Will mail to this address actually arrive |\\n   | `email_catchall` | true/false | Domain accepts everything, so we cannot really tell |\\n   | `phone_line_type` | `mobile` / `landline` / `voip` / `tollfree` / `unknown` | |\\n   | `ip_country` | 2-letter code or null | |\\n   | `ip_is_proxy` | true/false | VPN, proxy or datacentre IP |\\n\\n   For each provider, state **exactly which response field maps to which of ours,\\n   and how the values translate**. Provider status strings vary \\u2014 ZeroBounce\\n   returns things like `valid` / `invalid` / `catch-all`, others use different\\n   vocabularies. Write the translation table explicitly, including what an\\n   unrecognised value should map to.\\n4. Note the **latency** of each provider. Anything slower than ~2.5 seconds\\n   cannot run inside a live form submission and would have to run afterwards.\\n   Flag which providers fall on which side of that line.\\n5. Recommend one provider per category \\u2014 email, phone, IP \\u2014 with a stated reason.\\n   Cost, accuracy and latency are the three axes.\\n\\n**Deliverable**\\n`C4-enrichment-specs.md` \\u2014 one clearly separated section per provider.\\n\\n**Done when**\\n- [ ] Six sheets, each with auth, exact request, exact response, errors, rate\\n      limits and cost\\n- [ ] A field-mapping table per provider covering all five of our normalised fields\\n- [ ] Value-translation table per provider, including the unrecognised-value case\\n- [ ] Latency noted, with the ~2.5s threshold applied\\n- [ ] One recommendation per category with a reason\\n- [ ] A developer could write the integration from your sheet without opening the\\n      vendor's docs \\u2014 test this by reading it back cold\\n\\n**Time box** \\u2014 6 working days\\n\\n**Don't do**\\nDo not write code or pseudocode. Do not spec the other 27 registered providers \\u2014\\nthese six are the ones that matter now. Do not sign up for paid plans.\\n\\n---\\n\\n## Ticket coverage\\n\\nFor Ibrahim's reference \\u2014 how these cards map back to the tickets they serve.\\n\\n| Ticket | Covered by |\\n|---|---|\\n| **CG-3386** \\u2014 research email/lead management and verification tools | B1, B2, B3 |\\n| **SubID conversion lifecycle tracking** | C1, C2 |\\n| **Implement lead enrichment from pipeline findings** | C4 |\\n| **Everflow API investigation** | C3 |\\n| **2026-08-20 conversion reset** (standing priority) | A1, A2, A3 |\\n\", \"filename\": \"/mnt/user-data/uploads/intern-tasks.md\"}"
+          },
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T12:25:43.755625Z",
+          "stop_timestamp": "2026-08-25T12:25:44.620332Z",
+          "type": "tool_use",
+          "id": "toolu_014wtWQhiEQG8dET648cRQUt",
+          "name": "view",
+          "input": {
+            "description": "Viewing Lane B and C1 task details",
+            "path": "/mnt/user-data/uploads/intern-tasks.md",
+            "view_range": [
+              178,
+              406
+            ]
+          },
+          "message": "Viewing Lane B and C1 task details",
+          "integration_name": "File Creation",
+          "icon_name": "bookText",
+          "display_content": {
+            "type": "text",
+            "text": "Viewing Lane B and C1 task details"
+          },
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T12:25:44.972581Z",
+          "stop_timestamp": "2026-08-25T12:25:44.972609Z",
+          "type": "tool_result",
+          "tool_use_id": "toolu_014wtWQhiEQG8dET648cRQUt",
+          "name": "view",
+          "content": [
+            {
+              "type": "text",
+              "text": "   178\t5. Recommend send times and days, with a source. Note explicitly if this is\n   179\t   general best practice rather than something derived from our own data.\n   180\t\n   181\t**Deliverable**\n   182\t`A3-email-rewrites.md` + `A3-link-rubric.md`\n   183\t\n   184\t**Done when**\n   185\t- [ ] Current emails audited with the specific failure named for each\n   186\t- [ ] 10 rewritten bodies, each with exactly one dominant CTA\n   187\t- [ ] Every rewrite under 150 words or with a written justification\n   188\t- [ ] Link-placement rubric fits on one page\n   189\t- [ ] Send-time recommendation with sources cited\n   190\t\n   191\t**Time box** — 4 working days\n   192\t\n   193\t**Don't do**\n   194\tDo not touch subject lines — they are working, leave them alone. Do not design\n   195\tHTML templates or work on deliverability/warming (that is B3 and Mudassar's\n   196\twork).\n   197\t\n   198\t---\n   199\t\n   200\t# Lane B — Market & Tooling Research\n   201\t\n   202\t> Covers ticket **CG-3386**. The purpose is not to admire competitors — it is to\n   203\t> produce a **gap list** telling us what to build next.\n   204\t\n   205\t## B1 — Lead-management platform matrix\n   206\t\n   207\t**Goal**\n   208\tMap what the six lead-management platforms our data brokers use actually do, and\n   209\tmark which of those capabilities we already have.\n   210\t\n   211\t**Why it matters**\n   212\tCG-3386 exists so we can decide what to add to our stack — and, per the ticket,\n   213\twhich of these tools we could make unnecessary. Without the \"do we already have\n   214\tthis\" column, the research is just brochure summaries.\n   215\t\n   216\t**Steps**\n   217\t1. Research all six: **WayPoint** (waypointsoftware.io), **GoHighLevel**,\n   218\t   **DataHubb** (datahubb.io), **LeadsPedia**, **LeadProsper**, and\n   219\t   **ActiveProspect LeadConduit**.\n   220\t2. For each, write a one-page summary: what it is for, who buys it, headline\n   221\t   features, pricing (or \"sales-gated\" if unpublished), and whether it has a\n   222\t   public API. Use their docs, pricing pages, demo videos and G2/Capterra\n   223\t   listings. Cite everything.\n   224\t3. Build **one combined feature matrix**: capabilities down the side, the six\n   225\t   tools across the top, ✅/🟡/❌ in the cells.\n   226\t4. Add a final column: **\"Risen status\"** — `have` / `partial` / `missing`. Fill\n   227\t   it from §7 of [intern-brief.md](intern-brief.md), and ask Ibrahim about\n   228\t   anything not covered there. **Do not guess this column.**\n   229\t5. Close with a ranked gap list: the capabilities that appear in most competitors\n   230\t   and that we do not have, most valuable first. One sentence each on why it\n   231\t   matters to us specifically.\n   232\t\n   233\t**Deliverable**\n   234\t`B1-lead-platform-matrix.xlsx` (or Google Sheet) + `B1-tool-profiles.md`\n   235\t\n   236\t**Done when**\n   237\t- [ ] Six one-page profiles with sources cited\n   238\t- [ ] One matrix, at least 25 capability rows\n   239\t- [ ] \"Risen status\" filled for every row, nothing guessed\n   240\t- [ ] Ranked gap list with a reason per item\n   241\t\n   242\t**Time box** — 7 working days\n   243\t\n   244\t**Don't do**\n   245\tDo not recommend which one to buy — that is Ibrahim and Mike's call, and it needs\n   246\tcommercial context you do not have. Do not sign up for paid trials without\n   247\tapproval.\n   248\t\n   249\t---\n   250\t\n   251\t## B2 — Verification tooling\n   252\t\n   253\t**Goal**\n   254\tWork out what EmailOversight and SubscriberVerify would add on top of the\n   255\tverification we already run.\n   256\t\n   257\t**Why it matters**\n   258\tCompetitors verify leads before delivery, and bad leads cost us buyer\n   259\trelationships. **Blacklist Alliance is already integrated and live** — so the\n   260\treal question is narrower than the ticket makes it sound: what do the other two\n   261\tcatch that we currently miss?\n   262\t\n   263\t**Steps**\n   264\t1. Profile **EmailOversight**, **SubscriberVerify** and **Blacklist Alliance**.\n   265\t   For each capture: what exactly it checks, price per check at volume, published\n   266\t   accuracy claims, typical response latency, whether there is a real-time API or\n   267\t   batch-only, and whether it is US-only.\n   268\t2. For Blacklist Alliance, note what we already use it for — DNC and TCPA\n   269\t   litigator phone scrubbing, run before we contact or sell a lead, and\n   270\t   deliberately fail-closed (an unreachable provider holds the lead rather than\n   271\t   risking the call).\n   272\t3. Build a comparison table across all three.\n   273\t4. Answer the money question directly: **what do EmailOversight and\n   274\t   SubscriberVerify catch that Blacklist Alliance does not?** Be specific — check\n   275\t   types, not marketing language.\n   276\t5. Note anything about latency that would matter in a live form submission. A\n   277\t   check that takes 4 seconds cannot sit in the submit path.\n   278\t\n   279\t**Deliverable**\n   280\t`B2-verification-tools.md`\n   281\t\n   282\t**Done when**\n   283\t- [ ] Three profiles with pricing (or \"sales-gated\"), latency and API details\n   284\t- [ ] Comparison table\n   285\t- [ ] A direct written answer to the overlap question\n   286\t- [ ] Latency implications called out\n   287\t- [ ] Sources cited throughout\n   288\t\n   289\t**Time box** — 4 working days\n   290\t\n   291\t**Don't do**\n   292\tDo not design how we would integrate them — that is a later ticket. Do not\n   293\tduplicate C4 (which covers ZeroBounce, NeverBounce and Kickbox in technical\n   294\tdepth); if you find overlap, note it and move on.\n   295\t\n   296\t---\n   297\t\n   298\t## B3 — Deliverability and InboxAlly\n   299\t\n   300\t**Goal**\n   301\tExplain how inbox-placement tooling works, what InboxAlly costs, and how it fits\n   302\twith the domain/IP warming already running.\n   303\t\n   304\t**Why it matters**\n   305\tThe ticket flags this as valuable for Precision's email distribution. We are 30–45\n   306\tdays into a warming ramp right now, so the timing question — does this help\n   307\tduring warming or only after — is decision-relevant this month.\n   308\t\n   309\t**Steps**\n   310\t1. Explain inbox placement in plain terms: what a seed list is, how placement\n   311\t   testing works, and how it differs from the open/click stats we already\n   312\t   collect. Assume the reader knows email but not deliverability.\n   313\t2. Profile **InboxAlly**: what it does mechanically, pricing tiers, what it needs\n   314\t   from us to run, and what it demonstrably improves.\n   315\t3. Find and profile two alternatives (GlockApps, MailReach, Warmup Inbox or\n   316\t   similar) so we are not evaluating a single vendor in isolation.\n   317\t4. Answer the timing question explicitly: **does this help during a warming ramp,\n   318\t   or only once warming is complete?** This is the decision Mike needs.\n   319\t5. List what adopting it would require operationally — accounts, DNS records,\n   320\t   list changes, ongoing effort, who would own it.\n   321\t6. Note the risks. Engagement-seeding tools sit in a grey area with some mailbox\n   322\t   providers; write down what you find honestly, including anything that could\n   323\t   backfire.\n   324\t\n   325\t**Deliverable**\n   326\t`B3-deliverability-research.md`\n   327\t\n   328\t**Done when**\n   329\t- [ ] Plain-English explanation of inbox placement and seed lists\n   330\t- [ ] InboxAlly profiled with real pricing\n   331\t- [ ] Two alternatives profiled\n   332\t- [ ] The warming-timing question answered directly\n   333\t- [ ] Operational requirements listed\n   334\t- [ ] Risks stated honestly, not glossed\n   335\t\n   336\t**Time box** — 4 working days\n   337\t\n   338\t**Don't do**\n   339\tDo not touch the live warming process — that is Mudassar's, and it is mid-ramp.\n   340\tDo not sign up for anything.\n   341\t\n   342\t---\n   343\t\n   344\t# Lane C — Tracking & Data Specs\n   345\t\n   346\t> These three tickets are blocked on decisions nobody has written down. Each card\n   347\t> produces the specification a developer implements from — good enough that they\n   348\t> never have to reopen the vendor's docs.\n   349\t\n   350\t## C1 — SubID parameter dictionary and lifecycle spec\n   351\t\n   352\t**Goal**\n   353\tProduce the definitive list of tracking parameter names we must capture, and a\n   354\tmap of where the subID travels from first click to final revenue.\n   355\t\n   356\t**Why it matters**\n   357\tA subID that is not captured on the first click **cannot be recovered later**, and\n   358\tthe affiliate who earned that lead does not get paid. We currently recognise\n   359\taround 15 parameter naming conventions. Every network spells them differently.\n   360\t\n   361\t**Steps**\n   362\t1. From the six platforms in B1 plus Everflow, collect **every** tracking\n   363\t   parameter name they emit or accept. Networks use numbered families —\n   364\t   `sub1`–`sub5`, `sid1`–`sid5`, `aff_sub1`–`aff_sub5`, `s1`–`s5` — plus\n   365\t   single-value ones like `clickid`, `gclid`, `affid`, `pubid`, `srcid`, `oid`.\n   366\t   Include every variation you find, even ones that look redundant.\n   367\t2. Build the dictionary as a table: parameter name · which networks use it ·\n   368\t   what it means · example value.\n   369\t3. We already capture these (given as a plain list, for comparison):\n   370\t   `sub1`–`sub99`, `sid1`–`sid99`, `cid1`–`cid99`, `s1`–`s99`, `afs1`–`afs99`,\n   371\t   `aff_sub1`–`aff_sub99`, `subid`, `sub_id`, `affid`, `aff_id`, `affiliate_id`,\n   372\t   `clickid`, `click_id`, `pubid`, `publisher_id`, `srcid`, `src_id`, `oid`.\n   373\t   **Mark clearly which of your findings are new.** The new ones are the point of\n   374\t   the exercise.\n   375\t4. Draw the lifecycle: `anonymous click → landing page → form submitted (lead) →\n   376\t   remarketing email → conversion → revenue recorded`. At each hop, state which\n   377\t   identifier carries the attribution and what breaks it. Flag the hops where we\n   378\t   currently have nothing.\n   379\t5. Write the **fallback rules**: when no subID is present, what do we attribute\n   380\t   to instead? Define the fallback ladder — e.g. subID → campaign → source →\n   381\t   brand → unattributed — and say exactly when each rung applies.\n   382\t6. Write the **first-touch rule** in plain language, including what happens when\n   383\t   the same person submits twice via different affiliates. (Our system keeps the\n   384\t   first submission's credit. Confirm this matches how the researched networks\n   385\t   behave, and note any that differ.)\n   386\t\n   387\t**Deliverable**\n   388\t`C1-subid-dictionary.xlsx` + `C1-attribution-lifecycle.md` (diagram may be a\n   389\tdrawing, a Mermaid block, or a clearly labelled sketch)\n   390\t\n   391\t**Done when**\n   392\t- [ ] Dictionary covers all six platforms plus Everflow\n   393\t- [ ] New-vs-already-captured marked for every entry\n   394\t- [ ] Lifecycle diagram names the carrying identifier at every hop\n   395\t- [ ] Gaps in the current chain explicitly flagged\n   396\t- [ ] Fallback ladder defined with trigger conditions per rung\n   397\t- [ ] First-touch rule written out, with any network deviations noted\n   398\t\n   399\t**Time box** — 5 working days\n   400\t\n   401\t**Don't do**\n   402\tDo not design database tables or write code. Do not specify the admin UI for\n   403\tviewing this.\n   404\t\n   405\t---\n   406\t\n[585 lines total]",
+              "uuid": "13abba7f-b09c-4a3e-a666-92a7c754f3d8"
+            }
+          ],
+          "is_error": false,
+          "meta": {
+            "output_format_category": "md"
+          },
+          "integration_name": "File Creation",
+          "icon_name": "bookText",
+          "display_content": {
+            "type": "json_block",
+            "json_block": "{\"language\": \"markdown\", \"code\": \"5. Recommend send times and days, with a source. Note explicitly if this is\\n   general best practice rather than something derived from our own data.\\n\\n**Deliverable**\\n`A3-email-rewrites.md` + `A3-link-rubric.md`\\n\\n**Done when**\\n- [ ] Current emails audited with the specific failure named for each\\n- [ ] 10 rewritten bodies, each with exactly one dominant CTA\\n- [ ] Every rewrite under 150 words or with a written justification\\n- [ ] Link-placement rubric fits on one page\\n- [ ] Send-time recommendation with sources cited\\n\\n**Time box** \\u2014 4 working days\\n\\n**Don't do**\\nDo not touch subject lines \\u2014 they are working, leave them alone. Do not design\\nHTML templates or work on deliverability/warming (that is B3 and Mudassar's\\nwork).\\n\\n---\\n\\n# Lane B \\u2014 Market & Tooling Research\\n\\n> Covers ticket **CG-3386**. The purpose is not to admire competitors \\u2014 it is to\\n> produce a **gap list** telling us what to build next.\\n\\n## B1 \\u2014 Lead-management platform matrix\\n\\n**Goal**\\nMap what the six lead-management platforms our data brokers use actually do, and\\nmark which of those capabilities we already have.\\n\\n**Why it matters**\\nCG-3386 exists so we can decide what to add to our stack \\u2014 and, per the ticket,\\nwhich of these tools we could make unnecessary. Without the \\\"do we already have\\nthis\\\" column, the research is just brochure summaries.\\n\\n**Steps**\\n1. Research all six: **WayPoint** (waypointsoftware.io), **GoHighLevel**,\\n   **DataHubb** (datahubb.io), **LeadsPedia**, **LeadProsper**, and\\n   **ActiveProspect LeadConduit**.\\n2. For each, write a one-page summary: what it is for, who buys it, headline\\n   features, pricing (or \\\"sales-gated\\\" if unpublished), and whether it has a\\n   public API. Use their docs, pricing pages, demo videos and G2/Capterra\\n   listings. Cite everything.\\n3. Build **one combined feature matrix**: capabilities down the side, the six\\n   tools across the top, \\u2705/\\ud83d\\udfe1/\\u274c in the cells.\\n4. Add a final column: **\\\"Risen status\\\"** \\u2014 `have` / `partial` / `missing`. Fill\\n   it from \\u00a77 of [intern-brief.md](intern-brief.md), and ask Ibrahim about\\n   anything not covered there. **Do not guess this column.**\\n5. Close with a ranked gap list: the capabilities that appear in most competitors\\n   and that we do not have, most valuable first. One sentence each on why it\\n   matters to us specifically.\\n\\n**Deliverable**\\n`B1-lead-platform-matrix.xlsx` (or Google Sheet) + `B1-tool-profiles.md`\\n\\n**Done when**\\n- [ ] Six one-page profiles with sources cited\\n- [ ] One matrix, at least 25 capability rows\\n- [ ] \\\"Risen status\\\" filled for every row, nothing guessed\\n- [ ] Ranked gap list with a reason per item\\n\\n**Time box** \\u2014 7 working days\\n\\n**Don't do**\\nDo not recommend which one to buy \\u2014 that is Ibrahim and Mike's call, and it needs\\ncommercial context you do not have. Do not sign up for paid trials without\\napproval.\\n\\n---\\n\\n## B2 \\u2014 Verification tooling\\n\\n**Goal**\\nWork out what EmailOversight and SubscriberVerify would add on top of the\\nverification we already run.\\n\\n**Why it matters**\\nCompetitors verify leads before delivery, and bad leads cost us buyer\\nrelationships. **Blacklist Alliance is already integrated and live** \\u2014 so the\\nreal question is narrower than the ticket makes it sound: what do the other two\\ncatch that we currently miss?\\n\\n**Steps**\\n1. Profile **EmailOversight**, **SubscriberVerify** and **Blacklist Alliance**.\\n   For each capture: what exactly it checks, price per check at volume, published\\n   accuracy claims, typical response latency, whether there is a real-time API or\\n   batch-only, and whether it is US-only.\\n2. For Blacklist Alliance, note what we already use it for \\u2014 DNC and TCPA\\n   litigator phone scrubbing, run before we contact or sell a lead, and\\n   deliberately fail-closed (an unreachable provider holds the lead rather than\\n   risking the call).\\n3. Build a comparison table across all three.\\n4. Answer the money question directly: **what do EmailOversight and\\n   SubscriberVerify catch that Blacklist Alliance does not?** Be specific \\u2014 check\\n   types, not marketing language.\\n5. Note anything about latency that would matter in a live form submission. A\\n   check that takes 4 seconds cannot sit in the submit path.\\n\\n**Deliverable**\\n`B2-verification-tools.md`\\n\\n**Done when**\\n- [ ] Three profiles with pricing (or \\\"sales-gated\\\"), latency and API details\\n- [ ] Comparison table\\n- [ ] A direct written answer to the overlap question\\n- [ ] Latency implications called out\\n- [ ] Sources cited throughout\\n\\n**Time box** \\u2014 4 working days\\n\\n**Don't do**\\nDo not design how we would integrate them \\u2014 that is a later ticket. Do not\\nduplicate C4 (which covers ZeroBounce, NeverBounce and Kickbox in technical\\ndepth); if you find overlap, note it and move on.\\n\\n---\\n\\n## B3 \\u2014 Deliverability and InboxAlly\\n\\n**Goal**\\nExplain how inbox-placement tooling works, what InboxAlly costs, and how it fits\\nwith the domain/IP warming already running.\\n\\n**Why it matters**\\nThe ticket flags this as valuable for Precision's email distribution. We are 30\\u201345\\ndays into a warming ramp right now, so the timing question \\u2014 does this help\\nduring warming or only after \\u2014 is decision-relevant this month.\\n\\n**Steps**\\n1. Explain inbox placement in plain terms: what a seed list is, how placement\\n   testing works, and how it differs from the open/click stats we already\\n   collect. Assume the reader knows email but not deliverability.\\n2. Profile **InboxAlly**: what it does mechanically, pricing tiers, what it needs\\n   from us to run, and what it demonstrably improves.\\n3. Find and profile two alternatives (GlockApps, MailReach, Warmup Inbox or\\n   similar) so we are not evaluating a single vendor in isolation.\\n4. Answer the timing question explicitly: **does this help during a warming ramp,\\n   or only once warming is complete?** This is the decision Mike needs.\\n5. List what adopting it would require operationally \\u2014 accounts, DNS records,\\n   list changes, ongoing effort, who would own it.\\n6. Note the risks. Engagement-seeding tools sit in a grey area with some mailbox\\n   providers; write down what you find honestly, including anything that could\\n   backfire.\\n\\n**Deliverable**\\n`B3-deliverability-research.md`\\n\\n**Done when**\\n- [ ] Plain-English explanation of inbox placement and seed lists\\n- [ ] InboxAlly profiled with real pricing\\n- [ ] Two alternatives profiled\\n- [ ] The warming-timing question answered directly\\n- [ ] Operational requirements listed\\n- [ ] Risks stated honestly, not glossed\\n\\n**Time box** \\u2014 4 working days\\n\\n**Don't do**\\nDo not touch the live warming process \\u2014 that is Mudassar's, and it is mid-ramp.\\nDo not sign up for anything.\\n\\n---\\n\\n# Lane C \\u2014 Tracking & Data Specs\\n\\n> These three tickets are blocked on decisions nobody has written down. Each card\\n> produces the specification a developer implements from \\u2014 good enough that they\\n> never have to reopen the vendor's docs.\\n\\n## C1 \\u2014 SubID parameter dictionary and lifecycle spec\\n\\n**Goal**\\nProduce the definitive list of tracking parameter names we must capture, and a\\nmap of where the subID travels from first click to final revenue.\\n\\n**Why it matters**\\nA subID that is not captured on the first click **cannot be recovered later**, and\\nthe affiliate who earned that lead does not get paid. We currently recognise\\naround 15 parameter naming conventions. Every network spells them differently.\\n\\n**Steps**\\n1. From the six platforms in B1 plus Everflow, collect **every** tracking\\n   parameter name they emit or accept. Networks use numbered families \\u2014\\n   `sub1`\\u2013`sub5`, `sid1`\\u2013`sid5`, `aff_sub1`\\u2013`aff_sub5`, `s1`\\u2013`s5` \\u2014 plus\\n   single-value ones like `clickid`, `gclid`, `affid`, `pubid`, `srcid`, `oid`.\\n   Include every variation you find, even ones that look redundant.\\n2. Build the dictionary as a table: parameter name \\u00b7 which networks use it \\u00b7\\n   what it means \\u00b7 example value.\\n3. We already capture these (given as a plain list, for comparison):\\n   `sub1`\\u2013`sub99`, `sid1`\\u2013`sid99`, `cid1`\\u2013`cid99`, `s1`\\u2013`s99`, `afs1`\\u2013`afs99`,\\n   `aff_sub1`\\u2013`aff_sub99`, `subid`, `sub_id`, `affid`, `aff_id`, `affiliate_id`,\\n   `clickid`, `click_id`, `pubid`, `publisher_id`, `srcid`, `src_id`, `oid`.\\n   **Mark clearly which of your findings are new.** The new ones are the point of\\n   the exercise.\\n4. Draw the lifecycle: `anonymous click \\u2192 landing page \\u2192 form submitted (lead) \\u2192\\n   remarketing email \\u2192 conversion \\u2192 revenue recorded`. At each hop, state which\\n   identifier carries the attribution and what breaks it. Flag the hops where we\\n   currently have nothing.\\n5. Write the **fallback rules**: when no subID is present, what do we attribute\\n   to instead? Define the fallback ladder \\u2014 e.g. subID \\u2192 campaign \\u2192 source \\u2192\\n   brand \\u2192 unattributed \\u2014 and say exactly when each rung applies.\\n6. Write the **first-touch rule** in plain language, including what happens when\\n   the same person submits twice via different affiliates. (Our system keeps the\\n   first submission's credit. Confirm this matches how the researched networks\\n   behave, and note any that differ.)\\n\\n**Deliverable**\\n`C1-subid-dictionary.xlsx` + `C1-attribution-lifecycle.md` (diagram may be a\\ndrawing, a Mermaid block, or a clearly labelled sketch)\\n\\n**Done when**\\n- [ ] Dictionary covers all six platforms plus Everflow\\n- [ ] New-vs-already-captured marked for every entry\\n- [ ] Lifecycle diagram names the carrying identifier at every hop\\n- [ ] Gaps in the current chain explicitly flagged\\n- [ ] Fallback ladder defined with trigger conditions per rung\\n- [ ] First-touch rule written out, with any network deviations noted\\n\\n**Time box** \\u2014 5 working days\\n\\n**Don't do**\\nDo not design database tables or write code. Do not specify the admin UI for\\nviewing this.\\n\\n---\\n\\n\", \"filename\": \"/mnt/user-data/uploads/intern-tasks.md\"}"
+          },
+          "tool_origin": "first_party"
+        },
+        {
+          "start_timestamp": "2026-08-25T12:25:46.314445Z",
+          "stop_timestamp": "2026-08-25T12:26:00.683693Z",
+          "type": "text",
+          "text": "Ab poori tasks list dekh li — yeh raha breakdown:\n\n## Lane A — Conversion & Copy (Priority #1, marketing wala kaam)\nConversion sirf ~1% hai, isko fix karna hai:\n- **A1** — 6 competitor landing pages tod-tod ke dekhna (Good Labs, Day One Lab, Bright Fire + 3 aur), unka pattern nikalna, phir apne 3 brand types ke liye 30 headlines + 12 sub-headlines + 9 CTA buttons likhna\n- **A2** — ek brand (Med Trial Match) ke liye 2 competing funnel designs (A/B test ke liye) — field-by-field likhna, kaunsa order behtar hai\n- **A3** — 10 emails rewrite karna (open rate 56% achi hai lekin click rate kharab hai, matlab body mein masla hai) + ek link-placement rule sheet\n\n## Lane B — Market Research (2nd priority, generalist wala kaam)\nCompetitors research karke gap list banani hai:\n- **B1** — 6 lead-management tools (WayPoint, GoHighLevel, DataHubb, LeadsPedia, LeadProsper, ActiveProspect) profile karke matrix banana — hamare paas kya already hai vs nahi\n- **B2** — 2 verification tools (EmailOversight, SubscriberVerify) compare karna hamare existing tool (Blacklist Alliance) se — woh extra kya catch karte hain\n- **B3** — Email deliverability tools (InboxAlly + 2 alternatives) research — warming ke dauran kaam aayenge ya nahi\n\n## Lane C — Tracking & Data Specs (3rd priority, dev-leaning wala kaam, koding nahi bas specs)\n- **C1** — SubID parameter dictionary — saare tracking codes (`sub1`, `clickid` waghera) ki list, kahan-kahan travel karta hai lead ka subID\n- **C2** — Revenue reconciliation spec — jab advertiser hath se CSV bhejta hai revenue ka, usko match karne ka tareeqa\n- **C3** — Everflow API documentation — conversions pull karne ka endpoint map\n- **C4** — 6 verification providers (ZeroBounce, NeverBounce, Kickbox, Twilio Lookup, IPQS, ipinfo) ke liye implementation-ready spec sheets\n\n**Important:** har card mein saaf likha hai — **\"Nothing here requires writing code or touching production data.\"** Sab kuch docs, sheets, ya labelled sketches hain — koi bhi lane coding nahi maangti. Yeh phir se confirm karta hai ke Ibrahim ka WhatsApp message (\"full fledge working system\") in official task cards se match nahi karta — is gap ko unse zaroor clear karwana.\n\n**Poochna hai:** tumhe konsi lane assign hui hai — A, B, ya C? Ya sab teeno tumhe hi milenge?",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 17,
+      "created_at": "2026-08-25T12:26:00.753561Z",
+      "updated_at": "2026-08-25T12:26:00.753561Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a038e2-17e8-793b-a406-afe7188762a9"
+    },
+    {
+      "uuid": "01a03912-a13e-76ae-9f72-35c20d029428",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:18:42.098639Z",
+          "stop_timestamp": "2026-08-25T13:18:42.098639Z",
+          "type": "text",
+          "text": "acha bhai ab dekh hum ne projectsstart krna hai is mn mere sath aik partner hai tu ab tum btao ke is mn kia kia bnana hai i mean kia kai bnana hai",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 18,
+      "created_at": "2026-08-25T13:18:42.098768Z",
+      "updated_at": "2026-08-25T13:18:42.098768Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a038e2-17e9-7460-a112-c1142f402f5a"
+    },
+    {
+      "uuid": "01a03912-a13f-7a54-8a98-aa13c7aa500b",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:18:42.093880Z",
+          "stop_timestamp": "2026-08-25T13:18:48.656888Z",
+          "type": "thinking",
+          "thinking": "",
+          "summaries": [
+            {
+              "summary": "Disentangled scope confusion between documentation and actual construction."
+            }
+          ],
+          "cut_off": false,
+          "truncated": true,
+          "hidden": false,
+          "thinking_hidden": true
+        },
+        {
+          "start_timestamp": "2026-08-25T13:18:48.657345Z",
+          "stop_timestamp": "2026-08-25T13:18:49.202673Z",
+          "type": "text",
+          "text": "Do interpretations ho sakti hain — clear kar do ek baat:",
+          "citations": []
+        },
+        {
+          "start_timestamp": "2026-08-25T13:18:49.202686Z",
+          "stop_timestamp": "2026-08-25T13:18:51.370400Z",
+          "type": "tool_use",
+          "id": "toolu_017zGT3Eno4KcrqKnCZN5jpT",
+          "name": "ask_user_input_v0",
+          "input": {
+            "questions": [
+              {
+                "options": [
+                  "Intern task lanes split karne hain (A/B/C docs—brief ke mutabiq)",
+                  "Woh full production system banana hai jo humne pehle discuss kiya (code)",
+                  "Dono — lanes bhi karne hain aur system bhi banana hai"
+                ],
+                "question": "Partner ke saath \"project start\" karna — iska matlab kya hai?"
+              }
+            ]
+          },
+          "message": "Generating ask_user_input_v0...",
+          "integration_name": "Dynamic Widget"
+        },
+        {
+          "start_timestamp": "2026-08-25T13:18:51.390827Z",
+          "stop_timestamp": "2026-08-25T13:18:51.390839Z",
+          "type": "tool_result",
+          "tool_use_id": "toolu_017zGT3Eno4KcrqKnCZN5jpT",
+          "name": "ask_user_input_v0",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"questions\": [{\"question\":\"Partner ke saath \\\"project start\\\" karna — iska matlab kya hai?\",\"options\":[\"Intern task lanes split karne hain (A/B/C docs—brief ke mutabiq)\",\"Woh full production system banana hai jo humne pehle discuss kiya (code)\",\"Dono — lanes bhi karne hain aur system bhi banana hai\"]}]}",
+              "uuid": "80637573-ede5-4295-ade3-fed7bbda9fa7"
+            }
+          ],
+          "is_error": false,
+          "message": "Generated ask_user_input_v0 widget",
+          "integration_name": "Dynamic Widget"
+        }
+      ],
+      "sender": "assistant",
+      "index": 19,
+      "created_at": "2026-08-25T13:18:51.400383Z",
+      "updated_at": "2026-08-25T13:18:51.400383Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03912-a13e-76ae-9f72-35c20d029428"
+    },
+    {
+      "uuid": "01a03913-5544-7d9f-b1cd-27544ef55701",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:19:25.438993Z",
+          "stop_timestamp": "2026-08-25T13:19:25.438993Z",
+          "type": "text",
+          "text": "Q: Partner ke saath \"project start\" karna — iska matlab kya hai?\nA: bhai mtlb muje a to z clear kr do ke hai kya projet or krna kia kia hai si mn",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 20,
+      "created_at": "2026-08-25T13:19:25.439195Z",
+      "updated_at": "2026-08-25T13:19:25.439195Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03912-a13f-7a54-8a98-aa13c7aa500b"
+    },
+    {
+      "uuid": "01a03913-5545-75cf-a2ab-306638fa751c",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:19:28.176866Z",
+          "stop_timestamp": "2026-08-25T13:19:47.959886Z",
+          "type": "text",
+          "text": "Theek hai, poori cheez ek dafa mein clear kar deta hoon — A to Z.\n\n---\n\n## Project kya hai (1-line mein)\n\n**Risen Results** ek company hai jo \"leads\" bechti hai — matlab woh log jo kisi cheez mein interested hain (paisa, medical trial, ghar ki repair), unko dhoondhna, verify karna, aur companies (buyers) ko bechna. Yeh sab **6-7 alag websites (brands)** ke through hota hai, ek hi system ke peeche.\n\n---\n\n## Do alag cheezein ho rahi hain is conversation mein — dono clear kar deta hoon\n\n### 1️⃣ **Jo Ibrahim ne OFFICIALLY assign kiya hai (intern-brief + intern-tasks files)**\n\nYeh **koi bhi code nahi** — sirf research, copy, aur specs likhni hain. 3 lanes hain, do interns mein split hoti hain:\n\n| Lane | Kya karna hai | Deliverable type |\n|---|---|---|\n| **A — Copy** | Landing page headlines, funnel design, email rewrite | Docs/Markdown |\n| **B — Research** | Competitor tools compare karna | Docs + Spreadsheet |\n| **C — Specs** | Tracking/data rules likhna (taake developer baad mein banaye) | Docs + CSV |\n\nDo interns ke saath: **ek partner Lane A** karega, **doosra Lane B phir C** (sequence mein). Priority Lane A hai (conversion abhi 1% hai, usko fix karna hai).\n\n**Is mein koi bhi website ya system banana nahi** — bas likhna hai \"kya hona chahiye.\"\n\n---\n\n### 2️⃣ **Jo Ibrahim ne WhatsApp pe alag se bola** (\"full fledge working system, robust and ideal\")\n\nYeh **officially assigned tasks se match nahi karta**. Yeh ho sakta hai:\n- Ek alag/bada ask ho jo docs se aage jaake actual system banane ka ho\n- Ya galat samajh (usne shayad general expectation set ki ho ke jo bhi tum doc likho woh itni achi ho ke seedha implementable ho)\n\n**Yeh cheez abhi bhi unconfirmed hai — Ibrahim se seedha pooch lena chahiye:** *\"Yeh 3 lanes ke docs chahiye ya inke alawa actual website/system bhi banana hai?\"*\n\n---\n\n## Ab practical action plan (dono scenarios cover karta hai)\n\n**Step 1 — Ibrahim se confirm karo (aaj hi, message bhej ke):**\n> \"Humein A/B/C task cards ke docs deliver karne hain jaisa brief mein hai, ya inke sath ek working system bhi banana hai jo aap deploy karenge?\"\n\n**Step 2a — Agar jawab hai \"bas docs\":**\n- Tum aur partner mil ke decide karo kaun Lane A lega, kaun B→C\n- Main tumhe har task card ke through step-by-step guide karta rahoon (research, likhna, format)\n\n**Step 2b — Agar jawab hai \"system bhi chahiye\":**\n- Toh hum parallel mein: docs bhi complete karenge (kyunki woh spec/requirement define karte hain) **aur** unhi specs ke upar actual system banayenge (Next.js + Supabase, jaisa maine pehle bola)\n- Tum aur partner: ek banda frontend/forms pe, doosra backend/database/API pe kaam kar sakta hai\n\n---\n\n**Sawal:** Ibrahim se confirm karne se pehle, chaho toh main tumhe ek chhota sa message draft kar doon jo tum use bhej sako taake yeh confusion clear ho jaye — theek rahega?",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 21,
+      "created_at": "2026-08-25T13:19:47.969289Z",
+      "updated_at": "2026-08-25T13:19:47.969289Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03913-5544-7d9f-b1cd-27544ef55701"
+    },
+    {
+      "uuid": "01a03924-2d23-78c3-b8c7-025615b0b63b",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:37:50.707878Z",
+          "stop_timestamp": "2026-08-25T13:37:50.707878Z",
+          "type": "text",
+          "text": "acha yh bta ke agr full system hai let suppose tu os mn hmain kya kay bnana ho ga actuall mn i mean kinti website kitne fronend kitne backend sb btao a to z ke full system mn kya kay bnaan hoga",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 22,
+      "created_at": "2026-08-25T13:37:50.708001Z",
+      "updated_at": "2026-08-25T13:37:50.708001Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03913-5545-75cf-a2ab-306638fa751c"
+    },
+    {
+      "uuid": "01a03924-2d23-798d-8bc7-d4cb59150687",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:37:50.703184Z",
+          "stop_timestamp": "2026-08-25T13:38:03.271492Z",
+          "type": "thinking",
+          "thinking": "",
+          "summaries": [
+            {
+              "summary": "Blueprinted complete multi-tenant architecture spanning frontends, backends, databases comprehensively."
+            }
+          ],
+          "cut_off": false,
+          "truncated": true,
+          "hidden": false,
+          "thinking_hidden": true
+        },
+        {
+          "start_timestamp": "2026-08-25T13:38:03.272149Z",
+          "stop_timestamp": "2026-08-25T13:38:23.567737Z",
+          "type": "text",
+          "text": "Theek hai, poori architecture A to Z — agar sach mein full production system banana ho:\n\n## Kitni websites / frontends?\n\n**Sirf 1 codebase — multiple websites nahi banate, ek \"multi-brand\" app banate hain.**\n\nBrief mein khud likha hai: *\"one codebase serving many different brands.\"* Matlab:\n\n- **1 Next.js app** jo domain dekh ke decide karta hai kaunsa brand dikhana hai (jaise `windowhound.com` aaye toh WindowHound ka look/form, `medtrialmatch.com` aaye toh us ka)\n- Har brand ka config (colors, logo, form questions, legal text) **database mein stored** hota hai, code mein nahi — taake naya brand add karna ho toh code na likhna pade, bas database mein row add ho\n\nToh: **1 frontend codebase, N brands (jitne bhi chahiye, config-driven)**\n\n---\n\n## Kitne backends?\n\n**1 backend — same app ke andar (Next.js API routes / server functions)**, sabhi brands ke liye shared. Isme yeh cheezein hongi:\n\n| Backend part | Kaam |\n|---|---|\n| Form submission handler | Lead data receive + save karna |\n| SubID capture logic | URL se tracking code nikaalna |\n| Verification pipeline | DNC check, TrustedForm, email/phone/IP verify (external APIs call karna) |\n| Scoring engine | Lead ko score dena |\n| Buyer delivery service | Achi lead ko buyer ke API pe bhejna |\n| Buyer postback receiver | Buyer se \"converted\" signal wapas lena |\n| Everflow sync job | Scheduled job jo conversions pull kare |\n| Email service | Campaign emails bhejna + open/click track karna |\n| Revenue upload handler | Manual CSV upload process karna (C2 wala) |\n\n---\n\n## Database (1 hi, sab brands share karenge)\n\nTables jo chahiye honge:\n\n- `brands` — har brand ka config\n- `leads` — form data + subID + score\n- `subid_dictionary` — konse parameters track karne hain\n- `affiliates` — kisko commission jaana hai\n- `buyers` — kaun kharidta hai\n- `buyer_deliveries` — kis lead ko kis buyer ko bheja, kab\n- `verification_results` — email/phone/IP check ka result\n- `postbacks` — buyer se conversion confirmation\n- `revenue` — manual upload wala data\n- `email_campaigns` + `email_events` — open/click tracking\n- `funnels` / `funnel_steps` — A/B test variants\n- `offers` + `clicks` — offer wall clicks\n\n---\n\n## Portals (alag se, protected areas)\n\n1. **Admin portal** — Ibrahim ke liye. Leads dekhna, revenue reports, brand config edit karna\n2. **Buyer portal** (optional, phase 2) — buyer login kare, apni leads dekhe\n3. **Public frontend** — jahan visitors form bharte hain (yeh hi #1 wala multi-brand site)\n\n---\n\n## Bahar ke services jo connect karne honge (external APIs)\n\n- **TrustedForm** (consent proof)\n- **Blacklist Alliance** (DNC scrub)\n- **Email/phone/IP verification** (ZeroBounce, Twilio Lookup, ipinfo — jo C4 mein specify honge)\n- **Everflow** (affiliate network)\n- **Email sender** (SendGrid/Resend/SES)\n- **Buyer APIs** (har buyer ka apna endpoint)\n\n---\n\n## Total count (summary)\n\n| Cheez | Kitni |\n|---|---|\n| Frontend codebase | **1** (multi-brand, config-driven) |\n| Actual live brand sites (domains) | Jitne brands chahiye (start 1-2 se) |\n| Backend | **1** (same app ke andar, ya alag service) |\n| Database | **1** (Postgres/Supabase) |\n| Admin portal | **1** |\n| Buyer portal | **1** (optional, baad mein) |\n| External API integrations | ~8-10 |\n\n---\n\n**Real baat:** yeh sab milake ek **multi-month production platform** hai — akele ya do logon ke liye bhi bohot bada scope hai agar sach mein sab kuch production-grade chahiye. Isliye Ibrahim se scope confirm karna critical hai — shayad woh phase 1 mein sirf **1 brand, 1 backend, basic form→database→email** chahte hon, na ke sab kuch ek saath.\n\nBata do — Ibrahim se baat ho gayi kya, ya abhi bhi wahi confusion hai?",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 23,
+      "created_at": "2026-08-25T13:38:23.661651Z",
+      "updated_at": "2026-08-25T13:38:23.661651Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03924-2d23-78c3-b8c7-025615b0b63b"
+    },
+    {
+      "uuid": "01a0392a-1925-72ab-97e1-27672a90fe63",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:44:16.946399Z",
+          "stop_timestamp": "2026-08-25T13:44:16.946399Z",
+          "type": "text",
+          "text": "acha yh desktop app bnani hai ? yh website ?",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 24,
+      "created_at": "2026-08-25T13:44:16.946519Z",
+      "updated_at": "2026-08-25T13:44:16.946519Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03924-2d23-798d-8bc7-d4cb59150687"
+    },
+    {
+      "uuid": "01a0392a-1925-7690-affb-eadf8b07ecc7",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:44:18.041641Z",
+          "stop_timestamp": "2026-08-25T13:44:27.393266Z",
+          "type": "text",
+          "text": "**Website hi banegi — desktop app nahi.**\n\nWajah simple hai:\n\n- **Visitors** (jo form bharte hain) — yeh log ads/Facebook/Google se aa rahe hain apne phone pe. Unko koi app install nahi karwa sakte, seedha link pe click karke form bharenge. Isliye yeh **public website** honi chahiye.\n- **Admin portal** (Ibrahim ke liye) — yeh bhi **web-based** hota hai generally (browser mein login karke dekhna), taake kahin se bhi access ho sake, na ke sirf ek computer se\n- **Buyer portal** (agar banaya) — wohi bhi web-based, kyunki buyers alag-alag companies hain, unhe bhi browser access chahiye, app nahi\n\n**Desktop app kab use hoti hai?** Jab kaam offline hona ho, ya heavy local processing ho (jaise video editing, ya internal tool jo sirf ek team use kare apne office computers pe). Yahan aisa kuch nahi — sab kuch internet pe based hai, real-time data hai, aur bohot saare alag log (visitors, admin, buyers) alag jagah se access kar rahe honge.\n\n**Toh final answer:**\n- **Public form site** → Website (jo Next.js se banega)\n- **Admin dashboard** → Website (same app ka protected section, ya alag subdomain)\n- Koi bhi cheez desktop app ki zaroorat nahi\n\nMobile pe bhi perfectly kaam karna chahiye (responsive) — kyunki brief mein khud likha hai \"mobile is the design, desktop is the afterthought\" — matlab zyadatar visitors phone pe hi aa rahe honge.",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 25,
+      "created_at": "2026-08-25T13:44:27.405600Z",
+      "updated_at": "2026-08-25T13:44:27.405600Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0392a-1925-72ab-97e1-27672a90fe63"
+    },
+    {
+      "uuid": "01a0392d-9179-7ce6-b890-e0eff23deb8b",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:48:04.554861Z",
+          "stop_timestamp": "2026-08-25T13:48:04.554861Z",
+          "type": "text",
+          "text": "tum ne tu oper kaha tha ke 7 website hoon gi ?\nacha yh b btao ke multi brand ak kya mtlb hai ? basically mje thri working b smjhao easy words mn",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 26,
+      "created_at": "2026-08-25T13:48:04.555006Z",
+      "updated_at": "2026-08-25T13:48:04.555006Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0392a-1925-7690-affb-eadf8b07ecc7"
+    },
+    {
+      "uuid": "01a0392d-917a-7be5-ab50-986a36a9c1a2",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T13:48:05.175048Z",
+          "stop_timestamp": "2026-08-25T13:48:19.653723Z",
+          "type": "text",
+          "text": "Confusion clear karta hoon — maine \"7 websites\" nahi kaha tha, maine kaha tha **\"jitne brands chahiye\"** (WindowHound, Med Trial Match, RatedGutters waghera — brief mein 6-7 brand names diye hain misaal ke taur pe). Woh 7 **brands** hain, 7 **separate codebases nahi**.\n\nYeh farak samajhna zaroori hai — **multi-brand** ka matlab yehi hai:\n\n---\n\n## Multi-brand — easy words mein\n\nSocho tumne **ek** hi Next.js app banayi. Us app ke andar ek **table (database mein)** hai jisme likha hai:\n\n| Brand | Domain | Color | Logo | Form questions |\n|---|---|---|---|---|\n| WindowHound | windowhound.com | Blue | logo1.png | \"Kitni windows badalni hain?\" |\n| Med Trial Match | medtrialmatch.com | Green | logo2.png | \"Konsi medical condition hai?\" |\n| RatedGutters | ratedgutters.com | Red | logo3.png | \"Gutter ki kya problem hai?\" |\n\nAb jab koi visitor **windowhound.com** kholta hai, tumhari app dekhega \"achha, yeh domain windowhound.com hai\" → database se WindowHound ka data nikalega → uska logo, color, form questions dikha dega.\n\nJab koi doosra banda **medtrialmatch.com** kholta hai — **wahi app**, **wahi code** — bas ab Med Trial Match ka data dikhayega.\n\n**Ek hi engine, alag-alag \"skins\" (naye brand ka matlab bas naya database row, naya code nahi likhna).**\n\n---\n\n## Real-life misal se samjho\n\nSocho ek fruit-juice vending machine hai. Tum coin daal ke \"Mango\" ya \"Orange\" ya \"Apple\" button dabate ho — **machine ek hi hai**, bas jo button dabao usi ke hisaab se juice nikalta hai.\n\nWaise hi: **1 app (machine)**, aur \"brand\" ek dropdown/config ki tarah hai jo bataata hai kaunsa flavor (look/form) dikhana hai.\n\n---\n\n## Toh final clear answer:\n\n- **Kitni websites (domains) live hongi?** → Jitne brands chahiye (7 misaal ke liye) — har brand ka apna domain (windowhound.com, medtrialmatch.com...)\n- **Kitna code likhna padega?** → **Sirf 1 baar** — ek hi Next.js app, ek hi backend, ek hi database\n- **Naya brand add karna ho toh?** → Code dobara nahi likhte, bas database mein naya entry daalte hain (naam, domain, colors, form questions)\n\n**Yeh hi wajah hai isko \"multi-brand system\" kehte hain — ek dukaan, alag alag boards laga ke alag naam se chalti hai.**",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 27,
+      "created_at": "2026-08-25T13:48:19.665647Z",
+      "updated_at": "2026-08-25T13:48:19.665647Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0392d-9179-7ce6-b890-e0eff23deb8b"
+    },
+    {
+      "uuid": "01a0393b-6d0e-74ec-a792-7d7bc294cdfa",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T14:03:12.490646Z",
+          "stop_timestamp": "2026-08-25T14:03:12.490646Z",
+          "type": "text",
+          "text": "tu bsdk 7 domains agr live hoon gi tu means 7 ki 7 domains pr code b tu likhna pre ga na , on ka frondend backend se connection etc etc ?",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 28,
+      "created_at": "2026-08-25T14:03:12.490836Z",
+      "updated_at": "2026-08-25T14:03:12.490836Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0392d-917a-7be5-ab50-986a36a9c1a2"
+    },
+    {
+      "uuid": "01a0393b-6d0e-7b23-99cf-3accb0a5a0a2",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T14:03:15.780760Z",
+          "stop_timestamp": "2026-08-25T14:03:28.503180Z",
+          "type": "text",
+          "text": "Nahi bhai, samjhata hoon kaise — yeh legit sawal hai, confusion normal hai.\n\n**\"Domain\" aur \"code\" do alag cheezein hain.**\n\nDomain sirf ek **address** hai (jaise ghar ka pata) — usme khud koi code nahi hota. Jab tum browser mein `windowhound.com` type karte ho, browser internet pe pooch raha hota hai \"yeh naam kis server ki taraf point karta hai?\" — aur woh sab server pe pahunch jata hai.\n\n**Ab yeh dekho step by step:**\n\n1. Tum apni **ek hi app** ko ek server pe deploy karte ho (Vercel jaisi jagah)\n2. Server ko ek **address** milta hai\n3. Ab tum DNS settings mein jaake **7 alag domains** (`windowhound.com`, `medtrialmatch.com`, waghera) ko **sab ka sab isi ek server ke address pe point** kar dete ho\n4. Jab koi visitor `windowhound.com` khole, request usi **ek app** ke paas pahunchti hai\n5. App request ke andar dekhti hai — \"yeh request kaunse domain se aayi?\" (yeh browser khud batata hai, `Host` header mein)\n6. App us hostname ke hisaab se database se sahi brand ka data nikal ke dikha deti hai\n\n**Toh:**\n\n- **7 domains** = sirf 7 DNS entries jo sab isi ek app ki taraf point karte hain (5 minute ka setup, koi coding nahi)\n- **1 frontend code** = jo sab domains handle karta hai (kyunki woh hostname dekh ke apna content badalta hai)\n- **1 backend code** = same wajah se, sab brands ka data ek hi database/API se serve hota hai\n- **Frontend-backend connection** = **sirf ek dafa banta hai**, kyunki dono same app ka hissa hain — alag alag domain ke liye alag connection nahi banana padta\n\n**Ek line mein:** domain sirf \"kaunsa darwaza khulega\" decide karta hai, lekin darwaze ke peeche **ek hi ghar (app)** hai. 7 darwaze, 1 ghar.\n\nClear hua ya kisi step pe atak gaye?",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 29,
+      "created_at": "2026-08-25T14:03:28.519694Z",
+      "updated_at": "2026-08-25T14:03:28.519694Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0393b-6d0e-74ec-a792-7d7bc294cdfa"
+    },
+    {
+      "uuid": "01a0393d-4ffe-78e5-a8b6-2a30557d6b4c",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T14:05:16.009596Z",
+          "stop_timestamp": "2026-08-25T14:05:16.009596Z",
+          "type": "text",
+          "text": "acha jo main frontend hoga woh kis adress par hoga ? or phir in 7 adress pr kia dikhae ge ? blank page ?",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 30,
+      "created_at": "2026-08-25T14:05:16.009743Z",
+      "updated_at": "2026-08-25T14:05:16.009743Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0393b-6d0e-7b23-99cf-3accb0a5a0a2"
+    },
+    {
+      "uuid": "01a0393d-4fff-7434-a08f-ae29c446be16",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T14:05:16.004028Z",
+          "stop_timestamp": "2026-08-25T14:05:22.066457Z",
+          "type": "thinking",
+          "thinking": "",
+          "summaries": [
+            {
+              "summary": "Disambiguated frontend architecture and domain-based content resolution strategy."
+            }
+          ],
+          "cut_off": false,
+          "truncated": true,
+          "hidden": false,
+          "thinking_hidden": true
+        },
+        {
+          "start_timestamp": "2026-08-25T14:05:22.066586Z",
+          "stop_timestamp": "2026-08-25T14:05:32.974933Z",
+          "type": "text",
+          "text": "Achha sawal — clear kar deta hoon:\n\n## \"Main frontend\" ka koi alag address nahi hota (jo public dekhe)\n\nJab tum app deploy karte ho (Vercel pe), usko ek **technical address** milta hai jaisे `risen-results.vercel.app` — yeh sirf **backend/deployment ka address hai**, iska istemal internal testing/debugging ke liye hota hai, **normal visitor isko kabhi nahi dekhega**.\n\n## 7 domains pe kya dikhega?\n\n**Blank page nahi — har domain apna asli, poora brand content dikhayega.**\n\nKaise?\n\n```\nVisitor \"windowhound.com\" khole\n        ↓\nRequest app tak pahunchti hai\n        ↓\nApp dekhti hai: \"Host = windowhound.com\"\n        ↓\nDatabase se WindowHound ka data nikalti hai\n        ↓\nWindowHound ki landing page, logo, form — sab render ho jata hai\n```\n\n```\nVisitor \"medtrialmatch.com\" khole\n        ↓\nApp dekhti hai: \"Host = medtrialmatch.com\"\n        ↓\nDatabase se Med Trial Match ka data nikalti hai\n        ↓\nMed Trial Match ki apni landing page render hoti hai\n```\n\n**Dono requests same app/code use kar rahi hain, lekin output bilkul alag hai** — kyunki app har baar hostname check karke sahi brand ka content database se nikal ke dikhati hai.\n\n## Blank/error kab dikhega?\n\nSirf tab jab koi **anjaan domain** (jo database mein register hi nahi) app tak pahunche — tab app ek **default fallback page** (jaise \"Brand not found\" ya generic 404) dikha degi. Baaki sab 7 registered domains hamesha apna real content dikhayenge.\n\n## Admin ke liye alag address\n\nIbrahim ke liye ek separate address hoga jaise `admin.risenresults.com` (subdomain) — jahan login page hoga, wahan se woh saari leads/brands manage karega. Yeh public brand domains se alag hai.\n\n---\n\n**Summary:**\n- Deployment address (`*.vercel.app`) → sirf technical, public ke liye nahi\n- 7 brand domains → sab apna-apna real content dikhate hain (hostname ke hisaab se)\n- Admin address → alag, sirf Ibrahim ke liye login-protected",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 31,
+      "created_at": "2026-08-25T14:05:32.986108Z",
+      "updated_at": "2026-08-25T14:05:32.986108Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0393d-4ffe-78e5-a8b6-2a30557d6b4c"
+    },
+    {
+      "uuid": "01a03949-1d4c-7cc5-9a89-9d4232232310",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T14:18:16.946940Z",
+          "stop_timestamp": "2026-08-25T14:18:16.946940Z",
+          "type": "text",
+          "text": "acha tu mtlb hr page ka design theme saem hoga ?",
+          "citations": []
+        }
+      ],
+      "sender": "human",
+      "index": 32,
+      "created_at": "2026-08-25T14:18:16.947118Z",
+      "updated_at": "2026-08-25T14:18:16.947118Z",
+      "truncated": false,
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a0393d-4fff-7434-a08f-ae29c446be16"
+    },
+    {
+      "uuid": "01a03949-1d4c-7071-a044-e973c2eb32a2",
+      "text": "",
+      "content": [
+        {
+          "start_timestamp": "2026-08-25T14:18:19.198982Z",
+          "stop_timestamp": "2026-08-25T14:18:28.723133Z",
+          "type": "text",
+          "text": "Nahi bhai, **theme same nahi hoga — har brand ka apna alag look hoga.** Jo same hai woh sirf \"engine\" (code), design nahi.\n\nSamjhao kaise:\n\n## Code shared hai, **design brand ke hisaab se badalta hai**\n\nHar brand ka database mein apna **theme config** hoga:\n\n```\nWindowHound:\n  primary_color: blue\n  logo: windowhound-logo.png\n  font: bold/rugged\n  headline: \"Save 40% on Window Replacement\"\n\nMed Trial Match:\n  primary_color: teal/medical-green\n  logo: medtrial-logo.png\n  font: clean/trustworthy\n  headline: \"Earn up to $5,000 in Paid Trials\"\n```\n\nApp same **layout structure** use karti hai (form kahan hai, button kahan hai) — lekin **colors, logo, text, images** sab config se aate hain, isliye har brand alag dikhta hai.\n\n## Misal se samjho\n\nSocho ek **PowerPoint template** hai — layout fix hai (title upar, content neeche), lekin tum har slide mein color theme, images, text change kar sakte ho. Result — har slide alag lagta hai, lekin underlying structure same hai.\n\nWaise hi yahan:\n- **Layout/structure** = same (form above fold, ek CTA button, mobile-first)\n- **Colors, logo, headline text, form questions** = alag har brand ke liye\n\n## Agar bilkul alag design chahiye kisi brand ko?\n\nWoh bhi ho sakta hai — agar Med Trial Match ka layout bhi WindowHound se structurally different chahiye (jaise extra step, ya different field order), toh app **brand-specific template variants** bhi support kar sakti hai — matlab 2-3 layout \"modes\" bana lo, aur har brand assign kar do konsa mode use karega.\n\n**Short answer:** Look alag hoga (colors/logo/copy), structure/engine same rahega — jab tak tum khud na chaho ke kisi ek brand ka layout hi bilkul different ho.",
+          "citations": []
+        }
+      ],
+      "sender": "assistant",
+      "index": 33,
+      "created_at": "2026-08-25T14:18:28.747656Z",
+      "updated_at": "2026-08-25T14:18:28.747656Z",
+      "truncated": false,
+      "stop_reason": "end_turn",
+      "attachments": [],
+      "files": [],
+      "sync_sources": [],
+      "parent_message_uuid": "01a03949-1d4c-7cc5-9a89-9d4232232310"
+    }
+  ]
+}

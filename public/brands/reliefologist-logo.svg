@@ -1,0 +1,5 @@
+<svg width="220" height="50" viewBox="0 0 220 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="40" height="40" y="5" rx="10" fill="#16A34A"/>
+  <path d="M20 14C20 14 13 21 13 26A7 7 0 0 0 27 26C27 21 20 14 20 14Z" fill="white"/>
+  <text x="50" y="32" font-family="Roboto, sans-serif" font-weight="800" font-size="20" fill="#0F172A">Relief<tspan fill="#16A34A">Ologist</tspan></text>
+</svg>

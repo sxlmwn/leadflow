@@ -1,26 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Roboto:wght@400;500;700;900&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --primary-color: #2563eb;
+  --brand-font: 'Inter', sans-serif;
+  --background: #f8fafc;
+  --foreground: #0f172a;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--brand-font), system-ui, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.bg-brand-primary {
+  background-color: var(--primary-color);
+}
+
+.text-brand-primary {
+  color: var(--primary-color);
+}
+
+.border-brand-primary {
+  border-color: var(--primary-color);
+}
+
+.ring-brand-primary {
+  --tw-ring-color: var(--primary-color);
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }

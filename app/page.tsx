@@ -1,69 +1,144 @@
-import Image from "next/image";
+import Image from 'next/image';
+import { getCurrentBrand } from '@/lib/brand';
+import DevBrandSwitcher from '@/components/DevBrandSwitcher';
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+export const revalidate = 0; // Disable static caching for local dev brand switching
+
+export default async function HomePage() {
+  const brand = await getCurrentBrand();
+
+  if (!brand) {
+    return (
+      <main className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+        <DevBrandSwitcher currentSlug="unknown" />
+        
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-md w-full glass-panel !bg-slate-900/90 !border-slate-800 rounded-2xl p-8 text-center shadow-2xl">
+            <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-5 border border-red-500/20">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-extrabold text-white mb-2">Brand Not Found</h1>
+            <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+              No active brand is associated with this domain or requested dev override slug.
+            </p>
+            <div className="p-4 bg-slate-950/60 rounded-lg text-left text-xs font-mono text-slate-300 border border-slate-800 mb-6">
+              <div><span className="text-slate-500">Status:</span> 404 Unresolved</div>
+              <div><span className="text-slate-500">Suggested Action:</span> Use the dev override bar above to select a seed brand.</div>
+            </div>
+          </div>
         </div>
       </main>
-    </div>
+    );
+  }
+
+  const { theme_config } = brand;
+
+  return (
+    <main className="min-h-screen flex flex-col bg-slate-50">
+      <DevBrandSwitcher currentSlug={brand.slug} />
+
+      {/* Brand Navigation Header */}
+      <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {theme_config.logo_url ? (
+              <Image
+                src={theme_config.logo_url}
+                alt={`${brand.name} logo`}
+                width={180}
+                height={40}
+                className="h-10 w-auto object-contain"
+                priority
+              />
+            ) : (
+              <div
+                className="px-4 py-2 rounded-lg text-white font-extrabold text-lg shadow-sm"
+                style={{ backgroundColor: theme_config.primary_color }}
+              >
+                {brand.name}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded-full border border-slate-200 uppercase tracking-wider">
+              {brand.vertical.replace('_', ' ')}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Shell */}
+      <section className="relative overflow-hidden py-20 px-6 bg-gradient-to-b from-white to-slate-100 border-b border-slate-200">
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 bg-slate-100 text-slate-800 border border-slate-200">
+            <span
+              className="w-2 h-2 rounded-full inline-block"
+              style={{ backgroundColor: theme_config.primary_color }}
+            />
+            {brand.sub_vertical || brand.vertical}
+          </div>
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight mb-6">
+            {theme_config.headline}
+          </h1>
+
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Welcome to <strong className="text-slate-900">{brand.name}</strong>. Powered by the LeadFlow multi-brand architecture. Theme, styling, and configuration loaded dynamically from Supabase.
+          </p>
+
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <button
+              className="px-8 py-3.5 text-white font-bold rounded-xl shadow-lg transition-transform hover:scale-[1.02] cursor-pointer"
+              style={{ backgroundColor: theme_config.primary_color }}
+            >
+              Get Started Shell Button
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Active Brand Metadata Inspection Card */}
+      <section className="max-w-4xl mx-auto px-6 py-12 w-full">
+        <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            Resolved Brand Metadata (Supabase Record)
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Brand ID</div>
+              <div className="text-sm font-mono text-slate-800 truncate">{brand.id}</div>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Slug / Domain</div>
+              <div className="text-sm font-mono text-slate-800">{brand.slug} ({brand.domain})</div>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Primary Color</div>
+              <div className="text-sm font-mono text-slate-800 flex items-center gap-2">
+                <span
+                  className="w-4 h-4 rounded border border-slate-300 inline-block"
+                  style={{ backgroundColor: theme_config.primary_color }}
+                />
+                {theme_config.primary_color}
+              </div>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Font Style</div>
+              <div className="text-sm font-mono text-slate-800">{theme_config.font_style}</div>
+            </div>
+          </div>
+
+          <div className="text-xs text-slate-500 font-mono mb-2">Raw theme_config jsonb:</div>
+          <pre className="p-4 bg-slate-900 text-slate-200 rounded-lg text-xs font-mono overflow-x-auto">
+            {JSON.stringify(theme_config, null, 2)}
+          </pre>
+        </div>
+      </section>
+    </main>
   );
 }
