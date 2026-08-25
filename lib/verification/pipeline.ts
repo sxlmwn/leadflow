@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase/client';
 import { verifyTrustedForm } from './trustedform';
 import { checkDNC } from './dnc';
 import { calculateScore } from '@/lib/scoring/scorer';
+import { deliverToBuyers } from '@/lib/buyers/delivery';
 import { VerificationResult } from '@/types/verification';
 
 export async function runVerificationPipeline(leadId: string): Promise<{
@@ -83,6 +84,9 @@ export async function runVerificationPipeline(leadId: string): Promise<{
       })
       .eq('id', leadId);
 
+    // Update local lead object for scoring calculation
+    lead.dnc_flagged = dncFlagged;
+
     // 4. Step 3: Lead Scoring Calculation
     let scoreResult = { score: 0, breakdown: {} };
     let scoringResult: VerificationResult;
@@ -123,6 +127,13 @@ export async function runVerificationPipeline(leadId: string): Promise<{
         score_breakdown: scoreResult.breakdown,
       })
       .eq('id', leadId);
+
+    // 5. Step 4: Broadcast Buyer Delivery (Non-blocking step)
+    try {
+      await deliverToBuyers(leadId, scoreResult.score);
+    } catch (deliveryErr) {
+      console.error(`[Pipeline Delivery Error] leadId: ${leadId}`, deliveryErr);
+    }
 
     return {
       success: true,
