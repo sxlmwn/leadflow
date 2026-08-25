@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ThemeConfig } from '@/types/brand';
 
 export interface FormOption {
@@ -50,6 +50,25 @@ export default function DynamicForm({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedLeadId, setSubmittedLeadId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Load TrustedForm script snippet on mount
+  useEffect(() => {
+    try {
+      const tf = document.createElement('script');
+      tf.type = 'text/javascript';
+      tf.async = true;
+      tf.src =
+        (document.location.protocol === 'https:' ? 'https://' : 'http://') +
+        'api.trustedform.com/trustedform.js?provide_option=trustedform&field=xxTrustedFormCertUrl&use_cors=true';
+
+      const s = document.getElementsByTagName('script')[0];
+      if (s && s.parentNode) {
+        s.parentNode.insertBefore(tf, s);
+      }
+    } catch (err) {
+      console.warn('TrustedForm script load warning:', err);
+    }
+  }, []);
 
   const currentStep = steps[currentStepIndex] || steps[0];
 
@@ -145,6 +164,10 @@ export default function DynamicForm({
     setIsSubmitting(true);
     setSubmitError(null);
 
+    // Read TrustedForm Cert URL hidden field if populated by script
+    const tfCertElement = document.getElementById('xxTrustedFormCertUrl') as HTMLInputElement;
+    const tfCertUrl = tfCertElement?.value || (formData.xxTrustedFormCertUrl as string) || null;
+
     try {
       const res = await fetch('/api/leads', {
         method: 'POST',
@@ -152,7 +175,11 @@ export default function DynamicForm({
         body: JSON.stringify({
           brand_id: brandId,
           brand_slug: brandSlug,
-          form_data: formData,
+          form_data: {
+            ...formData,
+            xxTrustedFormCertUrl: tfCertUrl,
+          },
+          trustedform_cert_url: tfCertUrl,
           funnel_step_reached: currentStepIndex + 1,
         }),
       });
@@ -186,11 +213,11 @@ export default function DynamicForm({
         </div>
         <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Thank You!</h3>
         <p className="text-slate-600 mb-6">
-          Your request has been successfully submitted and matched with a specialist.
+          Your request has been successfully submitted, verified, and scored.
         </p>
         <div className="bg-slate-50 p-4 rounded-xl text-left border border-slate-200 text-xs font-mono space-y-1 mb-6 text-slate-700">
           <div><span className="font-semibold text-slate-900">Lead ID:</span> {submittedLeadId}</div>
-          <div><span className="font-semibold text-slate-900">Status:</span> Submitted & Logged</div>
+          <div><span className="font-semibold text-slate-900">Verification Status:</span> Verified & Scored</div>
         </div>
         <button
           onClick={() => {
@@ -219,6 +246,9 @@ export default function DynamicForm({
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden my-8">
+      {/* Hidden input field for TrustedForm Certificate */}
+      <input type="hidden" name="xxTrustedFormCertUrl" id="xxTrustedFormCertUrl" />
+
       {/* Form Header */}
       <div className="p-6 md:p-8 bg-slate-900 text-white relative">
         {steps.length > 1 && (

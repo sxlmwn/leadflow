@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/client';
+import { runVerificationPipeline } from '@/lib/verification/pipeline';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
-    const { brand_id, form_data = {}, funnel_step_reached = 1, funnel_variant = 'default' } = body;
+    const {
+      brand_id,
+      form_data = {},
+      funnel_step_reached = 1,
+      funnel_variant = 'default',
+      trustedform_cert_url: directCertUrl,
+    } = body;
 
     if (!brand_id) {
       return NextResponse.json(
@@ -12,6 +19,13 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Extract TrustedForm cert URL from direct property or hidden form input xxTrustedFormCertUrl
+    const trustedformCertUrl =
+      directCertUrl ||
+      (form_data.xxTrustedFormCertUrl as string) ||
+      (form_data.trustedform_cert_url as string) ||
+      null;
 
     // 1. Read lf_click_id cookie
     const clickIdCookie = request.cookies.get('lf_click_id')?.value;
@@ -41,7 +55,18 @@ export async function POST(request: NextRequest) {
     // Remaining non-standard fields stored in form_answers
     const formAnswers: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(form_data)) {
-      if (!['full_name', 'name', 'email', 'phone', 'zip_code', 'zip'].includes(key)) {
+      if (
+        ![
+          'full_name',
+          'name',
+          'email',
+          'phone',
+          'zip_code',
+          'zip',
+          'xxTrustedFormCertUrl',
+          'trustedform_cert_url',
+        ].includes(key)
+      ) {
         formAnswers[key] = value;
       }
     }
@@ -85,6 +110,7 @@ export async function POST(request: NextRequest) {
         status: leadStatus,
         is_duplicate: isDuplicate,
         duplicate_of_lead_id: duplicateOfLeadId,
+        trustedform_cert_url: trustedformCertUrl,
       })
       .select('id, status, is_duplicate, duplicate_of_lead_id')
       .single();
@@ -104,6 +130,12 @@ export async function POST(request: NextRequest) {
         .update({ converted_lead_id: newLead.id })
         .eq('id', foundClickId);
     }
+
+    // 5. Fire verification & scoring pipeline (TrustedForm -> DNC -> Lead Scoring)
+    // Non-blocking background execution
+    runVerificationPipeline(newLead.id).catch((pipelineErr) => {
+      console.error('Verification pipeline error:', pipelineErr);
+    });
 
     return NextResponse.json({
       success: true,
