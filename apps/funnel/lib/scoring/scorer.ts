@@ -1,4 +1,4 @@
-import { VerificationResult, ScoreBreakdown } from '@/types/verification';
+import { VerificationResult, ScoreBreakdown } from '@/types';
 import { DEFAULT_SCORING_WEIGHTS, DISPOSABLE_EMAIL_DOMAINS, ScoringWeights } from './weights';
 
 export interface LeadForScoring {

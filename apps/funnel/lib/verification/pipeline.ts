@@ -3,7 +3,7 @@ import { verifyTrustedForm } from './trustedform';
 import { checkDNC } from './dnc';
 import { calculateScore } from '@/lib/scoring/scorer';
 import { deliverToBuyers } from '@/lib/buyers/delivery';
-import { VerificationResult } from '@/types/verification';
+import { VerificationResult } from '@/types';
 
 export async function runVerificationPipeline(leadId: string): Promise<{
   success: boolean;

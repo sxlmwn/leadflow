@@ -1,4 +1,4 @@
-import { VerificationResult } from '@/types/verification';
+import { VerificationResult } from '@/types';
 
 /**
  * Verifies a TrustedForm Certificate URL to confirm TCPA consent.

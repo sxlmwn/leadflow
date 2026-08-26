@@ -1,9 +1,8 @@
 import Image from 'next/image';
 import { getCurrentBrand } from '@/lib/brand';
-import DevBrandSwitcher from '@/components/DevBrandSwitcher';
-import ClickTracker from '@/components/ClickTracker';
-import DynamicForm from '@/components/DynamicForm';
-import { FormSchema } from '@/components/DynamicForm';
+import DevBrandSwitcher from '@/components/dev/dev-brand-switcher';
+import ClickTracker from '@/components/tracking/click-tracker';
+import DynamicForm, { FormSchema } from '@/components/forms/dynamic-form';
 
 export const revalidate = 0; // Disable static caching for local dev brand switching
 
@@ -99,7 +98,6 @@ export default async function HomePage() {
         {/* Dynamic Brand Form Renderer */}
         <DynamicForm
           brandId={brand.id}
-          brandSlug={brand.slug}
           formSchema={brand.form_schema as unknown as FormSchema}
           themeConfig={theme_config}
         />

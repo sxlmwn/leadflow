@@ -1,6 +1,6 @@
 import { headers, cookies } from 'next/headers';
 import { supabase } from './supabase/client';
-import { Brand } from '@/types/brand';
+import { Brand } from '@/types';
 
 export async function getCurrentBrand(): Promise<Brand | null> {
   const headerList = await headers();

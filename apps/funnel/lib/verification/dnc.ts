@@ -1,4 +1,4 @@
-import { VerificationResult } from '@/types/verification';
+import { VerificationResult } from '@/types';
 
 /**
  * Checks phone number against National & State Do Not Call (DNC) registries.

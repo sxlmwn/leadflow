@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import { OutboundBuyerPayload, BuyerRecord, BuyerApiResponse } from './types';
+import { OutboundBuyerPayload, BuyerRecord, BuyerApiResponse } from '@/types';
 
 /**
  * Broadcasts a verified & scored lead to all eligible buyers in parallel.
