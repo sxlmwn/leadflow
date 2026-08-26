@@ -7,8 +7,7 @@ LeadFlow is a multi-brand lead-generation platform built with Next.js App Router
 ```text
 leadflow/
 ├── apps/
-│   ├── funnel/         # Multi-brand landing & lead capture application (Port 3000)
-│   └── admin/          # Admin management dashboard (Port 3001)
+│   └── funnel/         # Multi-brand landing & lead capture application (Port 3000)
 ├── packages/
 │   └── shared/         # Shared TypeScript interfaces (Brand, Lead, Buyer, Verification types)
 ├── supabase/           # Single shared source of truth database migrations & config
@@ -24,25 +23,21 @@ Run `npm install` from the root directory to link all workspace packages:
 npm install
 ```
 
-### 2. Running Applications
+### 2. Running Application
 
-- **Run Funnel App (Default Landing Pages)**:
+- **Run Funnel App (Landing Pages & Lead Capture)**:
   ```bash
+  npm run dev
+  # or
   npm run dev:funnel
   ```
   App will start at `http://localhost:3000`.
 
-- **Run Admin Dashboard**:
-  ```bash
-  npm run dev:admin
-  ```
-  App will start at `http://localhost:3001`.
-
 ### 3. Build & Quality Checks
 
-Run workspace commands across all apps:
+Run workspace commands across packages:
 ```bash
-npm run build    # Builds both funnel and admin apps
+npm run build    # Builds funnel app
 npm run lint     # Lints all workspace packages
 npm run tsc      # Type-checks all workspace packages
 ```
