@@ -331,11 +331,11 @@ export default function BrandsPage() {
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Brand Portfolios & No-Code Form Builder
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs font-medium text-slate-400 mt-1">
             Configure multi-brand landing pages, visual themes, and multi-step form questions.
           </p>
         </div>
-        <Button onClick={() => handleOpenEdit()} className="rounded-xl font-bold">
+        <Button onClick={() => handleOpenEdit()} className="rounded-full font-bold">
           <Plus className="w-4 h-4 mr-1" /> Add Brand Portfolio
         </Button>
       </div>
@@ -343,21 +343,21 @@ export default function BrandsPage() {
       {/* Brands Directory Grid / Table */}
       <Card className="p-6">
         <CardHeader className="p-0 pb-4">
-          <CardTitle className="text-lg font-bold">Configured White-Label Brands</CardTitle>
-          <CardDescription className="text-xs">Live domains and visual styling</CardDescription>
+          <CardTitle className="text-lg font-extrabold text-slate-900 dark:text-white">Configured White-Label Brands</CardTitle>
+          <CardDescription className="text-xs font-medium text-slate-400">Live domains and visual styling</CardDescription>
         </CardHeader>
 
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Brand Name</TableHead>
-                <TableHead>Domain</TableHead>
-                <TableHead>Vertical</TableHead>
-                <TableHead>Primary Theme Color</TableHead>
-                <TableHead>Leads Generated</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableRow className="border-b border-slate-100 dark:border-slate-800">
+                <TableHead className="text-xs font-bold text-slate-400">Brand Name</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Domain</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Vertical</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Primary Theme Color</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Leads Generated</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Status</TableHead>
+                <TableHead className="text-right text-xs font-bold text-slate-400">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -375,42 +375,42 @@ export default function BrandsPage() {
                 ))
               ) : brands.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                  <TableCell colSpan={7} className="text-center py-8 text-slate-400 text-xs">
                     No brands configured. Click &quot;Add Brand Portfolio&quot; to create one.
                   </TableCell>
                 </TableRow>
               ) : (
                 brands.map((brand) => (
-                  <TableRow key={brand.id}>
-                    <TableCell className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                  <TableRow key={brand.id} className="border-b border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                    <TableCell className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
                         <Layers className="w-4 h-4" />
                       </div>
                       <span>{brand.name}</span>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-blue-600 dark:text-blue-400">
+                    <TableCell className="font-mono text-xs text-slate-900 dark:text-slate-100 font-semibold">
                       {brand.domain}
                     </TableCell>
-                    <TableCell className="capitalize text-xs text-slate-600 dark:text-slate-300">
+                    <TableCell className="capitalize text-xs text-slate-500">
                       {brand.vertical.replace(/_/g, ' ')}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span
-                          className="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-700 shadow-xs"
+                          className="w-5 h-5 rounded-full border border-slate-200 dark:border-slate-700 shadow-xs"
                           style={{ backgroundColor: brand.theme_config?.primary_color || '#2563eb' }}
                         />
                         <span className="font-mono text-xs">{brand.theme_config?.primary_color || '#2563eb'}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="font-bold text-sm text-slate-900 dark:text-white">
+                    <TableCell className="font-bold text-xs text-slate-900 dark:text-white">
                       {brand.leadCount || 0}
                     </TableCell>
                     <TableCell>
                       <Badge variant="success">Active</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => handleOpenEdit(brand)} className="rounded-xl">
+                      <Button variant="outline" size="sm" onClick={() => handleOpenEdit(brand)} className="rounded-full text-xs">
                         <Edit className="w-3.5 h-3.5 mr-1" /> Edit / Form Builder
                       </Button>
                     </TableCell>
@@ -424,19 +424,19 @@ export default function BrandsPage() {
 
       {/* Comprehensive Brand Editor & Form Builder Modal */}
       {dialogOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-5xl max-h-[92vh] rounded-3xl p-6 shadow-2xl relative flex flex-col animate-in zoom-in-95 duration-150">
             <button
               onClick={() => setDialogOpen(false)}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold"
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold text-xs"
             >
               ✕
             </button>
 
             {/* Modal Title */}
-            <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-purple-600 flex items-center justify-center text-white font-bold">
-                <Sparkles className="w-5 h-5" />
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-slate-900 dark:bg-slate-100 flex items-center justify-center text-white dark:text-slate-900 font-extrabold text-xs">
+                <Sparkles className="w-4 h-4" />
               </div>
               <div>
                 <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
@@ -447,33 +447,33 @@ export default function BrandsPage() {
             </div>
 
             {/* Modal Tabs Navigation */}
-            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 text-xs">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 text-xs">
               <button
                 onClick={() => setActiveTab('details')}
-                className={`px-4 py-2 rounded-xl font-bold transition-all ${
+                className={`px-4 py-2 rounded-full font-bold transition-all ${
                   activeTab === 'details'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 1. Details & Domain
               </button>
               <button
                 onClick={() => setActiveTab('theme')}
-                className={`px-4 py-2 rounded-xl font-bold transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-full font-bold transition-all flex items-center gap-1.5 ${
                   activeTab === 'theme'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <Palette className="w-3.5 h-3.5" /> 2. Visual Theme & Hero
               </button>
               <button
                 onClick={() => setActiveTab('builder')}
-                className={`px-4 py-2 rounded-xl font-bold transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-full font-bold transition-all flex items-center gap-1.5 ${
                   activeTab === 'builder'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-xs'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
                 <FileCode2 className="w-3.5 h-3.5" /> 3. No-Code Form Builder
@@ -491,7 +491,7 @@ export default function BrandsPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g. WindowHound"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
+                      className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
                     />
                   </div>
                   <div>
@@ -501,7 +501,7 @@ export default function BrandsPage() {
                       value={slug}
                       onChange={(e) => setSlug(e.target.value)}
                       placeholder="windowhound"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono"
+                      className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono"
                     />
                   </div>
                 </div>
@@ -514,7 +514,7 @@ export default function BrandsPage() {
                       value={domain}
                       onChange={(e) => setDomain(e.target.value)}
                       placeholder="windowhound.com"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono"
+                      className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono"
                     />
                   </div>
                   <div>
@@ -524,7 +524,7 @@ export default function BrandsPage() {
                       value={vertical}
                       onChange={(e) => setVertical(e.target.value)}
                       placeholder="home_improvement"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
+                      className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -535,7 +535,7 @@ export default function BrandsPage() {
                     rows={4}
                     value={legalCopy}
                     onChange={(e) => setLegalCopy(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono text-xs"
+                    className="w-full p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono text-xs"
                   />
                 </div>
               </div>
@@ -553,13 +553,13 @@ export default function BrandsPage() {
                         type="color"
                         value={primaryColor}
                         onChange={(e) => setPrimaryColor(e.target.value)}
-                        className="w-10 h-10 rounded-xl cursor-pointer bg-transparent border-none"
+                        className="w-10 h-10 rounded-2xl cursor-pointer bg-transparent border-none"
                       />
                       <input
                         type="text"
                         value={primaryColor}
                         onChange={(e) => setPrimaryColor(e.target.value)}
-                        className="h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono text-xs"
+                        className="h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono text-xs"
                       />
                     </div>
                   </div>
@@ -569,7 +569,7 @@ export default function BrandsPage() {
                     <select
                       value={fontStyle}
                       onChange={(e) => setFontStyle(e.target.value)}
-                      className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs"
+                      className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs"
                     >
                       <option value="Inter, sans-serif">Inter (Modern & Clean)</option>
                       <option value="Outfit, sans-serif">Outfit (Bold & Geometric)</option>
@@ -584,7 +584,7 @@ export default function BrandsPage() {
                       value={logoUrl}
                       onChange={(e) => setLogoUrl(e.target.value)}
                       placeholder="/brands/windowhound-logo.svg"
-                      className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono"
+                      className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white font-mono"
                     />
                   </div>
 
@@ -595,18 +595,18 @@ export default function BrandsPage() {
                       value={headline}
                       onChange={(e) => setHeadline(e.target.value)}
                       placeholder="Find Top Experts Near You"
-                      className="w-full p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
+                      className="w-full p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
 
                 {/* Live Theme Preview Panel */}
-                <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-5 bg-slate-950 flex flex-col justify-between shadow-inner">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-3xl p-5 bg-slate-950 flex flex-col justify-between shadow-inner">
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1">
                     <Eye className="w-3 h-3 text-blue-400" /> Live Hero Preview
                   </div>
-                  <div className="p-6 rounded-xl bg-slate-900 border border-slate-800 text-center space-y-4 font-sans">
-                    <div className="w-10 h-10 rounded-xl mx-auto flex items-center justify-center font-bold text-white shadow-md" style={{ backgroundColor: primaryColor }}>
+                  <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-4 font-sans">
+                    <div className="w-10 h-10 rounded-2xl mx-auto flex items-center justify-center font-bold text-white shadow-md" style={{ backgroundColor: primaryColor }}>
                       LH
                     </div>
                     <h3 className="text-lg font-extrabold text-white leading-tight">
@@ -616,7 +616,7 @@ export default function BrandsPage() {
                       Sample description rendering with brand primary accent style.
                     </p>
                     <button
-                      className="w-full py-2.5 rounded-xl text-white font-bold text-xs shadow-md transition-transform active:scale-95"
+                      className="w-full py-2.5 rounded-full text-white font-bold text-xs shadow-md transition-transform active:scale-95"
                       style={{ backgroundColor: primaryColor }}
                     >
                       Get Started Now
@@ -657,15 +657,15 @@ export default function BrandsPage() {
 
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-slate-800 dark:text-slate-200">Funnel Steps ({formSteps.length})</span>
-                    <Button size="sm" onClick={addStep} className="h-7 text-[11px] rounded-lg">
+                    <Button size="sm" onClick={addStep} className="h-7 text-[11px] rounded-full">
                       <Plus className="w-3 h-3 mr-1" /> Add Step
                     </Button>
                   </div>
 
-                  {/* Steps Accordion / List */}
+                  {/* Steps List */}
                   <div className="space-y-4">
                     {formSteps.map((step, sIdx) => (
-                      <div key={sIdx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+                      <div key={sIdx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 space-y-3">
                         <div className="flex items-center justify-between gap-2">
                           <input
                             type="text"
@@ -677,7 +677,7 @@ export default function BrandsPage() {
                             }}
                             className="font-bold text-xs bg-transparent border-b border-slate-300 dark:border-slate-700 focus:outline-none text-slate-900 dark:text-white"
                           />
-                          <button onClick={() => removeStep(sIdx)} className="text-red-500 hover:text-red-600">
+                          <button onClick={() => removeStep(sIdx)} className="text-rose-500 hover:text-rose-600">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -685,16 +685,16 @@ export default function BrandsPage() {
                         {/* Fields List in Step */}
                         <div className="space-y-3 pt-2">
                           {step.fields.map((field, fIdx) => (
-                            <div key={fIdx} className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+                            <div key={fIdx} className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 space-y-2">
                               <div className="flex items-center justify-between gap-2">
                                 <input
                                   type="text"
                                   placeholder="Question Label"
                                   value={field.label}
                                   onChange={(e) => updateField(sIdx, fIdx, 'label', e.target.value)}
-                                  className="w-full h-8 px-2 rounded-lg bg-slate-100 dark:bg-slate-800 border-none font-semibold"
+                                  className="w-full h-8 px-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border-none font-semibold"
                                 />
-                                <button onClick={() => removeField(sIdx, fIdx)} className="text-red-400">
+                                <button onClick={() => removeField(sIdx, fIdx)} className="text-rose-400">
                                   <Trash2 className="w-3 h-3" />
                                 </button>
                               </div>
@@ -732,7 +732,7 @@ export default function BrandsPage() {
                                 <div className="space-y-1.5 pt-1">
                                   <div className="flex items-center justify-between text-[10px] text-slate-400">
                                     <span>Choices / Options</span>
-                                    <button onClick={() => addFieldOption(sIdx, fIdx)} className="text-blue-500 font-bold">
+                                    <button onClick={() => addFieldOption(sIdx, fIdx)} className="text-slate-900 dark:text-white font-bold">
                                       + Option
                                     </button>
                                   </div>
@@ -759,7 +759,7 @@ export default function BrandsPage() {
                             </div>
                           ))}
 
-                          <Button variant="outline" size="sm" onClick={() => addField(sIdx)} className="w-full text-xs h-7">
+                          <Button variant="outline" size="sm" onClick={() => addField(sIdx)} className="w-full text-xs h-8 rounded-full">
                             + Add Question Field
                           </Button>
                         </div>
@@ -769,7 +769,7 @@ export default function BrandsPage() {
                 </div>
 
                 {/* Right: Live Interactive Form Preview Pane */}
-                <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-5 bg-slate-950 flex flex-col justify-between shadow-inner">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-3xl p-5 bg-slate-950 flex flex-col justify-between shadow-inner">
                   <div>
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center justify-between">
                       <span className="flex items-center gap-1"><Eye className="w-3 h-3 text-blue-400" /> Interactive Funnel Preview</span>
@@ -779,8 +779,8 @@ export default function BrandsPage() {
                             <button
                               key={idx}
                               onClick={() => setPreviewStepIndex(idx)}
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                previewStepIndex === idx ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                previewStepIndex === idx ? 'bg-white text-slate-900' : 'bg-slate-800 text-slate-400'
                               }`}
                             >
                               Step {idx + 1}
@@ -796,19 +796,19 @@ export default function BrandsPage() {
 
                       {formSteps[previewStepIndex] && (
                         <div className="space-y-4 pt-2 border-t border-slate-800">
-                          <div className="text-xs font-bold text-blue-400">
+                          <div className="text-xs font-bold text-slate-300">
                             {formSteps[previewStepIndex].title}
                           </div>
                           {formSteps[previewStepIndex].fields.map((f, i) => (
                             <div key={i} className="space-y-1.5">
                               <label className="block text-xs font-semibold text-slate-300">
-                                {f.label} {f.required && <span className="text-red-400">*</span>}
+                                {f.label} {f.required && <span className="text-rose-400">*</span>}
                               </label>
                               {f.type === 'radio' && (
                                 <div className="space-y-1">
                                   {(f.options || []).map((o, optI) => (
-                                    <label key={optI} className="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 text-xs">
-                                      <input type="radio" name={f.name} className="text-blue-600" />
+                                    <label key={optI} className="flex items-center gap-2 p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs">
+                                      <input type="radio" name={f.name} className="text-slate-100" />
                                       <span>{o.label}</span>
                                     </label>
                                   ))}
@@ -843,11 +843,11 @@ export default function BrandsPage() {
             )}
 
             {/* Modal Save Footer */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
+              <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-full">
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={saving} className="font-bold">
+              <Button onClick={handleSave} disabled={saving} className="rounded-full font-bold">
                 {saving ? 'Saving Brand...' : 'Save Brand Portfolio'}
               </Button>
             </div>

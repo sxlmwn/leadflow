@@ -311,11 +311,11 @@ export default function BuyersPage() {
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Lead Buyer Partners & API Routing
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs font-medium text-slate-400 mt-1">
             Manage buyer payout contracts, min score thresholds, and brand associations.
           </p>
         </div>
-        <Button onClick={handleOpenAdd} className="rounded-xl font-bold">
+        <Button onClick={handleOpenAdd} className="rounded-full font-bold">
           <Plus className="w-4 h-4 mr-1" /> Add Buyer Partner
         </Button>
       </div>
@@ -323,22 +323,22 @@ export default function BuyersPage() {
       {/* Main Table */}
       <Card className="p-6">
         <CardHeader className="p-0 pb-4">
-          <CardTitle className="text-lg font-bold">Active Buyer Directory</CardTitle>
-          <CardDescription className="text-xs">Configured lead buyers and price rules</CardDescription>
+          <CardTitle className="text-lg font-extrabold text-slate-900 dark:text-white">Active Buyer Directory</CardTitle>
+          <CardDescription className="text-xs font-medium text-slate-400">Configured lead buyers and price rules</CardDescription>
         </CardHeader>
 
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Buyer Partner</TableHead>
-                <TableHead>Endpoint</TableHead>
-                <TableHead>Pricing Model</TableHead>
-                <TableHead>Payout / Lead</TableHead>
-                <TableHead>Min Score</TableHead>
-                <TableHead>Linked Brands</TableHead>
-                <TableHead>Active Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableRow className="border-b border-slate-100 dark:border-slate-800">
+                <TableHead className="text-xs font-bold text-slate-400">Buyer Partner</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Endpoint</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Pricing Model</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Payout / Lead</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Min Score</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Linked Brands</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Active Status</TableHead>
+                <TableHead className="text-right text-xs font-bold text-slate-400">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -357,31 +357,31 @@ export default function BuyersPage() {
                 ))
               ) : buyers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-10 text-slate-500 text-sm">
+                  <TableCell colSpan={8} className="text-center py-10 text-slate-400 text-xs">
                     No buyers configured yet. Click &quot;Add Buyer Partner&quot; to configure your first buyer.
                   </TableCell>
                 </TableRow>
               ) : (
                 buyers.map((buyer) => (
-                  <TableRow key={buyer.id}>
-                    <TableCell className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <TableRow key={buyer.id} className="border-b border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                    <TableCell className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
                         <Building2 className="w-4 h-4" />
                       </div>
                       <span>{buyer.name}</span>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-slate-500 max-w-[200px] truncate" title={buyer.api_endpoint || ''}>
+                    <TableCell className="font-mono text-xs text-slate-400 max-w-[200px] truncate" title={buyer.api_endpoint || ''}>
                       {buyer.api_endpoint || 'No Endpoint Configured'}
                     </TableCell>
                     <TableCell>
-                      <span className="capitalize text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      <span className="capitalize text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                         {buyer.pricing_model || 'flat'}
                       </span>
                     </TableCell>
-                    <TableCell className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    <TableCell className="font-mono font-bold text-xs text-slate-900 dark:text-white">
                       {formatCurrency(Number(buyer.price_per_lead || 0))}
                     </TableCell>
-                    <TableCell className="font-bold text-xs text-slate-700 dark:text-slate-300">
+                    <TableCell className="font-bold text-xs text-slate-600 dark:text-slate-300">
                       ≥ {buyer.min_score || 0} pts
                     </TableCell>
                     <TableCell>
@@ -402,23 +402,23 @@ export default function BuyersPage() {
                       <button
                         onClick={() => toggleActiveInline(buyer)}
                         className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors ${
-                          buyer.active ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-700'
+                          buyer.active ? 'bg-slate-900 dark:bg-slate-100' : 'bg-slate-200 dark:bg-slate-800'
                         }`}
                       >
                         <div
-                          className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                            buyer.active ? 'translate-x-5' : 'translate-x-0'
+                          className={`w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                            buyer.active ? 'translate-x-5 bg-white dark:bg-slate-900' : 'translate-x-0 bg-white dark:bg-slate-500'
                           }`}
                         />
                       </button>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(buyer)} title="Edit Buyer">
-                          <Edit className="w-4 h-4 text-slate-500 hover:text-blue-500" />
+                        <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(buyer)} title="Edit Buyer" className="rounded-full">
+                          <Edit className="w-4 h-4 text-slate-400 hover:text-slate-900 dark:hover:text-white" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(buyer.id)} title="Delete Buyer">
-                          <Trash2 className="w-4 h-4 text-slate-500 hover:text-red-500" />
+                        <Button variant="ghost" size="icon" onClick={() => setDeleteId(buyer.id)} title="Delete Buyer" className="rounded-full">
+                          <Trash2 className="w-4 h-4 text-slate-400 hover:text-rose-500" />
                         </Button>
                       </div>
                     </TableCell>
@@ -432,18 +432,18 @@ export default function BuyersPage() {
 
       {/* Add / Edit Buyer Dialog */}
       {dialogOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl relative animate-in zoom-in-95 duration-150">
             <button
               onClick={() => setDialogOpen(false)}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold"
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold text-xs"
             >
               ✕
             </button>
             <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-1">
               {editingBuyer ? 'Edit Buyer Partner' : 'Add Buyer Partner'}
             </h2>
-            <p className="text-xs text-slate-500 mb-5">Configure webhook endpoint, min score, and associated brands.</p>
+            <p className="text-xs text-slate-400 mb-5">Configure webhook endpoint, min score, and associated brands.</p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-xs">
               <div>
@@ -453,9 +453,9 @@ export default function BuyersPage() {
                 <input
                   {...register('name')}
                   placeholder="e.g. HomeImprovement Pro Inc."
-                  className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500"
+                  className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-slate-400"
                 />
-                {errors.name && <span className="text-red-500 text-[10px]">{errors.name.message}</span>}
+                {errors.name && <span className="text-rose-500 text-[10px]">{errors.name.message}</span>}
               </div>
 
               <div>
@@ -465,10 +465,10 @@ export default function BuyersPage() {
                 <input
                   {...register('api_endpoint')}
                   placeholder="https://api.buyer.com/v1/leads"
-                  className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-blue-500"
+                  className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-slate-400"
                 />
                 {errors.api_endpoint && (
-                  <span className="text-red-500 text-[10px]">{errors.api_endpoint.message}</span>
+                  <span className="text-rose-500 text-[10px]">{errors.api_endpoint.message}</span>
                 )}
               </div>
 
@@ -479,7 +479,7 @@ export default function BuyersPage() {
                   </label>
                   <select
                     {...register('pricing_model')}
-                    className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-10 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs"
                   >
                     <option value="flat">Flat</option>
                     <option value="tiered">Tiered</option>
@@ -494,17 +494,17 @@ export default function BuyersPage() {
                     type="number"
                     step="0.5"
                     {...register('price_per_lead', { valueAsNumber: true })}
-                    className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs font-mono"
                   />
                 </div>
                 <div>
                   <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
-                    Min Score Threshold
+                    Min Score
                   </label>
                   <input
                     type="number"
                     {...register('min_score', { valueAsNumber: true })}
-                    className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white text-xs font-mono"
                   />
                 </div>
               </div>
@@ -522,10 +522,10 @@ export default function BuyersPage() {
                         type="button"
                         key={brand.id}
                         onClick={() => toggleBrandSelection(brand.id)}
-                        className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
+                        className={`p-2.5 rounded-2xl border text-left flex items-center justify-between transition-all ${
                           isChecked
-                            ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 font-bold'
-                            : 'border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400'
+                            ? 'border-slate-900 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 font-bold'
+                            : 'border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400'
                         }`}
                       >
                         <span>{brand.name}</span>
@@ -537,20 +537,20 @@ export default function BuyersPage() {
               </div>
 
               {/* Active Toggle */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-800">
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800">
                 <span className="font-semibold text-slate-700 dark:text-slate-300">Partner Active</span>
                 <input
                   type="checkbox"
                   {...register('active')}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                  className="w-4 h-4 rounded text-slate-900 focus:ring-slate-400"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+              <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="rounded-full">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={saving} className="font-bold">
+                <Button type="submit" disabled={saving} className="rounded-full font-bold">
                   {saving ? 'Saving...' : editingBuyer ? 'Update Buyer' : 'Create Buyer'}
                 </Button>
               </div>
@@ -561,20 +561,20 @@ export default function BuyersPage() {
 
       {/* Confirmation Delete Dialog */}
       {deleteId && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-950 text-red-600 flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-600 flex items-center justify-center mx-auto">
               <AlertTriangle className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Delete Buyer Partner?</h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-400">
               This action cannot be undone. All brand associations for this buyer will be permanently removed.
             </p>
             <div className="flex items-center justify-center gap-3 pt-2">
-              <Button variant="outline" onClick={() => setDeleteId(null)}>
+              <Button variant="outline" onClick={() => setDeleteId(null)} className="rounded-full">
                 Cancel
               </Button>
-              <Button variant="destructive" onClick={confirmDelete} className="font-bold">
+              <Button variant="destructive" onClick={confirmDelete} className="rounded-full font-bold">
                 Confirm Delete
               </Button>
             </div>

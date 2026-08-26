@@ -52,10 +52,10 @@ export default function SettingsPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-          <Settings className="w-7 h-7 text-slate-500" />
+          <Settings className="w-6 h-6 text-slate-500" />
           Admin Platform Settings
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-xs font-medium text-slate-400 mt-1">
           Manage operational security credentials and team permissions.
         </p>
       </div>
@@ -63,18 +63,18 @@ export default function SettingsPage() {
       {/* Profile Info */}
       <Card className="p-6">
         <CardHeader className="p-0 pb-4">
-          <CardTitle className="text-base font-bold flex items-center gap-2">
-            <User className="w-4.5 h-4.5 text-blue-500" /> Account Identity
+          <CardTitle className="text-base font-extrabold flex items-center gap-2">
+            <User className="w-4 h-4 text-slate-500" /> Account Identity
           </CardTitle>
           <CardDescription className="text-xs">Logged-in administrator credentials</CardDescription>
         </CardHeader>
         <CardContent className="p-0 pt-2 text-xs space-y-2">
-          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-            <span className="text-slate-500">Administrator Email</span>
+          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800">
+            <span className="text-slate-500 font-medium">Administrator Email</span>
             <span className="font-mono font-bold text-slate-900 dark:text-white">{userEmail}</span>
           </div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-            <span className="text-slate-500">Role & Access</span>
+          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800">
+            <span className="text-slate-500 font-medium">Role & Access</span>
             <span className="font-bold text-emerald-600 dark:text-emerald-400">Super Administrator (Owner)</span>
           </div>
         </CardContent>
@@ -83,8 +83,8 @@ export default function SettingsPage() {
       {/* Change Password Form */}
       <Card className="p-6">
         <CardHeader className="p-0 pb-4">
-          <CardTitle className="text-base font-bold flex items-center gap-2">
-            <Lock className="w-4.5 h-4.5 text-blue-500" /> Security & Password
+          <CardTitle className="text-base font-extrabold flex items-center gap-2">
+            <Lock className="w-4 h-4 text-slate-500" /> Security & Password
           </CardTitle>
           <CardDescription className="text-xs">Update your Supabase authentication password</CardDescription>
         </CardHeader>
@@ -92,16 +92,16 @@ export default function SettingsPage() {
         <CardContent className="p-0 pt-2">
           {msg && (
             <div
-              className={`mb-4 p-3 rounded-xl border text-xs flex items-center gap-2 ${
+              className={`mb-4 p-3 rounded-2xl border text-xs flex items-center gap-2 ${
                 msg.type === 'success'
-                  ? 'bg-emerald-950/60 border-emerald-900 text-emerald-300'
-                  : 'bg-red-950/60 border-red-900 text-red-300'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950/60 dark:border-emerald-900 dark:text-emerald-300'
+                  : 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950/60 dark:border-rose-900 dark:text-rose-300'
               }`}
             >
               {msg.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-red-400" />
+                <AlertCircle className="w-4 h-4 text-rose-600" />
               )}
               <span>{msg.text}</span>
             </div>
@@ -118,7 +118,7 @@ export default function SettingsPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
+                className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
               />
             </div>
 
@@ -132,11 +132,11 @@ export default function SettingsPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
+                className="w-full h-10 px-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border-none text-slate-900 dark:text-white"
               />
             </div>
 
-            <Button type="submit" disabled={updating} className="rounded-xl font-bold">
+            <Button type="submit" disabled={updating} className="rounded-full font-bold">
               {updating ? 'Updating Password...' : 'Update Password'}
             </Button>
           </form>

@@ -31,9 +31,9 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('leadflow_theme') as 'light' | 'dark' | null;
-      return savedTheme || 'dark';
+      return savedTheme || 'light';
     }
-    return 'dark';
+    return 'light';
   });
 
   const [dateRange, setDateRange] = useState<DateRangePreset>('30d');

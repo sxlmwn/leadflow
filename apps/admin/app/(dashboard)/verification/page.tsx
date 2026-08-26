@@ -96,25 +96,25 @@ export default function VerificationPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
-          <ShieldCheck className="w-7 h-7 text-emerald-500" />
+          <ShieldCheck className="w-6 h-6 text-slate-500" />
           Verification Audit Trail
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Detailed raw response logs from TrustedForm certificate claims, DNC scrubbing, and scoring calculations.
+        <p className="text-xs font-medium text-slate-400 mt-1">
+          Detailed raw response logs from TrustedForm claims, DNC scrubbing, and scoring calculations.
         </p>
       </div>
 
       {/* Filters Card */}
-      <Card className="p-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+      <Card className="p-4 bg-white dark:bg-slate-900">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 mr-2">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 mr-2">
             <Filter className="w-3.5 h-3.5" /> Filter Logs:
           </div>
 
           <select
             value={selectedType}
             onChange={(e) => { setSelectedType(e.target.value); setPage(0); }}
-            className="h-9 px-3 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-800 dark:text-slate-200"
+            className="h-9 px-3 text-xs rounded-full bg-slate-100 dark:bg-slate-800 border-none text-slate-800 dark:text-slate-200"
           >
             <option value="all">All Check Types</option>
             <option value="trustedform">TrustedForm</option>
@@ -125,7 +125,7 @@ export default function VerificationPage() {
           <select
             value={selectedStatus}
             onChange={(e) => { setSelectedStatus(e.target.value); setPage(0); }}
-            className="h-9 px-3 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-slate-800 dark:text-slate-200"
+            className="h-9 px-3 text-xs rounded-full bg-slate-100 dark:bg-slate-800 border-none text-slate-800 dark:text-slate-200"
           >
             <option value="all">All Statuses</option>
             <option value="passed">Passed</option>
@@ -139,21 +139,21 @@ export default function VerificationPage() {
       {/* Main Table */}
       <Card className="p-6">
         <CardHeader className="p-0 pb-4">
-          <CardTitle className="text-lg font-bold">Raw Audit Log Entries</CardTitle>
-          <CardDescription className="text-xs">Showing {totalCount} total audit records</CardDescription>
+          <CardTitle className="text-lg font-extrabold text-slate-900 dark:text-white">Raw Audit Log Entries</CardTitle>
+          <CardDescription className="text-xs font-medium text-slate-400">Showing {totalCount} total audit records</CardDescription>
         </CardHeader>
 
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Brand</TableHead>
-                <TableHead>Lead Contact</TableHead>
-                <TableHead>Check Type</TableHead>
-                <TableHead>Provider</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Raw JSON</TableHead>
+              <TableRow className="border-b border-slate-100 dark:border-slate-800">
+                <TableHead className="text-xs font-bold text-slate-400">Timestamp</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Brand</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Lead Contact</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Check Type</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Provider</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Status</TableHead>
+                <TableHead className="text-right text-xs font-bold text-slate-400">Raw JSON</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -171,7 +171,7 @@ export default function VerificationPage() {
                 ))
               ) : logs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-10 text-slate-500 text-sm">
+                  <TableCell colSpan={7} className="text-center py-10 text-slate-400 text-xs">
                     No verification audit logs match the current filters.
                   </TableCell>
                 </TableRow>
@@ -185,15 +185,15 @@ export default function VerificationPage() {
 
                   return (
                     <React.Fragment key={log.id}>
-                      <TableRow className="cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : log.id)}>
+                      <TableRow className="cursor-pointer border-b border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors" onClick={() => setExpandedId(isExpanded ? null : log.id)}>
                         <TableCell className="font-mono text-xs text-slate-500">
                           {formatDate(log.created_at)}
                         </TableCell>
-                        <TableCell className="font-bold text-slate-900 dark:text-white">
+                        <TableCell className="font-bold text-xs text-slate-900 dark:text-white">
                           {log.leads?.brands?.name || 'Unknown'}
                         </TableCell>
                         <TableCell>
-                          <div className="font-medium text-slate-900 dark:text-slate-100">
+                          <div className="font-bold text-xs text-slate-900 dark:text-slate-100">
                             {log.leads?.full_name || 'N/A'}
                           </div>
                           <div className="text-[11px] font-mono text-slate-400">
@@ -201,7 +201,7 @@ export default function VerificationPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="capitalize px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs">
+                          <span className="capitalize px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono text-xs">
                             {log.check_type}
                           </span>
                         </TableCell>
@@ -214,7 +214,7 @@ export default function VerificationPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="sm" className="text-blue-500 text-xs">
+                          <Button variant="ghost" size="sm" className="text-slate-600 dark:text-slate-400 text-xs">
                             <FileCode2 className="w-3.5 h-3.5 mr-1" />
                             {isExpanded ? 'Hide JSON ▲' : 'View JSON ▼'}
                           </Button>
@@ -244,8 +244,8 @@ export default function VerificationPage() {
         </div>
 
         {/* Pagination controls */}
-        <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 text-xs">
-          <div className="text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs">
+          <div className="text-slate-400 font-medium">
             Page <strong className="text-slate-900 dark:text-white">{page + 1}</strong> of{' '}
             <strong className="text-slate-900 dark:text-white">{totalPages || 1}</strong> ({totalCount} logs)
           </div>
@@ -255,14 +255,16 @@ export default function VerificationPage() {
               size="sm"
               disabled={page === 0}
               onClick={() => setPage((p) => Math.max(0, p - 1))}
+              className="rounded-full"
             >
               <ChevronLeft className="w-4 h-4" /> Previous
             </Button>
             <Button
               variant="outline"
               size="sm"
-              disabled={page >= totalPages - 1}
+              disabled={!(page + 1 < totalPages)}
               onClick={() => setPage((p) => p + 1)}
+              className="rounded-full"
             >
               Next <ChevronRight className="w-4 h-4" />
             </Button>

@@ -61,7 +61,6 @@ export default function AnalyticsPage() {
       try {
         const { startDate, endDate } = getDateBounds();
 
-        // --- 1. Query Clicks, Leads, Verification, Buyer Deliveries ---
         let clicksQ = supabase.from('clicks').select('id, created_at');
         let leadsQ = supabase.from('leads').select('id, brand_id, score, status, sold, created_at, brands(name)');
         let delivsQ = supabase.from('buyer_deliveries').select('id, buyer_id, accepted, price_paid, converted, created_at, buyers(name)');
@@ -89,8 +88,8 @@ export default function AnalyticsPage() {
         const leads = (leadsRes.data || []) as unknown as { id: string; brand_id: string; score: number; status: string; sold: boolean; created_at: string; brands: { name: string } | null }[];
         const delivs = (delivsRes.data || []) as unknown as { id: string; buyer_id: string; accepted: boolean; price_paid: number; converted: boolean; created_at: string; buyers: { name: string } | null }[];
 
-        // --- Funnel Calculation ---
-        const totalClicks = clicks.length || leads.length + 12; // fallback click ratio
+        // Funnel Calculation
+        const totalClicks = clicks.length || leads.length + 12;
         const totalLeads = leads.length;
         const verifiedLeads = leads.filter((l) => Number(l.score || 0) >= 50).length;
         const soldLeads = leads.filter((l) => l.sold).length;
@@ -102,7 +101,7 @@ export default function AnalyticsPage() {
           { stage: '4. Sold to Buyer', count: soldLeads, percentage: totalLeads > 0 ? Math.round((soldLeads / totalLeads) * 100) : 0 },
         ]);
 
-        // --- Leads Over Time (Daily / Weekly) ---
+        // Leads Over Time (Daily / Weekly)
         const timeMap: Record<string, number> = {};
         leads.forEach((l) => {
           const d = new Date(l.created_at);
@@ -118,7 +117,7 @@ export default function AnalyticsPage() {
           .map(([label, leadsCount]) => ({ label, leads: leadsCount }));
         setLeadsOverTime(timeArr);
 
-        // --- Revenue by Brand ---
+        // Revenue by Brand
         const brandRevMap: Record<string, number> = {};
         leads.forEach((l) => {
           if (l.sold && l.brands?.name) {
@@ -132,7 +131,7 @@ export default function AnalyticsPage() {
           Object.entries(brandRevMap).map(([brandName, revenue]) => ({ brandName, revenue }))
         );
 
-        // --- Buyer Performance Ranking ---
+        // Buyer Performance Ranking
         const buyerMap: Record<string, { name: string; offers: number; accepted: number; rev: number; conversions: number }> = {};
         delivs.forEach((d) => {
           const bId = d.buyer_id;
@@ -178,55 +177,57 @@ export default function AnalyticsPage() {
     };
   }, [getDateBounds, dateRange, granularity]);
 
+  const FUNNEL_COLORS = ['#93c5fd', '#60a5fa', '#34d399', '#a7f3d0'];
+
   return (
     <div className="space-y-8">
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-          <BarChart3 className="w-7 h-7 text-blue-500" />
+          <BarChart3 className="w-6 h-6 text-slate-500" />
           Analytics & Monetization Intelligence
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Conversion funnel drop-off, lead acquisition trajectory, and buyer ROI analytics.
+        <p className="text-xs font-medium text-slate-400 mt-1">
+          Conversion funnel drop-off, lead acquisition trajectory, and buyer yield metrics.
         </p>
       </div>
 
       {/* Row 1: Leads Over Time & Conversion Funnel */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1: Leads Over Time */}
-        <Card className="p-5">
+        <Card className="p-6">
           <CardHeader className="p-0 pb-4 flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-base font-bold">Leads Trajectory Over Time</CardTitle>
-              <CardDescription className="text-xs">Lead volume trend by date</CardDescription>
+              <CardTitle className="text-base font-extrabold text-slate-900 dark:text-white">Leads Trajectory Over Time</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-400">Lead volume trend by date</CardDescription>
             </div>
-            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-full text-xs font-medium">
               <button
                 onClick={() => setGranularity('daily')}
-                className={`px-2 py-0.5 rounded-lg ${granularity === 'daily' ? 'bg-white dark:bg-slate-700 text-blue-600 font-bold shadow-xs' : 'text-slate-400'}`}
+                className={`px-3 py-1 rounded-full transition-all text-xs font-semibold ${granularity === 'daily' ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-xs' : 'text-slate-500 dark:text-slate-400'}`}
               >
                 Daily
               </button>
               <button
                 onClick={() => setGranularity('weekly')}
-                className={`px-2 py-0.5 rounded-lg ${granularity === 'weekly' ? 'bg-white dark:bg-slate-700 text-blue-600 font-bold shadow-xs' : 'text-slate-400'}`}
+                className={`px-3 py-1 rounded-full transition-all text-xs font-semibold ${granularity === 'weekly' ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-xs' : 'text-slate-500 dark:text-slate-400'}`}
               >
                 Weekly
               </button>
             </div>
           </CardHeader>
-          <div className="h-64 w-full">
+          <div className="h-64 w-full pt-2">
             {loading ? (
               <Skeleton className="h-full w-full" />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={leadsOverTime}>
-                  <XAxis dataKey="label" stroke="#64748b" fontSize={11} />
-                  <YAxis stroke="#64748b" fontSize={11} allowDecimals={false} />
+                  <XAxis dataKey="label" stroke="#94a3b8" fontSize={11} axisLine={false} tickLine={false} />
+                  <YAxis stroke="#94a3b8" fontSize={11} allowDecimals={false} axisLine={false} tickLine={false} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '12px' }}
+                    contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff', borderRadius: '16px', fontSize: '12px' }}
                   />
-                  <Line type="monotone" dataKey="leads" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
+                  <Line type="monotone" dataKey="leads" stroke="#60a5fa" strokeWidth={3} dot={{ r: 4, fill: '#60a5fa' }} />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -234,25 +235,25 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Chart 2: Conversion Funnel */}
-        <Card className="p-5">
+        <Card className="p-6">
           <CardHeader className="p-0 pb-4">
-            <CardTitle className="text-base font-bold">Conversion Funnel Drop-off</CardTitle>
-            <CardDescription className="text-xs">Stage-by-stage conversion efficiency</CardDescription>
+            <CardTitle className="text-base font-extrabold text-slate-900 dark:text-white">Conversion Funnel Drop-off</CardTitle>
+            <CardDescription className="text-xs font-medium text-slate-400">Stage-by-stage conversion efficiency</CardDescription>
           </CardHeader>
-          <div className="space-y-4 pt-2">
+          <div className="space-y-4 pt-3">
             {loading ? (
               <Skeleton className="h-48 w-full" />
             ) : (
               funnelData.map((f, idx) => (
                 <div key={f.stage} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
                     <span>{f.stage}</span>
-                    <span>{f.count} leads ({f.percentage}%)</span>
+                    <span className="font-bold">{f.count} leads ({f.percentage}%)</span>
                   </div>
                   <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.max(5, f.percentage)}%`, opacity: 1 - idx * 0.2 }}
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.max(5, f.percentage)}%`, backgroundColor: FUNNEL_COLORS[idx % FUNNEL_COLORS.length] }}
                     />
                   </div>
                 </div>
@@ -265,22 +266,22 @@ export default function AnalyticsPage() {
       {/* Row 2: Revenue By Brand BarChart */}
       <Card className="p-6">
         <CardHeader className="p-0 pb-4">
-          <CardTitle className="text-base font-bold">Revenue Distribution by Brand Portfolio</CardTitle>
-          <CardDescription className="text-xs">Aggregated payout earnings per brand domain</CardDescription>
+          <CardTitle className="text-base font-extrabold text-slate-900 dark:text-white">Revenue Distribution by Brand Portfolio</CardTitle>
+          <CardDescription className="text-xs font-medium text-slate-400">Aggregated payout earnings per brand domain</CardDescription>
         </CardHeader>
-        <div className="h-64 w-full">
+        <div className="h-64 w-full pt-2">
           {loading ? (
             <Skeleton className="h-full w-full" />
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={revenueByBrand}>
-                <XAxis dataKey="brandName" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} tickFormatter={(val) => `$${val}`} />
+                <XAxis dataKey="brandName" stroke="#94a3b8" fontSize={11} axisLine={false} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={11} tickFormatter={(val) => `$${val}`} axisLine={false} tickLine={false} />
                 <Tooltip
                   formatter={(val: unknown) => [formatCurrency(Number(val || 0)), 'Revenue']}
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '12px' }}
+                  contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff', borderRadius: '16px', fontSize: '12px' }}
                 />
-                <Bar dataKey="revenue" fill="#10b981" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="revenue" fill="#34d399" radius={[10, 10, 10, 10]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -291,24 +292,24 @@ export default function AnalyticsPage() {
       <Card className="p-6">
         <CardHeader className="p-0 pb-4 flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-bold flex items-center gap-2">
+            <CardTitle className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
               <Award className="w-5 h-5 text-amber-500" /> Buyer Partner Performance Leaderboard
             </CardTitle>
-            <CardDescription className="text-xs">Ranking buyers by acceptance rate, yield, and conversions</CardDescription>
+            <CardDescription className="text-xs font-medium text-slate-400">Ranking buyers by acceptance rate, yield, and conversions</CardDescription>
           </div>
         </CardHeader>
 
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Buyer Partner</TableHead>
-                <TableHead>Offers Received</TableHead>
-                <TableHead>Accepted (Won)</TableHead>
-                <TableHead>Acceptance Rate</TableHead>
-                <TableHead>Average Payout</TableHead>
-                <TableHead>Total Revenue</TableHead>
-                <TableHead>Downstream Conversions</TableHead>
+              <TableRow className="border-b border-slate-100 dark:border-slate-800">
+                <TableHead className="text-xs font-bold text-slate-400">Buyer Partner</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Offers Received</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Accepted (Won)</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Acceptance Rate</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Average Payout</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Total Revenue</TableHead>
+                <TableHead className="text-xs font-bold text-slate-400">Downstream Conversions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -326,27 +327,27 @@ export default function AnalyticsPage() {
                 ))
               ) : buyerPerf.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                  <TableCell colSpan={7} className="text-center py-8 text-slate-400 text-xs">
                     No buyer delivery activity recorded in selected timeframe.
                   </TableCell>
                 </TableRow>
               ) : (
                 buyerPerf.map((b) => (
-                  <TableRow key={b.buyerId}>
-                    <TableCell className="font-bold text-slate-900 dark:text-white">
+                  <TableRow key={b.buyerId} className="border-b border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                    <TableCell className="font-bold text-xs text-slate-900 dark:text-white">
                       {b.name}
                     </TableCell>
                     <TableCell className="font-mono text-xs">{b.offersCount}</TableCell>
-                    <TableCell className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
+                    <TableCell className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100">
                       {b.acceptedCount}
                     </TableCell>
-                    <TableCell className="font-bold text-xs">
+                    <TableCell className="font-bold text-xs text-emerald-600 dark:text-emerald-400">
                       {b.acceptanceRate}%
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-slate-600 dark:text-slate-300">
+                    <TableCell className="font-mono text-xs text-slate-500">
                       {formatCurrency(b.avgPrice)}
                     </TableCell>
-                    <TableCell className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    <TableCell className="font-mono font-bold text-xs text-slate-900 dark:text-white">
                       {formatCurrency(b.totalRevenue)}
                     </TableCell>
                     <TableCell>
