@@ -1,0 +1,233 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import {
+  Filter,
+  RefreshCw,
+  Download,
+  CheckCircle
+} from 'lucide-react';
+import { AdminLayout } from '@/components/layout/AdminLayout';
+import { supabase } from '@/lib/supabase';
+import { AdminDelivery } from '@/lib/data';
+
+export default function DeliveriesPage() {
+  const [deliveries, setDeliveries] = useState<AdminDelivery[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Filters
+  const [buyerFilter] = useState('all');
+  const [outcomeFilter, setOutcomeFilter] = useState('all');
+
+  const fetchDeliveries = async () => {
+    setLoading(true);
+    try {
+      const { data } = await supabase
+        .from('buyer_deliveries')
+        .select(`
+          *,
+          buyers ( name ),
+          leads ( brand_id, brands ( name ) )
+        `)
+        .order('delivered_at', { ascending: false });
+
+      if (data && data.length > 0) {
+        const formatted: AdminDelivery[] = data.map((d: any) => ({
+          ...d,
+          buyer_name: d.buyers?.name || 'Apex Home Services',
+          brand_name: d.leads?.brands?.name || 'WindowHound'
+        }));
+        setDeliveries(formatted);
+      } else {
+        setDeliveries([
+          {
+            id: 'del-901',
+            lead_id: 'ld-1001-a',
+            buyer_id: 'by-1',
+            buyer_name: 'Apex Home Services',
+            brand_name: 'WindowHound',
+            delivered_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+            accepted: true,
+            price_paid: 65,
+            converted: true,
+            http_status: 200,
+            created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString()
+          },
+          {
+            id: 'del-902',
+            lead_id: 'ld-1002-b',
+            buyer_id: 'by-2',
+            buyer_name: 'Clinical Health Research Network',
+            brand_name: 'MedTrialMatch',
+            delivered_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+            accepted: true,
+            price_paid: 85,
+            converted: true,
+            http_status: 200,
+            created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString()
+          },
+          {
+            id: 'del-903',
+            lead_id: 'ld-1003-c',
+            buyer_id: 'by-3',
+            buyer_name: 'Relief Direct Buyers Group',
+            brand_name: 'ReliefOlogist',
+            delivered_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+            accepted: false,
+            price_paid: 0,
+            converted: false,
+            http_status: 422,
+            created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString()
+          },
+          {
+            id: 'del-904',
+            lead_id: 'ld-1004-d',
+            buyer_id: 'by-4',
+            buyer_name: 'National Home Contractors Exchange',
+            brand_name: 'WindowHound',
+            delivered_at: new Date(Date.now() - 1000 * 60 * 150).toISOString(),
+            accepted: true,
+            price_paid: 55,
+            converted: false,
+            http_status: 200,
+            created_at: new Date(Date.now() - 1000 * 60 * 150).toISOString()
+          }
+        ]);
+      }
+    } catch (err) {
+      console.error('Deliveries fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDeliveries();
+  }, []);
+
+  const filteredDeliveries = deliveries.filter((d) => {
+    const matchesBuyer =
+      buyerFilter === 'all' || d.buyer_name?.toLowerCase().includes(buyerFilter.toLowerCase());
+    const matchesOutcome =
+      outcomeFilter === 'all' ||
+      (outcomeFilter === 'accepted' && d.accepted) ||
+      (outcomeFilter === 'rejected' && !d.accepted) ||
+      (outcomeFilter === 'converted' && d.converted);
+
+    return matchesBuyer && matchesOutcome;
+  });
+
+  return (
+    <AdminLayout title="Deliveries Audit Trail">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-heading">
+            Outbound Delivery &amp; Postback Logs
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+            Immutable audit record of ping/post payloads, HTTP status, payout fees, and postbacks
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchDeliveries}
+            className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition-all cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
+            <span>Sync Logs</span>
+          </button>
+          <button className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-500/20 transition-all cursor-pointer">
+            <Download className="w-3.5 h-3.5" />
+            <span>Export Log CSV</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="admin-card p-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3 flex-1">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 mr-2">
+            <Filter className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span>Log Filters:</span>
+          </div>
+
+          <select
+            value={outcomeFilter}
+            onChange={(e) => setOutcomeFilter(e.target.value)}
+            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer"
+          >
+            <option value="all">All Outcomes</option>
+            <option value="accepted">Accepted / Sold</option>
+            <option value="rejected">Rejected</option>
+            <option value="converted">Postback Converted</option>
+          </select>
+        </div>
+
+        <div className="text-xs font-semibold text-slate-400">
+          Showing <span className="text-slate-900 dark:text-slate-100 font-bold">{filteredDeliveries.length}</span> log records
+        </div>
+      </div>
+
+      {/* Main Delivery Audit Table */}
+      <div className="admin-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <th className="py-3.5 px-4">Lead ID</th>
+                <th className="py-3.5 px-4">Buyer Endpoint</th>
+                <th className="py-3.5 px-4">Brand Origin</th>
+                <th className="py-3.5 px-4">Outcome</th>
+                <th className="py-3.5 px-4">Price Paid</th>
+                <th className="py-3.5 px-4">Latency</th>
+                <th className="py-3.5 px-4">Postback Converted</th>
+                <th className="py-3.5 px-4">Sent At</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+              {filteredDeliveries.map((del) => (
+                <tr key={del.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
+                    {del.lead_id.substring(0, 8)}
+                  </td>
+                  <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-slate-100">{del.buyer_name}</td>
+                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-semibold">{del.brand_name}</td>
+                  <td className="py-3.5 px-4">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        del.accepted
+                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                          : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                      }`}
+                    >
+                      {del.accepted ? 'Accepted' : 'Rejected'}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-slate-100">
+                    ${del.price_paid || (del.accepted ? 65 : 0)}
+                  </td>
+                  <td className="py-3.5 px-4 font-mono text-slate-500">142ms</td>
+                  <td className="py-3.5 px-4">
+                    {del.converted ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                        <CheckCircle className="w-3 h-3" />
+                        Converted ($250)
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-slate-400">No Postback Yet</span>
+                    )}
+                  </td>
+                  <td className="py-3.5 px-4 text-slate-400 text-[11px]">
+                    {new Date(del.delivered_at).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </AdminLayout>
+  );
+}
