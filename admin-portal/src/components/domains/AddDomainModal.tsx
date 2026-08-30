@@ -3,20 +3,28 @@
 import React, { useState } from 'react';
 import { X, Globe, CheckCircle2, ArrowRight, Copy, Check, ShieldCheck, AlertCircle } from 'lucide-react';
 
+import { AdminBrand, MOCK_BRANDS } from '@/lib/data';
+
 interface AddDomainModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddDomain: (domain: string, brandId: string, brandName: string) => void;
+  availableBrands?: { id: string; name: string; vertical?: string }[];
 }
 
 export const AddDomainModal: React.FC<AddDomainModalProps> = ({
   isOpen,
   onClose,
-  onAddDomain
+  onAddDomain,
+  availableBrands
 }) => {
+  const brandList = availableBrands && availableBrands.length > 0
+    ? availableBrands
+    : MOCK_BRANDS.map((b) => ({ id: b.id, name: b.name, vertical: b.vertical }));
+
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [domainInput, setDomainInput] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState({ id: 'b1', name: 'WindowHound' });
+  const [selectedBrand, setSelectedBrand] = useState(brandList[0] || { id: 'b1', name: 'WindowHound' });
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
 
@@ -125,16 +133,18 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                   Attach Brand Funnel
                 </label>
                 <select
-                  value={selectedBrand.name}
+                  value={selectedBrand.id}
                   onChange={(e) => {
-                    const name = e.target.value;
-                    setSelectedBrand({ id: name === 'WindowHound' ? 'b1' : 'b2', name });
+                    const b = brandList.find((item) => item.id === e.target.value);
+                    if (b) setSelectedBrand(b);
                   }}
                   className="w-full p-2.5 bg-card border border-border rounded-xl font-semibold text-foreground outline-none focus:border-blue-500"
                 >
-                  <option value="WindowHound">WindowHound (home_improvement)</option>
-                  <option value="MedTrialMatch">MedTrialMatch (paid_clinical_trials)</option>
-                  <option value="ReliefOlogist">ReliefOlogist (health_product)</option>
+                  {brandList.map((brand) => (
+                    <option key={brand.id} value={brand.id}>
+                      {brand.name} {brand.vertical ? `(${brand.vertical})` : ''}
+                    </option>
+                  ))}
                 </select>
               </div>
 

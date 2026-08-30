@@ -31,3 +31,5 @@ yarn-error.log*
 
 # Next-env
 next-env.d.ts
+AGENTS.md
+CLAUDE.md
