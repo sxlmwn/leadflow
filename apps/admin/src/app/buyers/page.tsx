@@ -163,10 +163,10 @@ export default function BuyersPage() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-heading">
+          <h2 className="text-2xl font-extrabold text-foreground tracking-tight font-heading">
             Lead Buyer Endpoints &amp; Rules
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+          <p className="text-xs text-muted-foreground font-medium mt-0.5">
             Manage ping/post endpoints, pricing caps, and acceptance score thresholds
           </p>
         </div>
@@ -174,9 +174,9 @@ export default function BuyersPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={fetchBuyers}
-            className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2 bg-card hover:bg-secondary border border-border rounded-xl text-xs font-semibold text-foreground transition-all duration-200 cursor-pointer transform-gpu shadow-2xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-muted-foreground'}`} />
             <span>Sync Buyers</span>
           </button>
           <button
@@ -184,7 +184,7 @@ export default function BuyersPage() {
               setEditingBuyer(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer transform-gpu"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Buyer Endpoint</span>
@@ -193,11 +193,11 @@ export default function BuyersPage() {
       </div>
 
       {/* Main Buyer Endpoints Table */}
-      <div className="admin-card overflow-hidden">
+      <div className="admin-card overflow-hidden transform-gpu">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4">Buyer Endpoint</th>
                 <th className="py-3.5 px-4">Payout / Model</th>
@@ -207,20 +207,20 @@ export default function BuyersPage() {
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+            <tbody className="divide-y divide-border font-medium">
               {buyers.map((buyer) => {
                 const active = buyer.is_active ?? buyer.active ?? true;
                 const minS = buyer.min_score ?? buyer.min_accept_score ?? 70;
 
                 return (
-                  <tr key={buyer.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
+                  <tr key={buyer.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="py-3.5 px-4">
                       <button
                         onClick={() => handleToggleActive(buyer.id, active)}
-                        className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer ${
+                        className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all duration-200 ${
                           active
                             ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                            : 'bg-secondary text-muted-foreground border border-border'
                         }`}
                       >
                         <span className={`w-2 h-2 rounded-full ${active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
@@ -231,25 +231,25 @@ export default function BuyersPage() {
                     <td className="py-3.5 px-4">
                       <Link
                         href={`/buyers/${buyer.id}`}
-                        className="font-bold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 font-heading text-sm transition-colors"
+                        className="font-bold text-foreground hover:text-blue-600 dark:hover:text-blue-400 font-heading text-sm transition-colors duration-200"
                       >
                         {buyer.name}
                       </Link>
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-slate-100">
+                      <div className="flex items-center gap-1.5 font-bold text-foreground">
                         <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>${buyer.price_per_lead || 45}</span>
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase bg-secondary px-1.5 py-0.5 rounded border border-border">
                           {buyer.pricing_model || 'flat'}
                         </span>
                       </div>
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1 font-bold text-slate-800 dark:text-slate-200 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-md border border-blue-100 dark:border-blue-900">
-                        <Award className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <span className="inline-flex items-center gap-1 font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
+                        <Award className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                         <span>{minS}+ Score</span>
                       </span>
                     </td>
@@ -259,16 +259,16 @@ export default function BuyersPage() {
                         {(buyer.accepted_brands || ['WindowHound']).map((brandName, idx) => (
                           <span
                             key={idx}
-                            className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md"
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-700 dark:text-slate-300 bg-secondary px-2 py-0.5 rounded-md border border-border"
                           >
-                            <Tag className="w-2.5 h-2.5 text-slate-400" />
+                            <Tag className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
                             {brandName}
                           </span>
                         ))}
                       </div>
                     </td>
 
-                    <td className="py-3.5 px-4 font-mono text-[10px] text-slate-400 max-w-[200px] truncate">
+                    <td className="py-3.5 px-4 font-mono text-[10px] text-muted-foreground max-w-[200px] truncate">
                       {buyer.api_endpoint || 'https://api.buyer.com/v1/ping'}
                     </td>
 
@@ -279,14 +279,14 @@ export default function BuyersPage() {
                             setEditingBuyer(buyer);
                             setIsModalOpen(true);
                           }}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-secondary transition-colors cursor-pointer"
                           title="Edit Buyer Specs"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <Link
                           href={`/buyers/${buyer.id}`}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-secondary transition-colors"
                           title="View Performance Analytics"
                         >
                           <ExternalLink className="w-4 h-4" />

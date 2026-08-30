@@ -1,9 +1,55 @@
-// Brand Types
+// Brand & Theme Types
 export interface ThemeConfig {
   primary_color: string;
+  secondary_color?: string;
+  bg_color?: string;
   logo_url: string;
   font_style: string;
   headline: string;
+}
+
+export interface LegalCopy {
+  disclaimer?: string;
+  tcpa_text?: string;
+  privacy_url?: string;
+  terms_url?: string;
+  [key: string]: unknown;
+}
+
+// Form Schema Types
+export type FormFieldType =
+  | 'text'
+  | 'email'
+  | 'phone'
+  | 'zip_code'
+  | 'select'
+  | 'radio'
+  | 'checkbox';
+
+export interface FormOption {
+  label: string;
+  value: string;
+}
+
+export interface FormField {
+  name: string;
+  label: string;
+  type: FormFieldType;
+  required?: boolean;
+  placeholder?: string;
+  options?: FormOption[];
+}
+
+export interface FormStep {
+  step_id: string;
+  title: string;
+  fields: FormField[];
+}
+
+export interface FormSchema {
+  title?: string;
+  description?: string;
+  steps: FormStep[];
 }
 
 export interface Brand {
@@ -14,8 +60,8 @@ export interface Brand {
   vertical: string;
   sub_vertical: string | null;
   theme_config: ThemeConfig;
-  form_schema: Record<string, unknown>;
-  legal_copy: Record<string, unknown>;
+  form_schema: FormSchema;
+  legal_copy: LegalCopy;
   is_active: boolean;
   created_at: string;
   updated_at: string;

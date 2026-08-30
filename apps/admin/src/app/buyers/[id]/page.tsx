@@ -4,14 +4,9 @@ import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
-  Briefcase,
   CheckCircle,
   Clock,
-  DollarSign,
   TrendingUp,
-  Award,
-  Zap,
-  Activity,
   Send
 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
@@ -81,7 +76,6 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
           conversionRate: Math.round((converted / (accepted || 1)) * 1000) / 10 || 14.8
         });
       } else {
-        // Fallback sample delivery history
         setDeliveries([
           {
             id: 'del-101',
@@ -137,24 +131,24 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
   return (
     <AdminLayout title="Buyer Analytics">
       {/* Top Header Navigation */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div className="flex items-center gap-4">
           <Link
             href="/buyers"
-            className="w-9 h-9 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 transition-colors shadow-2xs"
+            className="w-9 h-9 rounded-xl bg-card hover:bg-secondary border border-border flex items-center justify-center text-foreground transition-all duration-200 shadow-2xs"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight font-heading">
+              <h2 className="text-2xl font-extrabold text-foreground tracking-tight font-heading">
                 {buyer.name}
               </h2>
-              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
                 Live Endpoint
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-mono font-medium mt-0.5">
+            <p className="text-xs text-muted-foreground font-mono font-medium mt-0.5">
               {buyer.api_endpoint || 'https://api.buyer.com/v1/leads'}
             </p>
           </div>
@@ -177,8 +171,8 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
           change="-12ms"
           isPositive={true}
           icon={Clock}
-          iconBgColor="bg-teal-50"
-          iconColor="text-teal-600"
+          iconBgColor="bg-teal-50 dark:bg-teal-950/50"
+          iconColor="text-teal-600 dark:text-teal-400"
           subtitle="webhook roundtrip latency"
         />
         <StatCard
@@ -195,8 +189,8 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
           change="+1.8%"
           isPositive={true}
           icon={TrendingUp}
-          iconBgColor="bg-emerald-50"
-          iconColor="text-emerald-600"
+          iconBgColor="bg-emerald-50 dark:bg-emerald-950/50"
+          iconColor="text-emerald-600 dark:text-emerald-400"
           subtitle="downstream conversion postbacks"
         />
       </div>
@@ -209,14 +203,14 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
       />
 
       {/* Buyer Delivery History Table */}
-      <div className="admin-card p-6">
-        <h3 className="text-base font-bold text-slate-900 font-heading mb-4">
+      <div className="admin-card p-6 transform-gpu">
+        <h3 className="text-base font-bold text-foreground font-heading mb-4">
           Buyer Delivery & Postback Audit Log
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-border text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3 px-3">Delivery ID</th>
                 <th className="py-3 px-3">Lead ID</th>
                 <th className="py-3 px-3">Outcome</th>
@@ -226,38 +220,38 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
                 <th className="py-3 px-3">Delivered At</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium">
+            <tbody className="divide-y divide-border font-medium">
               {deliveries.map((del) => (
-                <tr key={del.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="py-3 px-3 font-mono text-slate-500">{del.id.substring(0, 8)}</td>
-                  <td className="py-3 px-3 font-mono font-bold text-blue-600">
+                <tr key={del.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="py-3 px-3 font-mono text-muted-foreground">{del.id.substring(0, 8)}</td>
+                  <td className="py-3 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">
                     {del.lead_id.substring(0, 8)}
                   </td>
                   <td className="py-3 px-3">
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         del.accepted
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-rose-50 text-rose-700 border border-rose-200'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                          : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
                       }`}
                     >
                       {del.accepted ? 'Accepted' : 'Rejected'}
                     </span>
                   </td>
-                  <td className="py-3 px-3 font-bold text-slate-900">
+                  <td className="py-3 px-3 font-bold text-foreground">
                     ${del.price_paid || (del.accepted ? buyer.price_per_lead || 65 : 0)}
                   </td>
-                  <td className="py-3 px-3 font-mono text-slate-500">142 ms</td>
+                  <td className="py-3 px-3 font-mono text-muted-foreground">142 ms</td>
                   <td className="py-3 px-3">
                     {del.converted ? (
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
                         Converted ($250)
                       </span>
                     ) : (
-                      <span className="text-[10px] text-slate-400">Pending</span>
+                      <span className="text-[10px] text-muted-foreground">Pending</span>
                     )}
                   </td>
-                  <td className="py-3 px-3 text-slate-400 text-[11px]">
+                  <td className="py-3 px-3 text-muted-foreground text-[11px]">
                     {new Date(del.delivered_at).toLocaleString()}
                   </td>
                 </tr>

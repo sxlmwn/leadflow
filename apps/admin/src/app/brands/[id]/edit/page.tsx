@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { Brand } from '@leadflow/shared';
 import { MOCK_BRANDS } from '@/lib/data';
 
-export default function BrandEditPage({ params }: { params: Promise<{ id: string }> }) {
+export default function BrandEditRoute({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const brandId = resolvedParams.id;
 
@@ -28,7 +28,6 @@ export default function BrandEditPage({ params }: { params: Promise<{ id: string
         if (data) {
           setBrand(data as unknown as Brand);
         } else {
-          // Fallback to mock brands if local test id
           const found = MOCK_BRANDS.find((b) => b.id === brandId || b.slug === brandId);
           if (found) {
             setBrand(found as unknown as Brand);

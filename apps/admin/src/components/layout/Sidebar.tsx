@@ -60,23 +60,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`bg-white dark:bg-zinc-900 border-r border-slate-200/90 dark:border-zinc-800/90 flex flex-col justify-between transition-all duration-200 ease-in-out shrink-0 select-none z-30 ${
+      className={`bg-card border-r border-border flex flex-col justify-between transition-all duration-200 ease-in-out shrink-0 select-none z-30 transform-gpu ${
         collapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Brand Header */}
       <div>
-        <div className="h-16 px-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shrink-0 font-bold">
-              <Activity className="w-5 h-5" />
+        <div className="h-16 px-5 border-b border-border flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden group">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shrink-0 font-bold shadow-md shadow-blue-600/20 group-hover:scale-105 transition-transform duration-200 transform-gpu">
+              <Activity className="w-5 h-5 text-white" />
             </div>
             {!collapsed && (
               <div className="flex flex-col truncate">
-                <span className="font-bold text-slate-900 dark:text-zinc-100 tracking-tight text-base font-heading leading-tight">
+                <span className="font-bold text-foreground tracking-tight text-base font-heading leading-tight">
                   Lead<span className="text-blue-600 dark:text-blue-400">Flow</span>
                 </span>
-                <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-zinc-500">
+                <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
                   Admin Portal
                 </span>
               </div>
@@ -86,7 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className="w-7 h-7 rounded-lg bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 border border-slate-200/60 dark:border-zinc-700 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-700 dark:hover:text-zinc-200 transition-colors"
+              className="w-7 h-7 rounded-lg bg-secondary hover:bg-slate-200 dark:hover:bg-slate-700 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer transform-gpu"
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -95,11 +95,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation Sections */}
-        <nav className="p-3 space-y-6 overflow-y-auto max-h-[calc(100vh-180px)]">
+        <nav className="p-3 space-y-6 overflow-y-auto max-h-[calc(100vh-190px)]">
           {navGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-1">
               {!collapsed && (
-                <h3 className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">
+                <h3 className="px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
                   {group.title}
                 </h3>
               )}
@@ -112,15 +112,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     key={item.href}
                     href={item.href}
                     title={collapsed ? item.name : undefined}
-                    className={`flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 transform-gpu group ${
                       isActive
-                        ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-semibold'
-                        : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/80 hover:text-slate-900 dark:hover:text-zinc-100'
+                        ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-semibold border border-blue-100 dark:border-blue-900/50 shadow-2xs'
+                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-foreground border border-transparent'
                     } ${collapsed ? 'justify-center px-0' : ''}`}
                   >
                     <Icon
-                      className={`w-5 h-5 shrink-0 transition-colors ${
-                        isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-zinc-500'
+                      className={`w-5 h-5 shrink-0 transition-colors duration-200 ${
+                        isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-foreground'
                       }`}
                     />
                     {!collapsed && <span className="truncate">{item.name}</span>}
@@ -133,14 +133,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Sidebar Bottom: Light/Dark Switcher + User Profile */}
-      <div className="p-3 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 space-y-2">
+      <div className="p-3 border-t border-border bg-slate-50/50 dark:bg-slate-900/50 space-y-2">
         {onToggleDarkMode && (
           <button
             onClick={onToggleDarkMode}
-            className={`w-full flex items-center justify-between p-2 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 border border-slate-200/80 dark:border-zinc-700/80 text-xs font-semibold hover:border-blue-400 transition-all cursor-pointer ${
+            className={`w-full flex items-center justify-between p-2 rounded-xl bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border border-border text-xs font-semibold transition-all duration-200 cursor-pointer ${
               collapsed ? 'justify-center' : ''
             }`}
-            title="Toggle Light / Dark Theme"
+            title="Toggle Light / Dark Mode"
           >
             <div className="flex items-center gap-2">
               {darkMode ? (
@@ -151,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {!collapsed && <span>{darkMode ? 'Dark Mode' : 'Light Mode'}</span>}
             </div>
             {!collapsed && (
-              <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400 px-1.5 py-0.5 bg-white dark:bg-zinc-900 rounded border border-slate-200 dark:border-zinc-700">
+              <span className="text-[10px] uppercase font-bold text-muted-foreground px-1.5 py-0.5 bg-secondary rounded border border-border">
                 {darkMode ? 'Dark' : 'Light'}
               </span>
             )}
@@ -160,13 +160,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between px-1 py-1'}`}>
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs">
+            <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
               AD
             </div>
             {!collapsed && (
               <div className="flex flex-col truncate">
-                <span className="text-xs font-semibold text-slate-800 dark:text-zinc-200 truncate">Admin User</span>
-                <span className="text-[10px] text-slate-400 dark:text-zinc-500 truncate">admin@leadflow.io</span>
+                <span className="text-xs font-semibold text-foreground truncate">Admin User</span>
+                <span className="text-[10px] text-muted-foreground truncate">admin@leadflow.io</span>
               </div>
             )}
           </div>
@@ -174,14 +174,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center gap-1">
               <Link
                 href="/settings"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 transition-colors"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                 title="Settings"
               >
                 <Settings className="w-4 h-4" />
               </Link>
               <Link
                 href="/login"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                 title="Logout"
               >
                 <LogOut className="w-4 h-4" />

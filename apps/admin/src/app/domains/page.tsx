@@ -28,17 +28,17 @@ export default function DomainsPage() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-heading">
+          <h2 className="text-2xl font-extrabold text-foreground tracking-tight font-heading">
             Domain Routing &amp; SSL Certificates
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+          <p className="text-xs text-muted-foreground font-medium mt-0.5">
             Manage custom brand domains, CNAME routing, and automatic SSL provisioning
           </p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer transform-gpu"
         >
           <Plus className="w-4 h-4" />
           <span>Add Custom Domain</span>
@@ -46,11 +46,11 @@ export default function DomainsPage() {
       </div>
 
       {/* Main Domains Table */}
-      <div className="admin-card overflow-hidden">
+      <div className="admin-card overflow-hidden transform-gpu">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3.5 px-4">Domain Name</th>
                 <th className="py-3.5 px-4">Attached Brand</th>
                 <th className="py-3.5 px-4">Routing Status</th>
@@ -59,10 +59,10 @@ export default function DomainsPage() {
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+            <tbody className="divide-y divide-border font-medium">
               {domains.map((dom) => (
-                <tr key={dom.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <tr key={dom.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="py-3.5 px-4 font-mono font-bold text-foreground flex items-center gap-2">
                     <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                     <span>{dom.domain}</span>
                   </td>
@@ -95,7 +95,7 @@ export default function DomainsPage() {
                     </span>
                   </td>
 
-                  <td className="py-3.5 px-4 text-slate-400 text-[11px]">
+                  <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
                     {new Date(dom.created_at).toLocaleDateString()}
                   </td>
 
@@ -104,7 +104,7 @@ export default function DomainsPage() {
                       href={`https://${dom.domain}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-1.5 inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+                      className="p-1.5 inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline font-semibold transition-colors duration-200"
                     >
                       <span>Visit</span>
                       <ExternalLink className="w-3.5 h-3.5" />

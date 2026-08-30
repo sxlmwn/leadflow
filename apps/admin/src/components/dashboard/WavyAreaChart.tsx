@@ -1,6 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import {
   AreaChart,
   Area,
@@ -15,9 +17,10 @@ interface WavyAreaChartProps {
   title?: string;
   subtitle?: string;
   height?: number;
+  reportHref?: string;
 }
 
-const SAMPLE_WAVY_DATA = [
+const MONTHLY_DATA = [
   { name: 'Jan', organic: 140, paid: 280, direct: 90 },
   { name: 'Feb', organic: 190, paid: 320, direct: 130 },
   { name: 'Mar', organic: 170, paid: 310, direct: 110 },
@@ -32,74 +35,101 @@ const SAMPLE_WAVY_DATA = [
   { name: 'Dec', organic: 450, paid: 730, direct: 380 },
 ];
 
+const DAILY_DATA = [
+  { name: 'Mon', organic: 35, paid: 65, direct: 20 },
+  { name: 'Tue', organic: 42, paid: 80, direct: 28 },
+  { name: 'Wed', organic: 50, paid: 95, direct: 34 },
+  { name: 'Thu', organic: 48, paid: 90, direct: 30 },
+  { name: 'Fri', organic: 62, paid: 110, direct: 42 },
+  { name: 'Sat', organic: 28, paid: 45, direct: 18 },
+  { name: 'Sun', organic: 20, paid: 35, direct: 12 },
+];
+
+const YEARLY_DATA = [
+  { name: '2023', organic: 2200, paid: 4100, direct: 1600 },
+  { name: '2024', organic: 3100, paid: 5800, direct: 2400 },
+  { name: '2025', organic: 4400, paid: 7900, direct: 3300 },
+  { name: '2026', organic: 5800, paid: 9600, direct: 4200 },
+];
+
 export const WavyAreaChart: React.FC<WavyAreaChartProps> = ({
   title = "Lead Volume Over Time",
-  subtitle = "Monthly lead acquisition across all active channels",
-  height = 300
+  subtitle = "Lead acquisition channels across paid, organic & direct traffic",
+  height = 240,
+  reportHref = "/leads"
 }) => {
+  const [timeframe, setTimeframe] = useState<'Day' | 'Month' | 'Year'>('Month');
+
+  const chartData =
+    timeframe === 'Day'
+      ? DAILY_DATA
+      : timeframe === 'Year'
+      ? YEARLY_DATA
+      : MONTHLY_DATA;
+
   return (
-    <div className="admin-card p-6 flex flex-col justify-between h-full">
-      {/* Card Header */}
-      <div className="flex items-center justify-between mb-4">
+    <div className="admin-card p-4 sm:p-5 flex flex-col justify-between h-full group transform-gpu">
+      {/* Top Header Row with Legend at Top-Right */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3">
         <div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100 font-heading">{title}</h3>
-          <p className="text-xs text-slate-400 font-medium">{subtitle}</p>
+          <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">{title}</h3>
+          <p className="text-[11px] text-muted-foreground font-medium">{subtitle}</p>
         </div>
-        <div className="flex items-center gap-4 text-xs">
+        <div className="flex items-center gap-3 text-[11px]">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
-            <span className="text-slate-600 dark:text-zinc-300 font-medium">Paid Traffic</span>
+            <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-500 shadow-2xs"></span>
+            <span className="text-foreground font-semibold">Paid Traffic</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
-            <span className="text-slate-600 dark:text-zinc-300 font-medium">Organic</span>
+            <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400 shadow-2xs"></span>
+            <span className="text-foreground font-semibold">Organic</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
-            <span className="text-slate-600 dark:text-zinc-300 font-medium">Direct</span>
+            <span className="w-2 h-2 rounded-full bg-sky-500 dark:bg-sky-400 shadow-2xs"></span>
+            <span className="text-foreground font-semibold">Direct</span>
           </div>
         </div>
       </div>
 
-      {/* Recharts Wavy Fluid Layer Area Chart */}
+      {/* Recharts Area Chart */}
       <div style={{ width: '100%', height }}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={SAMPLE_WAVY_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -24, bottom: 0 }}>
             <defs>
               <linearGradient id="colorPaid" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.45} />
-                <stop offset="95%" stopColor="#2563eb" stopOpacity={0.02} />
+                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="#2563eb" stopOpacity={0.01} />
               </linearGradient>
               <linearGradient id="colorOrganic" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0d9488" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#0d9488" stopOpacity={0.02} />
+                <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#0d9488" stopOpacity={0.01} />
               </linearGradient>
               <linearGradient id="colorDirect" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#818cf8" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#818cf8" stopOpacity={0.01} />
+                <stop offset="5%" stopColor="#0284c7" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#0284c7" stopOpacity={0.01} />
               </linearGradient>
             </defs>
 
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(113, 113, 122, 0.15)" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" className="dark:stroke-slate-800" />
             <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#71717a', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 10 }}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#71717a', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 10 }}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(24, 24, 27, 0.95)',
+                backgroundColor: '#ffffff',
                 borderRadius: '12px',
-                border: '1px solid rgba(39, 39, 42, 0.8)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                color: '#f4f4f5',
-                fontSize: '12px',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 14px -2px rgba(0, 0, 0, 0.08)',
+                color: '#0f172a',
+                fontSize: '11px',
                 fontWeight: 600
               }}
             />
@@ -108,7 +138,7 @@ export const WavyAreaChart: React.FC<WavyAreaChartProps> = ({
               type="monotone"
               dataKey="paid"
               stroke="#2563eb"
-              strokeWidth={3}
+              strokeWidth={2.2}
               fillOpacity={1}
               fill="url(#colorPaid)"
             />
@@ -116,20 +146,48 @@ export const WavyAreaChart: React.FC<WavyAreaChartProps> = ({
               type="monotone"
               dataKey="organic"
               stroke="#0d9488"
-              strokeWidth={2.5}
+              strokeWidth={1.8}
               fillOpacity={1}
               fill="url(#colorOrganic)"
             />
             <Area
               type="monotone"
               dataKey="direct"
-              stroke="#818cf8"
-              strokeWidth={2}
+              stroke="#0284c7"
+              strokeWidth={1.5}
               fillOpacity={1}
               fill="url(#colorDirect)"
             />
           </AreaChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Bottom Footer Bar: Day/Month/Year Toggles (Left) + View Report Link (Right) */}
+      <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs">
+        <div className="flex items-center bg-secondary p-0.5 rounded-lg border border-border">
+          {(['Day', 'Month', 'Year'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTimeframe(t)}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all duration-150 cursor-pointer ${
+                timeframe === t
+                  ? 'bg-card text-foreground shadow-2xs'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <Link
+          href={reportHref}
+          className="flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+        >
+          <span>View report</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
     </div>
   );

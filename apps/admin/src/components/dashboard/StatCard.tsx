@@ -12,6 +12,7 @@ interface StatCardProps {
   subtitle?: string;
   iconBgColor?: string;
   iconColor?: string;
+  compact?: boolean;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -20,49 +21,53 @@ export const StatCard: React.FC<StatCardProps> = ({
   change,
   isPositive = true,
   icon: Icon,
-  subtitle,
-  iconBgColor = "bg-blue-50 dark:bg-blue-950/40",
-  iconColor = "text-blue-600 dark:text-blue-400"
+  subtitle = 'from last week',
+  iconBgColor = 'bg-blue-50 dark:bg-blue-950/60',
+  iconColor = 'text-blue-600 dark:text-blue-400',
+  compact = true
 }) => {
   return (
-    <div className="admin-card p-5 flex flex-col justify-between group">
-      {/* Top row: Icon badge + Title + Change % */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl ${iconBgColor} ${iconColor} flex items-center justify-center font-semibold shrink-0`}>
-            <Icon className="w-5 h-5" />
-          </div>
-          <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-            {title}
-          </span>
+    <div className="admin-card p-4 sm:p-4.5 flex flex-col justify-between h-full group transform-gpu transition-all duration-200 hover:-translate-y-0.5">
+      {/* Top: Circular Icon Badge + Caption Label */}
+      <div className="flex items-center gap-2 mb-1.5">
+        <div
+          className={`w-7 h-7 rounded-full ${iconBgColor} ${iconColor} border border-border flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200 shadow-2xs`}
+        >
+          <Icon className="w-3.5 h-3.5" />
         </div>
+        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider truncate">
+          {title}
+        </span>
+      </div>
 
+      {/* Middle: Large Bold Number */}
+      <div className="my-1">
+        <div className="text-2xl sm:text-[26px] font-extrabold text-foreground tracking-tight font-heading group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+          {value}
+        </div>
+      </div>
+
+      {/* Bottom: Trend Indicator Line */}
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold mt-1">
         {change && (
-          <div
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
+          <span
+            className={`inline-flex items-center gap-0.5 font-bold ${
               isPositive
-                ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/60'
-                : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-900/60'
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-rose-600 dark:text-rose-400'
             }`}
           >
             {isPositive ? (
-              <TrendingUp className="w-3.5 h-3.5" />
+              <TrendingUp className="w-3 h-3" />
             ) : (
-              <TrendingDown className="w-3.5 h-3.5" />
+              <TrendingDown className="w-3 h-3" />
             )}
             <span>{change}</span>
-          </div>
+          </span>
         )}
-      </div>
-
-      {/* Main Big Number */}
-      <div className="mt-4">
-        <div className="text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight font-heading">
-          {value}
-        </div>
-        {subtitle && (
-          <p className="text-[11px] text-slate-400 dark:text-zinc-400 font-medium mt-1">{subtitle}</p>
-        )}
+        <span className="text-muted-foreground text-[10px] sm:text-[11px] font-medium truncate">
+          {subtitle}
+        </span>
       </div>
     </div>
   );

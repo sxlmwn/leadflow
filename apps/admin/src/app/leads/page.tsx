@@ -165,10 +165,10 @@ export default function LeadsPage() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-heading">
+          <h2 className="text-2xl font-extrabold text-foreground tracking-tight font-heading">
             All Inbound Leads
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+          <p className="text-xs text-muted-foreground font-medium mt-0.5">
             Filter, inspect compliance certificates, and view buyer distribution logs
           </p>
         </div>
@@ -176,12 +176,12 @@ export default function LeadsPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={fetchLeads}
-            className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2 bg-card hover:bg-secondary border border-border rounded-xl text-xs font-semibold text-foreground transition-all duration-200 cursor-pointer transform-gpu shadow-2xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-muted-foreground'}`} />
             <span>Sync Leads</span>
           </button>
-          <button className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-500/20 transition-all cursor-pointer">
+          <button className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer transform-gpu">
             <Download className="w-3.5 h-3.5" />
             <span>Export CSV</span>
           </button>
@@ -189,9 +189,9 @@ export default function LeadsPage() {
       </div>
 
       {/* Filter Control Bar */}
-      <div className="admin-card p-4 flex flex-wrap items-center justify-between gap-4">
+      <div className="admin-card p-4 flex flex-wrap items-center justify-between gap-4 transform-gpu">
         <div className="flex flex-wrap items-center gap-3 flex-1">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 mr-2">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground mr-2">
             <SlidersHorizontal className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             <span>Filters:</span>
           </div>
@@ -199,7 +199,7 @@ export default function LeadsPage() {
           <select
             value={brandFilter}
             onChange={(e) => setBrandFilter(e.target.value)}
-            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer"
+            className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer transition-colors"
           >
             <option value="all">All Brands</option>
             <option value="WindowHound">WindowHound</option>
@@ -210,7 +210,7 @@ export default function LeadsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer"
+            className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer transition-colors"
           >
             <option value="all">All Statuses</option>
             <option value="new">New</option>
@@ -224,7 +224,7 @@ export default function LeadsPage() {
           <select
             value={minScoreFilter}
             onChange={(e) => setMinScoreFilter(e.target.value)}
-            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer"
+            className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer transition-colors"
           >
             <option value="0">Min Score: Any</option>
             <option value="50">Min Score: 50+</option>
@@ -233,17 +233,17 @@ export default function LeadsPage() {
           </select>
         </div>
 
-        <div className="text-xs font-semibold text-slate-400">
-          Showing <span className="text-slate-900 dark:text-slate-100 font-bold">{filteredLeads.length}</span> of {leads.length} leads
+        <div className="text-xs font-semibold text-muted-foreground">
+          Showing <span className="text-foreground font-bold">{filteredLeads.length}</span> of {leads.length} leads
         </div>
       </div>
 
       {/* Main Filterable Data Table */}
-      <div className="admin-card overflow-hidden">
+      <div className="admin-card overflow-hidden transform-gpu">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3.5 px-4">Lead ID</th>
                 <th className="py-3.5 px-4">Brand</th>
                 <th className="py-3.5 px-4">Contact Info</th>
@@ -256,26 +256,26 @@ export default function LeadsPage() {
                 <th className="py-3.5 px-4">Submitted At</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+            <tbody className="divide-y divide-border font-medium">
               {filteredLeads.map((lead) => (
                 <tr
                   key={lead.id}
                   onClick={() => setSelectedLead(lead)}
-                  className="hover:bg-blue-50/50 dark:hover:bg-blue-950/40 cursor-pointer transition-colors group"
+                  className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group"
                 >
-                  <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400 group-hover:underline">
+                  <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
                     {lead.id.substring(0, 8)}
                   </td>
                   <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{lead.brand_name}</td>
                   <td className="py-3.5 px-4">
                     <div className="flex flex-col">
                       <span className="text-slate-900 dark:text-slate-100 font-bold">{lead.full_name}</span>
-                      <span className="text-[10px] text-slate-400">{lead.email}</span>
+                      <span className="text-[10px] text-muted-foreground">{lead.email}</span>
                     </div>
                   </td>
                   <td className="py-3.5 px-4">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
                         (lead.score || 0) >= 80
                           ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                           : (lead.score || 0) >= 50
@@ -301,10 +301,10 @@ export default function LeadsPage() {
                       {lead.status}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400 font-mono text-[11px]">
+                  <td className="py-3.5 px-4 text-muted-foreground font-mono text-[11px]">
                     {String(lead.subid_params?.utm_source || 'direct')}
                   </td>
-                  <td className="py-3.5 px-4 text-slate-800 dark:text-slate-200 font-semibold">
+                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-semibold">
                     {lead.sold_to_buyer_name || (lead.sold ? 'Buyer Assigned' : 'Unsold')}
                   </td>
                   <td className="py-3.5 px-4">
@@ -314,7 +314,7 @@ export default function LeadsPage() {
                         Verified
                       </span>
                     ) : (
-                      <span className="text-[10px] text-slate-400 font-medium">Standard</span>
+                      <span className="text-[10px] text-muted-foreground font-medium">Standard</span>
                     )}
                   </td>
                   <td className="py-3.5 px-4">
@@ -327,7 +327,7 @@ export default function LeadsPage() {
                       <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Clear</span>
                     )}
                   </td>
-                  <td className="py-3.5 px-4 text-slate-400 text-[11px]">
+                  <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
                     {new Date(lead.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </td>
                 </tr>

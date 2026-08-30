@@ -5,7 +5,7 @@ import { X, Save, Check } from 'lucide-react';
 import { AdminBuyer } from '@/lib/data';
 
 interface AddEditBuyerModalProps {
-  buyer: AdminBuyer | null; // null for Create Mode
+  buyer: AdminBuyer | null;
   isOpen: boolean;
   onClose: () => void;
   onSave: (buyerData: Partial<AdminBuyer>) => void;
@@ -73,21 +73,21 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 dark:bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Modal Header */}
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="p-6 border-b border-border flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 font-heading">
+            <h3 className="text-lg font-bold text-foreground font-heading">
               {buyer ? `Edit Buyer Endpoint: ${buyer.name}` : 'Add New Buyer Endpoint'}
             </h3>
-            <p className="text-xs text-slate-400 font-medium">
+            <p className="text-xs text-muted-foreground font-medium">
               Configure real-time ping/post pricing and delivery rules
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+            className="w-8 h-8 rounded-full bg-secondary hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -96,47 +96,47 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
         {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
           <div>
-            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Buyer Company Name</label>
+            <label className="block text-xs font-bold text-foreground mb-1">Buyer Company Name</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Apex Home Services LLC"
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 rounded-xl outline-none font-semibold text-slate-800 dark:text-slate-100"
+              className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-semibold text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Webhook API Endpoint</label>
+            <label className="block text-xs font-bold text-foreground mb-1">Webhook API Endpoint</label>
             <input
               type="url"
               required
               value={apiEndpoint}
               onChange={(e) => setApiEndpoint(e.target.value)}
               placeholder="https://api.buyer.com/v1/leads"
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 rounded-xl outline-none font-mono text-slate-800 dark:text-slate-100"
+              className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-mono text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Payout Per Lead ($)</label>
+              <label className="block text-xs font-bold text-foreground mb-1">Payout Per Lead ($)</label>
               <input
                 type="number"
                 step="0.5"
                 required
                 value={pricePerLead}
                 onChange={(e) => setPricePerLead(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 rounded-xl outline-none font-bold text-slate-800 dark:text-slate-100"
+                className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-bold text-foreground"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Pricing Model</label>
+              <label className="block text-xs font-bold text-foreground mb-1">Pricing Model</label>
               <select
                 value={pricingModel}
                 onChange={(e) => setPricingModel(e.target.value as 'flat' | 'tiered' | 'auction')}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500"
+                className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl font-semibold text-foreground outline-none focus:border-blue-500"
               >
                 <option value="flat">Flat Payout</option>
                 <option value="tiered">Tiered Quality</option>
@@ -146,7 +146,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+            <label className="block text-xs font-bold text-foreground mb-1">
               Minimum Lead Score Requirement (0-100)
             </label>
             <input
@@ -155,12 +155,12 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
               max="100"
               value={minScore}
               onChange={(e) => setMinScore(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500"
+              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl font-bold text-foreground outline-none focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-2">Accepted Brands</label>
+            <label className="block text-xs font-bold text-foreground mb-2">Accepted Brands</label>
             <div className="flex flex-wrap gap-2">
               {['WindowHound', 'MedTrialMatch', 'ReliefOlogist'].map((bName) => {
                 const selected = acceptedBrands.includes(bName);
@@ -169,10 +169,10 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
                     type="button"
                     key={bName}
                     onClick={() => toggleBrandChip(bName)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
                       selected
                         ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 shadow-2xs'
-                        : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                        : 'bg-secondary border-border text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     {selected && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
@@ -191,23 +191,23 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
               />
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Active & Ready to Accept Delivery Ping
+              <span className="text-xs font-bold text-foreground">
+                Active &amp; Ready to Accept Delivery Ping
               </span>
             </label>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-border flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="px-4 py-2.5 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs shadow-blue-500/20 transition-all duration-200 flex items-center gap-2 cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>Save Buyer</span>

@@ -19,8 +19,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('leadflow_theme');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    const savedTheme = localStorage.getItem('leadflow_admin_theme');
+    if (savedTheme === 'dark') {
       setDarkMode(true);
       document.documentElement.classList.add('dark');
     } else {
@@ -33,16 +33,22 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     if (darkMode) {
       setDarkMode(false);
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('leadflow_theme', 'light');
+      localStorage.setItem('leadflow_admin_theme', 'light');
     } else {
       setDarkMode(true);
       document.documentElement.classList.add('dark');
-      localStorage.setItem('leadflow_theme', 'dark');
+      localStorage.setItem('leadflow_admin_theme', 'dark');
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 font-sans transition-colors duration-150">
+    <div className="min-h-screen flex bg-background text-foreground font-sans relative selection:bg-blue-500 selection:text-white transition-colors duration-200">
+      {/* Background ambient lighting */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[100vw] h-[50vh] bg-blue-500/[0.03] dark:bg-blue-500/10 blur-[120px] rounded-full" />
+        <div className="absolute -bottom-40 right-1/4 w-[50vw] h-[50vh] bg-blue-600/[0.02] dark:bg-blue-600/5 blur-[140px] rounded-full" />
+      </div>
+
       {/* Collapsible Left Sidebar */}
       <Sidebar
         collapsed={collapsed}
@@ -52,7 +58,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       />
 
       {/* Main Content Workspace */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden relative z-10">
         <TopBar
           title={title}
           onSearchChange={onSearchChange}

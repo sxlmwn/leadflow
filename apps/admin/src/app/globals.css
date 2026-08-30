@@ -1,26 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
-/* 
-  Global Color Tokens
-  Light theme: Clean white/light gray surfaces, crisp borders, subtle shadows.
-  Dark theme: True neutral dark gray / near-black (#0f0f0f to #18181b range), NO navy blue tint.
-*/
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
 
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
   --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #eff6ff;
+  --accent-foreground: #1d4ed8;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #3b82f6;
+  --card-border: #e2e8f0;
   --card-bg: #ffffff;
-  --card-border: rgba(226, 232, 240, 0.9);
 }
 
 .dark {
-  --background: #0f0f11;
-  --foreground: #f4f4f5;
+  --background: #030712;
+  --foreground: #f8fafc;
+  --card: #0b1120;
+  --card-foreground: #f8fafc;
+  --popover: #0b1120;
+  --popover-foreground: #f8fafc;
   --primary: #3b82f6;
-  --card-bg: #18181b;
-  --card-border: rgba(39, 39, 42, 0.9);
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e3a8a;
+  --accent-foreground: #bfdbfe;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #3b82f6;
+  --card-border: rgba(255, 255, 255, 0.07);
+  --card-bg: rgba(11, 17, 32, 0.85);
 }
 
 body {
@@ -30,7 +78,7 @@ body {
   min-height: 100vh;
   margin: 0;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 /* Custom scrollbars */
@@ -45,11 +93,14 @@ body {
   background: #cbd5e1;
   border-radius: 9999px;
 }
-.dark ::-webkit-scrollbar-thumb {
-  background: #27272a;
-}
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.25);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.45);
 }
 
 .font-heading {
@@ -57,34 +108,60 @@ body {
 }
 
 /* 
-  Clean Card Styling
-  No heavy glow or neon box-shadows on cards, buttons, or inputs!
+  LeadFlow Animated Card System
+  Clean solid light card in light mode, elevated glass card in dark mode
 */
 .admin-card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 1rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  position: relative;
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  transition: transform 250ms ease-in-out, border-color 250ms ease-in-out, box-shadow 250ms ease-in-out, background-color 250ms ease-in-out;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, box-shadow;
 }
 
 .admin-card:hover {
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 4px 14px -1px rgba(59, 130, 246, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  transform: translate3d(0, -2px, 0);
+}
+
+.dark .admin-card {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.05), 0 2px 4px rgba(0, 0, 0, 0.2), 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 .dark .admin-card:hover {
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+  border-color: rgba(96, 165, 250, 0.35);
+  box-shadow: 0 0 20px 2px rgba(59, 130, 246, 0.15), 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Table Row Hover Treatment */
+.admin-table-row {
+  transition: background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
+}
+
+.admin-table-row:hover {
+  background-color: rgba(59, 130, 246, 0.04);
+}
+
+.dark .admin-table-row:hover {
+  background-color: rgba(59, 130, 246, 0.08);
 }
 
 /* Smooth Page Animation */
 .animate-page-in {
-  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: fadeIn 250ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(3px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;

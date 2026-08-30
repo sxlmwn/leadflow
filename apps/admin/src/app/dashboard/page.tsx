@@ -10,13 +10,15 @@ import {
   ShieldAlert,
   Award,
   ArrowUpRight,
-  RefreshCw
+  RefreshCw,
+  CheckCircle2
 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { HeatmapCard } from '@/components/dashboard/HeatmapCard';
 import { WavyAreaChart } from '@/components/dashboard/WavyAreaChart';
 import { DonutRingWidget } from '@/components/dashboard/DonutRingWidget';
+import { CircularProgressRing } from '@/components/ui/circular-progress-ring';
 import { supabase } from '@/lib/supabase';
 import { AdminLead } from '@/lib/data';
 
@@ -177,89 +179,93 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <AdminLayout title="Overview Dashboard">
+    <AdminLayout title="Dashboard">
       {/* Top Banner Control Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-1">
         <div>
-          <h2 className="text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight font-heading">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight font-heading">
             Live Platform Overview
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+          <p className="text-xs text-muted-foreground font-medium">
             Real-time analytics across all active brand funnels and buyer endpoints
           </p>
         </div>
 
         <button
           onClick={fetchDashboardData}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-2xs transition-all cursor-pointer"
+          className="flex items-center gap-2 px-3.5 py-1.5 bg-card hover:bg-secondary border border-border rounded-xl text-xs font-semibold text-foreground shadow-2xs transition-all duration-200 cursor-pointer transform-gpu"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-muted-foreground'}`} />
           <span>Refresh Metrics</span>
         </button>
       </div>
 
-      {/* Grid of 6 Stat Cards (Responsive across mobile, tablet, 1440px, 1920px+) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 sm:gap-6">
-        <StatCard
-          title="Leads Today"
-          value={stats.totalLeadsToday}
-          change="+14.2%"
-          isPositive={true}
-          icon={Users}
-          subtitle="vs. yesterday"
-        />
-        <StatCard
-          title="Sold Rate"
-          value={`${stats.soldPercent}%`}
-          change="+3.1%"
-          isPositive={true}
-          icon={TrendingUp}
-          subtitle="verified lead conversion"
-        />
-        <StatCard
-          title="Est. Revenue"
-          value={`$${stats.estRevenue.toLocaleString()}`}
-          change="+18.5%"
-          isPositive={true}
-          icon={DollarSign}
-          iconBgColor="bg-emerald-50 dark:bg-emerald-950/50"
-          iconColor="text-emerald-600 dark:text-emerald-400"
-          subtitle="gross buyer payouts"
-        />
-        <StatCard
-          title="Active Brands"
-          value={stats.activeBrands}
-          icon={Building2}
-          subtitle="live lead channels"
-        />
-        <StatCard
-          title="Avg Lead Score"
-          value={stats.avgScore}
-          change="+2.4"
-          isPositive={true}
-          icon={Award}
-          iconBgColor="bg-indigo-50 dark:bg-indigo-950/50"
-          iconColor="text-indigo-600 dark:text-indigo-400"
-          subtitle="quality score (max 100)"
-        />
-        <StatCard
-          title="DNC Flagged"
-          value={stats.dncFlaggedCount}
-          change="-1.2%"
-          isPositive={true}
-          icon={ShieldAlert}
-          iconBgColor="bg-amber-50 dark:bg-amber-950/50"
-          iconColor="text-amber-600 dark:text-amber-400"
-          subtitle="tcpa compliance blocked"
-        />
-      </div>
+      {/* ROW 1: 2x2 Compact Stat Grid (Left ~40%) + Heatmap Panel (Right ~60%) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        {/* Left: 2x2 Sub-Grid of Compact Metric Cards */}
+        <div className="lg:col-span-5 xl:col-span-5 2xl:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <StatCard
+            title="Leads Today"
+            value={stats.totalLeadsToday}
+            change="+14.2%"
+            isPositive={true}
+            icon={Users}
+            subtitle="from last week"
+            iconBgColor="bg-blue-50 dark:bg-blue-950/60"
+            iconColor="text-blue-600 dark:text-blue-400"
+          />
+          <StatCard
+            title="Sold Rate"
+            value={`${stats.soldPercent}%`}
+            change="+3.1%"
+            isPositive={true}
+            icon={TrendingUp}
+            subtitle="from last week"
+            iconBgColor="bg-blue-50 dark:bg-blue-950/60"
+            iconColor="text-blue-600 dark:text-blue-400"
+          />
+          <StatCard
+            title="Est. Revenue"
+            value={`$${stats.estRevenue.toLocaleString()}`}
+            change="+18.5%"
+            isPositive={true}
+            icon={DollarSign}
+            subtitle="from last week"
+            iconBgColor="bg-emerald-50 dark:bg-emerald-950/60"
+            iconColor="text-emerald-600 dark:text-emerald-400"
+          />
+          <StatCard
+            title="Active Brands"
+            value={`${stats.activeBrands} Active`}
+            change="+1"
+            isPositive={true}
+            icon={Building2}
+            subtitle="from last month"
+            iconBgColor="bg-sky-50 dark:bg-sky-950/60"
+            iconColor="text-sky-600 dark:text-sky-400"
+          />
+        </div>
 
-      {/* Main Charts Grid: Heatmap (2.jpg) & Donut Ring (4.jpg) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 xl:col-span-8">
+        {/* Right: Heatmap Panel (Same Row Height as 2x2 Grid) */}
+        <div className="lg:col-span-7 xl:col-span-7 2xl:col-span-7">
           <HeatmapCard title="Leads by Time of Day" />
         </div>
-        <div className="lg:col-span-5 xl:col-span-4">
+      </div>
+
+      {/* ROW 2: Line/Area Chart Panel (~65% Left) + Sold vs Unsold Ring Panel (~35% Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        {/* Left: Lead Volume Over Time Chart Panel with Bottom Timeframe Toggles */}
+        <div className="lg:col-span-8 xl:col-span-8">
+          <WavyAreaChart
+            title="Lead Volume Over Time"
+            subtitle="Monthly lead acquisition channels across paid, organic & direct traffic"
+            height={230}
+            reportHref="/leads"
+          />
+        </div>
+
+        {/* Right: Sold vs Unsold Ring Panel with Single-Line Channel Breakdowns */}
+        <div className="lg:col-span-4 xl:col-span-4">
           <DonutRingWidget
             title="Sold vs Unsold"
             percentage={stats.soldPercent}
@@ -269,30 +275,137 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Wavy Liquid Trend Charts (3.jpg Atom style) */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <WavyAreaChart
-          title="Lead Volume Over Time"
-          subtitle="Stacked traffic channels across paid search, social ads, and direct traffic"
-          height={320}
-        />
-        <WavyAreaChart
-          title="Score Distribution Trend"
-          subtitle="Monthly breakdown of high (80+), medium (50-79), and low (<50) lead quality scores"
-          height={320}
-        />
+      {/* ROW 3: Quality Compliance Guardrails (Left) + Score Distribution Trend (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        {/* Left: Quality & Compliance Guardrails (with Mini-Rings matching reference "Important Expenses" row) */}
+        <div className="lg:col-span-5 xl:col-span-4 admin-card p-4 sm:p-5 flex flex-col justify-between group transform-gpu space-y-4">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
+                Quality &amp; Compliance
+              </h3>
+              <p className="text-[11px] text-muted-foreground font-medium">TCPA, DNC &amp; Scoring Guardrails</p>
+            </div>
+            <span className="flex items-center gap-1 text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+              <CheckCircle2 className="w-3 h-3" />
+              <span>Verified</span>
+            </span>
+          </div>
+
+          {/* Two Secondary Metric Pills */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 rounded-xl bg-secondary/70 border border-border">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                <Award className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Avg Score</span>
+              </div>
+              <div className="text-xl font-extrabold text-foreground font-heading">
+                {stats.avgScore} <span className="text-xs text-muted-foreground font-normal">/ 100</span>
+              </div>
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                ↑ +2.4 from last week
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-secondary/70 border border-border">
+              <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">DNC Flagged</span>
+              </div>
+              <div className="text-xl font-extrabold text-foreground font-heading">
+                {stats.dncFlaggedCount} <span className="text-xs text-muted-foreground font-normal">blocked</span>
+              </div>
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                ↓ -1.2% from last week
+              </span>
+            </div>
+          </div>
+
+          {/* Mini-Rings Row (Important Expenses reference style: compact row of partial rings with label and value underneath) */}
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              Automated Verification Rates
+            </div>
+            <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+              {/* Mini Ring 1: TCPA Pass */}
+              <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-card border border-border shadow-2xs hover:border-emerald-400 transition-all duration-200 transform-gpu hover:-translate-y-0.5">
+                <CircularProgressRing
+                  value={92}
+                  size={50}
+                  strokeWidth={5}
+                  color={['#059669', '#34d399']}
+                  showShadow={true}
+                />
+                <span className="text-xs font-bold text-foreground mt-2 truncate w-full">
+                  TCPA Pass
+                </span>
+                <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  92%
+                </span>
+              </div>
+
+              {/* Mini Ring 2: DNC Clear */}
+              <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-card border border-border shadow-2xs hover:border-blue-400 transition-all duration-200 transform-gpu hover:-translate-y-0.5">
+                <CircularProgressRing
+                  value={80}
+                  size={50}
+                  strokeWidth={5}
+                  color={['#2563eb', '#60a5fa']}
+                  showShadow={true}
+                />
+                <span className="text-xs font-bold text-foreground mt-2 truncate w-full">
+                  DNC Clear
+                </span>
+                <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+                  80%
+                </span>
+              </div>
+
+              {/* Mini Ring 3: Score 80+ */}
+              <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-card border border-border shadow-2xs hover:border-sky-400 transition-all duration-200 transform-gpu hover:-translate-y-0.5">
+                <CircularProgressRing
+                  value={78}
+                  size={50}
+                  strokeWidth={5}
+                  color={['#0284c7', '#38bdf8']}
+                  showShadow={true}
+                />
+                <span className="text-xs font-bold text-foreground mt-2 truncate w-full">
+                  Score 80+
+                </span>
+                <span className="text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                  78%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Score Distribution Trend Panel */}
+        <div className="lg:col-span-7 xl:col-span-8">
+          <WavyAreaChart
+            title="Score Distribution Trend"
+            subtitle="Monthly breakdown of high (80+), medium (50-79), and low (<50) lead quality scores"
+            height={220}
+            reportHref="/leads"
+          />
+        </div>
       </div>
 
-      {/* Recent Leads Table */}
-      <div className="admin-card p-6">
-        <div className="flex items-center justify-between mb-4">
+      {/* ROW 4: Recent Incoming Leads Table */}
+      <div className="admin-card p-4 sm:p-5 transform-gpu">
+        <div className="flex items-center justify-between mb-3.5">
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 font-heading">Recent Incoming Leads</h3>
-            <p className="text-xs text-slate-400 font-medium">Latest submissions across all brand funnels</p>
+            <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
+              Recent Incoming Leads
+            </h3>
+            <p className="text-[11px] text-muted-foreground font-medium">
+              Latest submissions across all brand funnels
+            </p>
           </div>
           <Link
             href="/leads"
-            className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 bg-blue-50 dark:bg-blue-950/60 px-3 py-1.5 rounded-lg border border-blue-100 dark:border-blue-900 transition-colors"
+            className="flex items-center gap-1.5 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 px-3 py-1.5 rounded-xl border border-blue-100 dark:border-blue-900 transition-colors"
           >
             <span>View All Leads</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -302,32 +415,37 @@ export default function DashboardPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                <th className="py-3.5 px-4">Lead ID</th>
-                <th className="py-3.5 px-4">Brand</th>
-                <th className="py-3.5 px-4">Contact</th>
-                <th className="py-3.5 px-4">Score</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4">Buyer Sold To</th>
-                <th className="py-3.5 px-4">Submitted At</th>
+              <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                <th className="py-3 px-3.5">Lead ID</th>
+                <th className="py-3 px-3.5">Brand</th>
+                <th className="py-3 px-3.5">Contact</th>
+                <th className="py-3 px-3.5">Score</th>
+                <th className="py-3 px-3.5">Status</th>
+                <th className="py-3 px-3.5">Buyer Sold To</th>
+                <th className="py-3 px-3.5">Submitted At</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
+            <tbody className="divide-y divide-border font-medium">
               {recentLeads.map((lead) => (
-                <tr key={lead.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
+                <tr
+                  key={lead.id}
+                  className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                  <td className="py-3 px-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">
                     {lead.id.substring(0, 8)}
                   </td>
-                  <td className="py-3.5 px-4 text-slate-800 dark:text-slate-200 font-semibold">{lead.brand_name}</td>
-                  <td className="py-3.5 px-4">
+                  <td className="py-3 px-3.5 text-foreground font-semibold">
+                    {lead.brand_name}
+                  </td>
+                  <td className="py-3 px-3.5">
                     <div className="flex flex-col">
-                      <span className="text-slate-900 dark:text-slate-100 font-semibold">{lead.full_name}</span>
-                      <span className="text-[10px] text-slate-400">{lead.email}</span>
+                      <span className="text-foreground font-bold">{lead.full_name}</span>
+                      <span className="text-[10px] text-muted-foreground">{lead.email}</span>
                     </div>
                   </td>
-                  <td className="py-3.5 px-4">
+                  <td className="py-3 px-3.5">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         (lead.score || 0) >= 80
                           ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                           : (lead.score || 0) >= 50
@@ -338,7 +456,7 @@ export default function DashboardPage() {
                       {lead.score || 'N/A'}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4">
+                  <td className="py-3 px-3.5">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         lead.status === 'sold'
@@ -347,17 +465,20 @@ export default function DashboardPage() {
                           ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                           : lead.status === 'duplicate'
                           ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                          : 'bg-secondary text-muted-foreground border border-border'
                       }`}
                     >
                       {lead.status}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                  <td className="py-3 px-3.5 text-slate-700 dark:text-slate-300">
                     {lead.sold_to_buyer_name || (lead.sold ? 'Buyer Assigned' : 'Unsold')}
                   </td>
-                  <td className="py-3.5 px-4 text-slate-400 text-[11px]">
-                    {new Date(lead.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <td className="py-3 px-3.5 text-muted-foreground text-[11px]">
+                    {new Date(lead.created_at).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                   </td>
                 </tr>
               ))}
