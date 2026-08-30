@@ -9,6 +9,8 @@ const BRANDS = [
 ];
 
 export default function DevBrandSwitcher({ currentSlug }: { currentSlug?: string }) {
+  if (process.env.NODE_ENV === 'production') return null;
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
