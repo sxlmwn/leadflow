@@ -1,49 +1,58 @@
 # LeadFlow — Multi-Brand Lead-Gen Platform
 
-LeadFlow is a multi-brand lead-generation platform built with Next.js App Router, TypeScript, Tailwind CSS, and Supabase.
+LeadFlow is a high-performance, multi-brand lead-generation platform built with Next.js App Router, TypeScript, Tailwind CSS, and Supabase.
 
-## Monorepo Architecture (npm Workspaces)
+This repository contains two independent, standalone Next.js applications:
 
 ```text
 leadflow/
-├── apps/
-│   └── funnel/         # Multi-brand landing & lead capture application (Port 3000)
-├── packages/
-│   └── shared/         # Shared TypeScript interfaces (Brand, Lead, Buyer, Verification types)
-├── supabase/           # Single shared source of truth database migrations & config
-├── docs/               # Platform documentation & task guidelines
-└── scratch/            # Cross-cutting integration test scripts
+├── website/          # Public lead capture funnel & landing pages (Port 3000)
+├── admin-portal/     # Admin dashboard, brand & form builder, analytics (Port 3001)
+└── README.md         # Repository overview and guide
 ```
 
-## Getting Started
+---
 
-### 1. Install Dependencies
-Run `npm install` from the root directory to link all workspace packages:
+## Applications
+
+### 1. [Website (Funnel)](./website)
+- **Path**: [`website/`](./website)
+- **Role**: Public-facing landing pages, dynamic multi-step lead capture forms, click tracking, TCPA consent verification pipeline (TrustedForm & DNC scrub), and buyer delivery.
+- **Port**: Default `http://localhost:3000`
+- **Setup Guide**: See [website/README.md](./website/README.md)
+
+### 2. [Admin Portal](./admin-portal)
+- **Path**: [`admin-portal/`](./admin-portal)
+- **Role**: Internal administrative dashboard, brand & form schema editor, custom domain routing, buyer management, and delivery analytics.
+- **Port**: Default `http://localhost:3001`
+- **Setup Guide**: See [admin-portal/README.md](./admin-portal/README.md)
+
+---
+
+## Quick Start
+
+Each application is completely self-contained with its own dependencies and configuration.
+
+### Running Website:
 ```bash
+cd website
 npm install
+cp .env.local.example .env.local
+npm run dev
 ```
 
-### 2. Running Application
-
-- **Run Funnel App (Landing Pages & Lead Capture)**:
-  ```bash
-  npm run dev
-  # or
-  npm run dev:funnel
-  ```
-  App will start at `http://localhost:3000`.
-
-### 3. Build & Quality Checks
-
-Run workspace commands across packages:
+### Running Admin Portal:
 ```bash
-npm run build    # Builds funnel app
-npm run lint     # Lints all workspace packages
-npm run tsc      # Type-checks all workspace packages
+cd admin-portal
+npm install
+cp .env.local.example .env.local
+npm run dev
 ```
 
-### 4. Local Brand Testing (Funnel App)
-Switch between brands dynamically using dev overrides:
-- **WindowHound**: `http://localhost:3000/?brand=windowhound`
-- **MedTrialMatch**: `http://localhost:3000/?brand=medtrialmatch`
-- **ReliefOlogist**: `http://localhost:3000/?brand=reliefologist`
+---
+
+## Deployment (Vercel)
+
+Both applications are configured for deployment on Vercel with individual project root directories:
+- **`leadflow-funnel`**: Root directory set to `website`
+- **`leadflow-admin`**: Root directory set to `admin-portal`
