@@ -138,69 +138,79 @@ export default function BrandsPage() {
     try {
       const brandId = deletingBrand.id;
 
-      // 1. Fetch all lead IDs for this brand
-      const { data: leadRows, error: leadsFetchErr } = await supabase
-        .from('leads')
-        .select('id')
-        .eq('brand_id', brandId);
+      // Primary: Use server-side atomic cascade-delete API route
+      const res = await fetch(`/api/brands/${brandId}/cascade-delete`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-      if (leadsFetchErr) {
-        console.warn('Leads fetch error during cascade:', leadsFetchErr);
-      }
+      if (!res.ok) {
+        // Fallback: If API returns error or is not reachable, execute client-level safe sequence
+        console.warn('API cascade-delete returned non-200, attempting client-level cascade...');
+        
+        // 1. Fetch all lead IDs for this brand
+        const { data: leadRows } = await supabase
+          .from('leads')
+          .select('id')
+          .eq('brand_id', brandId);
 
-      const leadIds = (leadRows || []).map((l: any) => l.id);
+        const leadIds = (leadRows || []).map((l: any) => l.id);
 
-      if (leadIds.length > 0) {
-        setDeletingProgress(`Removing verification results for ${leadIds.length} leads...`);
-        // 2. Delete verification results
-        const { error: vErr } = await supabase
-          .from('verification_results')
+        // 2. Clear clicks.converted_lead_id referencing any of these leads
+        if (leadIds.length > 0) {
+          await supabase
+            .from('clicks')
+            .update({ converted_lead_id: null })
+            .in('converted_lead_id', leadIds);
+        }
+
+        // 3. Clear leads.click_id referencing clicks for this brand
+        await supabase
+          .from('leads')
+          .update({ click_id: null })
+          .eq('brand_id', brandId);
+
+        // 4. Delete verification_results for these leads
+        if (leadIds.length > 0) {
+          await supabase
+            .from('verification_results')
+            .delete()
+            .in('lead_id', leadIds);
+
+          // 5. Delete buyer_deliveries for these leads
+          await supabase
+            .from('buyer_deliveries')
+            .delete()
+            .in('lead_id', leadIds);
+        }
+
+        // 6. Delete clicks
+        await supabase
+          .from('clicks')
           .delete()
-          .in('lead_id', leadIds);
-        if (vErr) console.warn('verification_results delete warning:', vErr);
+          .eq('brand_id', brandId);
 
-        setDeletingProgress(`Removing buyer deliveries for ${leadIds.length} leads...`);
-        // 3. Delete buyer deliveries
-        const { error: dErr } = await supabase
-          .from('buyer_deliveries')
-          .delete()
-          .in('lead_id', leadIds);
-        if (dErr) console.warn('buyer_deliveries delete warning:', dErr);
-
-        setDeletingProgress(`Removing ${leadIds.length} leads...`);
-        // 4. Delete leads
-        const { error: lErr } = await supabase
+        // 7. Delete leads
+        await supabase
           .from('leads')
           .delete()
           .eq('brand_id', brandId);
-        if (lErr) console.warn('leads delete warning:', lErr);
+
+        // 8. Delete buyer_brands linkages
+        await supabase
+          .from('buyer_brands')
+          .delete()
+          .eq('brand_id', brandId);
+
+        // 9. Delete the brand itself
+        const { error: bErr } = await supabase
+          .from('brands')
+          .delete()
+          .eq('id', brandId);
+        if (bErr) throw bErr;
       }
 
-      setDeletingProgress('Removing click tracking records...');
-      // 5. Delete clicks
-      const { error: cErr } = await supabase
-        .from('clicks')
-        .delete()
-        .eq('brand_id', brandId);
-      if (cErr) console.warn('clicks delete warning:', cErr);
-
-      setDeletingProgress('Removing buyer-brand associations...');
-      // 6. Delete buyer_brands linkages
-      const { error: bbErr } = await supabase
-        .from('buyer_brands')
-        .delete()
-        .eq('brand_id', brandId);
-      if (bbErr) console.warn('buyer_brands delete warning:', bbErr);
-
-      setDeletingProgress(`Permanently deleting brand: ${deletingBrand.name}...`);
-      // 7. Delete the brand itself
-      const { error: bErr } = await supabase
-        .from('brands')
-        .delete()
-        .eq('id', brandId);
-      if (bErr) throw bErr;
-
-      // 8. Update UI state and refresh
+      // Update UI state and refresh
       setBrands((prev) => prev.filter((b) => b.id !== brandId));
       setDeletingBrand(null);
       setHardDeleteConfirm(false);
