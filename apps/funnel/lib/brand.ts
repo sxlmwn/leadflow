@@ -7,17 +7,25 @@ export async function getCurrentBrand(): Promise<Brand | null> {
   const cookieStore = await cookies();
 
   const brandSlug = headerList.get('x-brand-slug');
-  const brandHost = headerList.get('x-brand-host');
+  const brandId = headerList.get('x-brand-id');
+  const host =
+    headerList.get('x-brand-host') ||
+    headerList.get('x-forwarded-host') ||
+    headerList.get('host') ||
+    'localhost:3000';
+  const hostnameOnly = host.split(':')[0].toLowerCase();
+  const isLocalhost =
+    hostnameOnly === 'localhost' ||
+    hostnameOnly === '127.0.0.1' ||
+    hostnameOnly.endsWith('.local');
   const cookieOverride = cookieStore.get('brand_override')?.value;
 
-  // 1. Try slug from header (set by middleware) or cookie override
-  const targetSlug = brandSlug || cookieOverride;
-
-  if (targetSlug) {
+  // 1. If middleware resolved the brand slug or id, load it directly
+  if (brandSlug) {
     const { data: brandBySlug } = await supabase
       .from('brands')
       .select('*')
-      .eq('slug', targetSlug)
+      .eq('slug', brandSlug)
       .eq('is_active', true)
       .maybeSingle();
 
@@ -26,13 +34,25 @@ export async function getCurrentBrand(): Promise<Brand | null> {
     }
   }
 
-  // 2. Fallback to domain matching
-  if (brandHost) {
-    const domainOnly = brandHost.split(':')[0];
+  if (brandId) {
+    const { data: brandById } = await supabase
+      .from('brands')
+      .select('*')
+      .eq('id', brandId)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (brandById) {
+      return brandById as Brand;
+    }
+  }
+
+  // 2. Direct domain lookup (essential fallback if middleware headers are not passed)
+  if (!isLocalhost && hostnameOnly) {
     const { data: brandByDomain } = await supabase
       .from('brands')
       .select('*')
-      .eq('domain', domainOnly)
+      .eq('domain', hostnameOnly)
       .eq('is_active', true)
       .maybeSingle();
 
@@ -41,13 +61,32 @@ export async function getCurrentBrand(): Promise<Brand | null> {
     }
   }
 
-  // 3. Fallback for default local development if no host header present
-  const { data: defaultBrand } = await supabase
-    .from('brands')
-    .select('*')
-    .eq('slug', 'windowhound')
-    .eq('is_active', true)
-    .maybeSingle();
+  // 3. Localhost / Dev cookie override
+  if (isLocalhost && cookieOverride) {
+    const { data: brandByCookie } = await supabase
+      .from('brands')
+      .select('*')
+      .eq('slug', cookieOverride)
+      .eq('is_active', true)
+      .maybeSingle();
 
-  return (defaultBrand as Brand) || null;
+    if (brandByCookie) {
+      return brandByCookie as Brand;
+    }
+  }
+
+  // 4. Default fallback ONLY for localhost development
+  if (isLocalhost) {
+    const { data: defaultBrand } = await supabase
+      .from('brands')
+      .select('*')
+      .eq('slug', 'windowhound')
+      .eq('is_active', true)
+      .maybeSingle();
+
+    return (defaultBrand as Brand) || null;
+  }
+
+  // On non-localhost domains, if not matched, return null (404 Not Found)
+  return null;
 }

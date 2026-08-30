@@ -16,48 +16,73 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 1. Resolve host and dev override (query param or cookie)
-  const host = request.headers.get('host') || 'localhost:3000';
+  // 1. Resolve host and dev override
+  const host =
+    request.headers.get('x-forwarded-host') ||
+    request.headers.get('host') ||
+    'localhost:3000';
+  const hostnameOnly = host.split(':')[0].toLowerCase();
+  const isLocalhost =
+    hostnameOnly === 'localhost' ||
+    hostnameOnly === '127.0.0.1' ||
+    hostnameOnly.endsWith('.local');
+
   const queryBrand = request.nextUrl.searchParams.get('brand');
   const cookieBrand = request.cookies.get('brand_override')?.value;
-  
-  const devOverrideSlug = queryBrand || cookieBrand;
 
   let resolvedSlug: string | null = null;
   let resolvedId: string | null = null;
 
   if (supabaseUrl && supabaseAnonKey) {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    try {
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    if (devOverrideSlug) {
-      // Look up dev override by slug
-      const { data: brandBySlug } = await supabase
-        .from('brands')
-        .select('id, slug')
-        .eq('slug', devOverrideSlug)
-        .eq('is_active', true)
-        .maybeSingle();
+      // A. Query parameter has explicit highest priority if provided
+      if (queryBrand) {
+        const { data: brandByQuery } = await supabase
+          .from('brands')
+          .select('id, slug')
+          .eq('slug', queryBrand)
+          .eq('is_active', true)
+          .maybeSingle();
 
-      if (brandBySlug) {
-        resolvedSlug = brandBySlug.slug;
-        resolvedId = brandBySlug.id;
+        if (brandByQuery) {
+          resolvedSlug = brandByQuery.slug;
+          resolvedId = brandByQuery.id;
+        }
       }
-    }
 
-    if (!resolvedSlug) {
-      // Look up by request domain
-      const hostnameOnly = host.split(':')[0]; // Strip port number if local
-      const { data: brandByDomain } = await supabase
-        .from('brands')
-        .select('id, slug')
-        .eq('domain', hostnameOnly)
-        .eq('is_active', true)
-        .maybeSingle();
+      // B. If not resolved by query param, try matching host domain
+      if (!resolvedSlug && !isLocalhost) {
+        const { data: brandByDomain } = await supabase
+          .from('brands')
+          .select('id, slug')
+          .eq('domain', hostnameOnly)
+          .eq('is_active', true)
+          .maybeSingle();
 
-      if (brandByDomain) {
-        resolvedSlug = brandByDomain.slug;
-        resolvedId = brandByDomain.id;
+        if (brandByDomain) {
+          resolvedSlug = brandByDomain.slug;
+          resolvedId = brandByDomain.id;
+        }
       }
+
+      // C. If local dev or localhost, check cookie override
+      if (!resolvedSlug && isLocalhost && cookieBrand) {
+        const { data: brandByCookie } = await supabase
+          .from('brands')
+          .select('id, slug')
+          .eq('slug', cookieBrand)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (brandByCookie) {
+          resolvedSlug = brandByCookie.slug;
+          resolvedId = brandByCookie.id;
+        }
+      }
+    } catch (e) {
+      console.error('Middleware brand resolution error:', e);
     }
   }
 
@@ -77,7 +102,7 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // If brand was passed via query param, persist it in cookie for local dev navigation
+  // If brand was explicitly passed via query param, persist it in cookie
   if (queryBrand) {
     response.cookies.set('brand_override', queryBrand, {
       path: '/',

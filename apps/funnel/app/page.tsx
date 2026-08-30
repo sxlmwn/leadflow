@@ -4,7 +4,8 @@ import DevBrandSwitcher from '@/components/dev/dev-brand-switcher';
 import ClickTracker from '@/components/tracking/click-tracker';
 import DynamicForm, { FormSchema } from '@/components/forms/dynamic-form';
 
-export const revalidate = 0; // Disable static caching for local dev brand switching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0; // Disable static caching for dynamic multi-brand resolution
 
 export default async function HomePage() {
   const brand = await getCurrentBrand();
