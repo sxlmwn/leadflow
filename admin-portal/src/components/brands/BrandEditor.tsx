@@ -19,6 +19,7 @@ import {
   Code2,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   Globe,
   Sparkles,
   ChevronDown,
@@ -28,6 +29,20 @@ import {
 import { Brand, FormField, FormSchema, FormStep, ThemeConfig, LegalCopy, FormFieldType } from '@/types';
 import { DynamicFormPreview } from '@/components/forms/DynamicFormPreview';
 import { supabase } from '@/lib/supabase';
+
+function isProxyOrFragileImageUrl(url?: string): boolean {
+  if (!url || typeof url !== 'string') return false;
+  const lower = url.toLowerCase().trim();
+  return (
+    lower.includes('external-content.duckduckgo.com') ||
+    lower.includes('duckduckgo.com/iu') ||
+    lower.includes('google.com/imgres') ||
+    lower.includes('encrypted-tbn') ||
+    lower.includes('tse1.mm.bing.net') ||
+    lower.includes('bing.com/th') ||
+    lower.includes('images.search.yahoo.com')
+  );
+}
 
 interface BrandEditorProps {
   initialBrand?: Brand | null;
@@ -787,6 +802,17 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-blue-500"
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">SVG or high-res PNG image link for the landing header</p>
+                {isProxyOrFragileImageUrl(themeConfig.logo_url) && (
+                  <div className="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-[11px] flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                    <div>
+                      <p className="font-bold">Search Engine Proxy URL Detected</p>
+                      <p className="mt-0.5 text-amber-900/90 dark:text-amber-200/90 leading-normal">
+                        Search proxy URLs (such as DuckDuckGo or Google image search links) are temporary and can expire. We recommend using a permanent direct URL (e.g. from Supabase Storage or an asset link ending in .png, .svg, .jpg).
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -802,6 +828,17 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-blue-500"
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">Optional hero background image with dark overlay</p>
+                {isProxyOrFragileImageUrl(themeConfig.background_image_url) && (
+                  <div className="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-[11px] flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                    <div>
+                      <p className="font-bold">Search Engine Proxy URL Detected</p>
+                      <p className="mt-0.5 text-amber-900/90 dark:text-amber-200/90 leading-normal">
+                        Search proxy URLs can expire over time. We recommend using a permanent direct image URL or Unsplash CDN link.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -1,8 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Palette, Type, Image as ImageIcon, Shield, Save, Check, Eye } from 'lucide-react';
+import { Palette, Type, Image as ImageIcon, Shield, Save, Check, Eye, AlertTriangle } from 'lucide-react';
 import { AdminBrand } from '@/lib/data';
+
+function isProxyOrFragileImageUrl(url?: string): boolean {
+  if (!url || typeof url !== 'string') return false;
+  const lower = url.toLowerCase().trim();
+  return (
+    lower.includes('external-content.duckduckgo.com') ||
+    lower.includes('duckduckgo.com/iu') ||
+    lower.includes('google.com/imgres') ||
+    lower.includes('encrypted-tbn') ||
+    lower.includes('tse1.mm.bing.net') ||
+    lower.includes('bing.com/th') ||
+    lower.includes('images.search.yahoo.com')
+  );
+}
 
 interface ThemeEditorProps {
   brand: AdminBrand;
@@ -159,6 +173,17 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
               onChange={(e) => setLogoUrl(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-medium text-foreground outline-none focus:border-blue-500"
             />
+            {isProxyOrFragileImageUrl(logoUrl) && (
+              <div className="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-[11px] flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <div>
+                  <p className="font-bold">Search Engine Proxy URL Detected</p>
+                  <p className="mt-0.5 text-amber-900/90 dark:text-amber-200/90 leading-normal">
+                    Search proxy URLs (such as DuckDuckGo or Google image search links) are temporary and can expire. We recommend using a permanent direct URL (e.g. from Supabase Storage or an asset link ending in .png, .svg, .jpg).
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
@@ -173,6 +198,17 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
               placeholder="https://images.unsplash.com/..."
               className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-medium text-foreground outline-none focus:border-blue-500"
             />
+            {isProxyOrFragileImageUrl(backgroundImageUrl) && (
+              <div className="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-[11px] flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <div>
+                  <p className="font-bold">Search Engine Proxy URL Detected</p>
+                  <p className="mt-0.5 text-amber-900/90 dark:text-amber-200/90 leading-normal">
+                    Search proxy URLs can expire over time. We recommend using a permanent direct image URL or Unsplash CDN link.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
