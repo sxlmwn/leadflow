@@ -1,8 +1,16 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase/client';
 
-const BRANDS = [
+interface BrandOption {
+  slug: string;
+  name: string;
+  color: string;
+}
+
+const DEFAULT_BRANDS: BrandOption[] = [
   { slug: 'windowhound', name: 'WindowHound', color: '#2563eb' },
   { slug: 'medtrialmatch', name: 'MedTrialMatch', color: '#0d9488' },
   { slug: 'reliefologist', name: 'ReliefOlogist', color: '#16a34a' },
@@ -13,6 +21,32 @@ export default function DevBrandSwitcher({ currentSlug }: { currentSlug?: string
 
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [brands, setBrands] = useState<BrandOption[]>(DEFAULT_BRANDS);
+
+  useEffect(() => {
+    async function fetchActiveBrands() {
+      try {
+        const { data, error } = await supabase
+          .from('brands')
+          .select('slug, name, theme_config, is_active')
+          .eq('is_active', true)
+          .order('created_at', { ascending: true });
+
+        if (data && data.length > 0) {
+          const dynamicBrands: BrandOption[] = data.map((b: any) => ({
+            slug: b.slug,
+            name: b.name,
+            color: b.theme_config?.primary_color || '#2563eb',
+          }));
+          setBrands(dynamicBrands);
+        }
+      } catch (err) {
+        console.error('Failed to fetch dynamic brands for dev switcher:', err);
+      }
+    }
+
+    fetchActiveBrands();
+  }, []);
 
   const switchBrand = (slug: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -33,7 +67,7 @@ export default function DevBrandSwitcher({ currentSlug }: { currentSlug?: string
 
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-slate-400 font-medium mr-1">Switch Brand:</span>
-          {BRANDS.map((b) => (
+          {brands.map((b) => (
             <button
               key={b.slug}
               onClick={() => switchBrand(b.slug)}
