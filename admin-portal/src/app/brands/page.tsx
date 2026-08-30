@@ -32,7 +32,9 @@ export default function BrandsPage() {
   const [leadRefCount, setLeadRefCount] = useState<number | null>(null);
   const [clickRefCount, setClickRefCount] = useState<number | null>(null);
   const [checkingRefs, setCheckingRefs] = useState(false);
+  const [hardDeleteConfirm, setHardDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingProgress, setDeletingProgress] = useState('');
   const [forceDeleteText, setForceDeleteText] = useState('');
 
   const fetchBrands = async () => {
@@ -75,6 +77,8 @@ export default function BrandsPage() {
     setLeadRefCount(null);
     setClickRefCount(null);
     setForceDeleteText('');
+    setHardDeleteConfirm(false);
+    setDeletingProgress('');
     setCheckingRefs(true);
 
     try {
@@ -99,27 +103,115 @@ export default function BrandsPage() {
     }
   };
 
-  const handleConfirmDelete = async (force: boolean = false) => {
+  // Safe Soft-Delete (Deactivate) handler
+  const handleConfirmSoftDelete = async () => {
     if (!deletingBrand) return;
     setIsDeleting(true);
 
     try {
-      if (force && (leadRefCount || 0) > 0) {
-        // If there are leads, soft-delete by deactivating to preserve foreign keys
-        await supabase.from('brands').update({ is_active: false }).eq('id', deletingBrand.id);
-        setBrands(brands.map((b) => (b.id === deletingBrand.id ? { ...b, is_active: false } : b)));
-      } else {
-        const { error } = await supabase.from('brands').delete().eq('id', deletingBrand.id);
-        if (error) throw error;
-        setBrands(brands.filter((b) => b.id !== deletingBrand.id));
-      }
+      const { error } = await supabase
+        .from('brands')
+        .update({ is_active: false })
+        .eq('id', deletingBrand.id);
 
+      if (error) throw error;
+
+      setBrands(brands.map((b) => (b.id === deletingBrand.id ? { ...b, is_active: false } : b)));
       setDeletingBrand(null);
+      setHardDeleteConfirm(false);
+      setForceDeleteText('');
+      await fetchBrands();
     } catch (err: any) {
-      console.error('Delete brand error:', err);
-      alert(err.message || 'Failed to delete brand.');
+      console.error('Soft delete brand error:', err);
+      alert(err.message || 'Failed to deactivate brand.');
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  // Hard Permanent Cascade Deletion handler
+  const handleCascadeHardDelete = async () => {
+    if (!deletingBrand) return;
+    setIsDeleting(true);
+    setDeletingProgress('Deleting referenced lead records, verifications & buyer deliveries...');
+
+    try {
+      const brandId = deletingBrand.id;
+
+      // 1. Fetch all lead IDs for this brand
+      const { data: leadRows, error: leadsFetchErr } = await supabase
+        .from('leads')
+        .select('id')
+        .eq('brand_id', brandId);
+
+      if (leadsFetchErr) {
+        console.warn('Leads fetch error during cascade:', leadsFetchErr);
+      }
+
+      const leadIds = (leadRows || []).map((l: any) => l.id);
+
+      if (leadIds.length > 0) {
+        setDeletingProgress(`Removing verification results for ${leadIds.length} leads...`);
+        // 2. Delete verification results
+        const { error: vErr } = await supabase
+          .from('verification_results')
+          .delete()
+          .in('lead_id', leadIds);
+        if (vErr) console.warn('verification_results delete warning:', vErr);
+
+        setDeletingProgress(`Removing buyer deliveries for ${leadIds.length} leads...`);
+        // 3. Delete buyer deliveries
+        const { error: dErr } = await supabase
+          .from('buyer_deliveries')
+          .delete()
+          .in('lead_id', leadIds);
+        if (dErr) console.warn('buyer_deliveries delete warning:', dErr);
+
+        setDeletingProgress(`Removing ${leadIds.length} leads...`);
+        // 4. Delete leads
+        const { error: lErr } = await supabase
+          .from('leads')
+          .delete()
+          .eq('brand_id', brandId);
+        if (lErr) console.warn('leads delete warning:', lErr);
+      }
+
+      setDeletingProgress('Removing click tracking records...');
+      // 5. Delete clicks
+      const { error: cErr } = await supabase
+        .from('clicks')
+        .delete()
+        .eq('brand_id', brandId);
+      if (cErr) console.warn('clicks delete warning:', cErr);
+
+      setDeletingProgress('Removing buyer-brand associations...');
+      // 6. Delete buyer_brands linkages
+      const { error: bbErr } = await supabase
+        .from('buyer_brands')
+        .delete()
+        .eq('brand_id', brandId);
+      if (bbErr) console.warn('buyer_brands delete warning:', bbErr);
+
+      setDeletingProgress(`Permanently deleting brand: ${deletingBrand.name}...`);
+      // 7. Delete the brand itself
+      const { error: bErr } = await supabase
+        .from('brands')
+        .delete()
+        .eq('id', brandId);
+      if (bErr) throw bErr;
+
+      // 8. Update UI state and refresh
+      setBrands((prev) => prev.filter((b) => b.id !== brandId));
+      setDeletingBrand(null);
+      setHardDeleteConfirm(false);
+      setForceDeleteText('');
+      await fetchBrands();
+    } catch (err: any) {
+      console.error('Hard delete brand error:', err);
+      alert(err.message || 'Failed to permanently delete brand.');
+    } finally {
+      setIsDeleting(false);
+      setDeletingProgress('');
     }
   };
 
@@ -397,10 +489,14 @@ export default function BrandsPage() {
               </div>
               <div>
                 <h3 className="text-base font-bold text-foreground font-heading">
-                  Delete Brand: {deletingBrand.name}?
+                  {hardDeleteConfirm
+                    ? `Permanent Deletion: ${deletingBrand.name}`
+                    : `Delete Brand: ${deletingBrand.name}?`}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Confirm brand deletion policy &amp; foreign key safety
+                  {hardDeleteConfirm
+                    ? 'Irreversible cascade deletion of all historical records'
+                    : 'Confirm brand deletion policy & foreign key safety'}
                 </p>
               </div>
             </div>
@@ -410,9 +506,79 @@ export default function BrandsPage() {
                 <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                 <span>Checking historical leads and click records...</span>
               </div>
-            ) : (leadRefCount || 0) > 0 ? (
-              /* Warning if leads exist */
-              <div className="space-y-3">
+            ) : hardDeleteConfirm ? (
+              /* Hard Delete Confirmation Step */
+              <div className="space-y-4">
+                <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-800 dark:text-rose-300 text-xs leading-relaxed space-y-2">
+                  <div className="font-bold flex items-center gap-1.5 text-rose-700 dark:text-rose-200">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>Permanent Destruction Summary</span>
+                  </div>
+                  <p>
+                    You are choosing to permanently destroy <strong>{deletingBrand.name}</strong> and all linked data in the database:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 font-semibold text-rose-900 dark:text-rose-200">
+                    <li>{leadRefCount || 0} Lead records (including form submission data)</li>
+                    <li>{clickRefCount || 0} Click tracking logs</li>
+                    <li>All TCPA verification results &amp; buyer delivery logs</li>
+                    <li>Brand configuration &amp; form schemas</li>
+                  </ul>
+                  <p className="font-bold text-rose-950 dark:text-rose-100 text-[11px] pt-1">
+                    ⚠️ This operation is permanent and CANNOT be undone.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-foreground">
+                    To confirm permanent destruction, type <span className="font-mono font-bold text-rose-600 dark:text-rose-400 bg-secondary px-1.5 py-0.5 rounded">{deletingBrand.name}</span> or <span className="font-mono font-bold text-rose-600 dark:text-rose-400 bg-secondary px-1.5 py-0.5 rounded">{deletingBrand.slug}</span> below:
+                  </label>
+                  <input
+                    type="text"
+                    disabled={isDeleting}
+                    value={forceDeleteText}
+                    onChange={(e) => setForceDeleteText(e.target.value)}
+                    placeholder={`Type "${deletingBrand.name}" to confirm`}
+                    className="w-full px-3 py-2 bg-card border border-border focus:border-rose-500 rounded-xl text-xs font-mono outline-none text-foreground"
+                  />
+                </div>
+
+                {isDeleting && deletingProgress && (
+                  <div className="p-2.5 bg-secondary rounded-xl text-xs text-muted-foreground flex items-center gap-2">
+                    <div className="w-3.5 h-3.5 border-2 border-rose-600 border-t-transparent rounded-full animate-spin shrink-0" />
+                    <span className="truncate">{deletingProgress}</span>
+                  </div>
+                )}
+
+                <div className="pt-2 flex items-center justify-end gap-3 border-t border-border">
+                  <button
+                    type="button"
+                    disabled={isDeleting}
+                    onClick={() => {
+                      setHardDeleteConfirm(false);
+                      setForceDeleteText('');
+                    }}
+                    className="px-4 py-2 rounded-xl border border-border text-xs font-semibold text-foreground hover:bg-secondary transition-colors cursor-pointer"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    disabled={
+                      isDeleting ||
+                      (forceDeleteText.trim().toLowerCase() !== deletingBrand.name.toLowerCase() &&
+                        forceDeleteText.trim().toLowerCase() !== deletingBrand.slug.toLowerCase())
+                    }
+                    onClick={handleCascadeHardDelete}
+                    className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-bold shadow-xs transition-all duration-200 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{isDeleting ? 'Deleting All Records...' : 'Permanently Delete Everything'}</span>
+                  </button>
+                </div>
+              </div>
+            ) : (leadRefCount || 0) > 0 || (clickRefCount || 0) > 0 ? (
+              /* Warning if leads/clicks exist - Choice between soft delete and hard delete */
+              <div className="space-y-4">
                 <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-xs leading-relaxed space-y-1.5">
                   <div className="font-bold flex items-center gap-1.5">
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
@@ -426,25 +592,52 @@ export default function BrandsPage() {
                   </p>
                 </div>
 
-                <div className="pt-2 flex flex-col gap-2">
+                <div className="space-y-2 pt-1">
+                  {/* Primary Option: Recommended Soft Delete */}
                   <button
                     type="button"
                     disabled={isDeleting}
-                    onClick={() => handleConfirmDelete(true)}
-                    className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                    onClick={handleConfirmSoftDelete}
+                    className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
                   >
-                    Deactivate Brand (Safe Soft-Delete)
+                    <span>Deactivate Brand (Safe Soft-Delete)</span>
+                    <span className="text-[10px] bg-amber-800/60 px-1.5 py-0.5 rounded font-normal uppercase tracking-wider">Recommended</span>
+                  </button>
+
+                  {/* Secondary Option: Destructive Hard Delete Option */}
+                  <button
+                    type="button"
+                    disabled={isDeleting}
+                    onClick={() => {
+                      setHardDeleteConfirm(true);
+                      setForceDeleteText('');
+                    }}
+                    className="w-full py-2.5 border border-rose-300 dark:border-rose-800/80 bg-rose-50/50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                    <span>Delete Permanently (Cascade All Records)</span>
+                  </button>
+                </div>
+
+                <div className="pt-2 border-t border-border flex justify-end">
+                  <button
+                    type="button"
+                    disabled={isDeleting}
+                    onClick={() => setDeletingBrand(null)}
+                    className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    Cancel
                   </button>
                 </div>
               </div>
             ) : (
-              /* Safe to delete completely */
+              /* Safe to delete completely when 0 records exist */
               <div className="space-y-3">
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   No historical leads or clicks are linked to <strong>{deletingBrand.name}</strong> ({deletingBrand.slug}). It will be permanently removed from the Supabase database.
                 </p>
 
-                <div className="pt-2 flex items-center justify-end gap-3">
+                <div className="pt-2 flex items-center justify-end gap-3 border-t border-border">
                   <button
                     type="button"
                     disabled={isDeleting}
@@ -456,24 +649,15 @@ export default function BrandsPage() {
                   <button
                     type="button"
                     disabled={isDeleting}
-                    onClick={() => handleConfirmDelete(false)}
-                    className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                    onClick={handleCascadeHardDelete}
+                    className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
                   >
-                    {isDeleting ? 'Deleting...' : 'Delete Permanently'}
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>{isDeleting ? 'Deleting...' : 'Delete Permanently'}</span>
                   </button>
                 </div>
               </div>
             )}
-
-            <div className="pt-2 border-t border-border flex justify-end">
-              <button
-                type="button"
-                onClick={() => setDeletingBrand(null)}
-                className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}
