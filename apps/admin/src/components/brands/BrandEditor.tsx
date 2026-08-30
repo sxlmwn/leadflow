@@ -22,7 +22,8 @@ import {
   Globe,
   Sparkles,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Image as ImageIcon
 } from 'lucide-react';
 import { Brand, FormField, FormSchema, FormStep, ThemeConfig, LegalCopy, FormFieldType } from '@leadflow/shared';
 import { DynamicFormPreview } from '@/components/forms/DynamicFormPreview';
@@ -787,6 +788,21 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">SVG or high-res PNG image link for the landing header</p>
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1.5 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span>Background Image URL (Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={themeConfig.background_image_url || ''}
+                  onChange={(e) => setThemeConfig({ ...themeConfig, background_image_url: e.target.value })}
+                  placeholder="https://images.unsplash.com/... (full bleed hero background)"
+                  className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-blue-500"
+                />
+                <p className="text-[11px] text-muted-foreground mt-1">Optional hero background image with dark overlay</p>
+              </div>
             </div>
           </div>
 
@@ -804,58 +820,67 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
               </div>
 
               <div
-                className="p-6 rounded-2xl bg-slate-900 text-white shadow-xl overflow-hidden relative border border-slate-800"
-                style={{ fontFamily: themeConfig.font_style || 'Inter, sans-serif' }}
+                className="p-6 rounded-2xl bg-slate-900 text-white shadow-xl overflow-hidden relative border border-slate-800 bg-cover bg-center"
+                style={{
+                  fontFamily: themeConfig.font_style || 'Inter, sans-serif',
+                  backgroundImage: themeConfig.background_image_url ? `url(${themeConfig.background_image_url})` : undefined,
+                }}
               >
-                <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-800">
-                  <div className="flex items-center gap-2">
-                    {themeConfig.logo_url ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={themeConfig.logo_url}
-                        alt="Logo Preview"
-                        className="h-6 w-auto object-contain"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shadow-2xs"
-                        style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
-                      >
-                        {name ? name[0] : 'B'}
-                      </div>
-                    )}
-                    <span className="font-bold text-sm tracking-tight">{name || 'Brand Name'}</span>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-800/60">
-                    Live Preview
-                  </span>
-                </div>
+                {themeConfig.background_image_url && (
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
+                )}
 
-                <div className="space-y-3 mb-6 text-center">
-                  <span
-                    className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-white shadow-xs"
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-800">
+                    <div className="flex items-center gap-2">
+                      {themeConfig.logo_url ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={themeConfig.logo_url}
+                          alt="Logo Preview"
+                          className="h-6 w-auto object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div
+                          className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shadow-2xs"
+                          style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
+                        >
+                          {name ? name[0] : 'B'}
+                        </div>
+                      )}
+                      <span className="font-bold text-sm tracking-tight">{name || 'Brand Name'}</span>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-800/60">
+                      Live Preview
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 mb-6 text-center">
+                    <span
+                      className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-white shadow-xs"
+                      style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
+                    >
+                      {vertical.replace('_', ' ')}
+                    </span>
+                    <h1 className="text-xl md:text-2xl font-extrabold leading-tight tracking-tight">
+                      {themeConfig.headline || 'Find Top-Rated Experts Near You'}
+                    </h1>
+                    <p className="text-xs text-slate-300 max-w-sm mx-auto">
+                      Welcome to {name || 'Brand'}. Complete the quick form below to get matched.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="w-full py-3 px-4 rounded-xl font-bold text-xs shadow-md transition-all duration-200 cursor-pointer hover:opacity-90"
                     style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
                   >
-                    {vertical.replace('_', ' ')}
-                  </span>
-                  <h1 className="text-xl md:text-2xl font-extrabold leading-tight tracking-tight">
-                    {themeConfig.headline || 'Find Top-Rated Experts Near You'}
-                  </h1>
-                  <p className="text-xs text-slate-300 max-w-sm mx-auto">
-                    Welcome to {name || 'Brand'}. Complete the quick form below to get matched.
-                  </p>
+                    Start Assessment →
+                  </button>
                 </div>
-
-                <button
-                  type="button"
-                  className="w-full py-3 px-4 rounded-xl font-bold text-xs shadow-md transition-all duration-200 cursor-pointer hover:opacity-90"
-                  style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
-                >
-                  Start Assessment →
-                </button>
               </div>
             </div>
           </div>

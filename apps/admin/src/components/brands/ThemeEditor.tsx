@@ -25,6 +25,9 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
   const [headline, setHeadline] = useState(
     brand.theme_config?.headline || 'Find Top-Rated Experts Near You'
   );
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState(
+    brand.theme_config?.background_image_url || ''
+  );
 
   const [disclaimer, setDisclaimer] = useState(
     (brand.legal_copy?.disclaimer as string) ||
@@ -45,7 +48,13 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
 
   const handleSave = () => {
     onSave?.(
-      { primary_color: primaryColor, font_style: fontStyle, logo_url: logoUrl, headline },
+      {
+        primary_color: primaryColor,
+        font_style: fontStyle,
+        logo_url: logoUrl,
+        headline,
+        background_image_url: backgroundImageUrl,
+      },
       { disclaimer, tcpa_text: tcpaText, privacy_url: privacyUrl, terms_url: termsUrl }
     );
     setSavedSuccess(true);
@@ -151,6 +160,20 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
               className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-medium text-foreground outline-none focus:border-blue-500"
             />
           </div>
+
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1.5 flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span>Background Image URL (Optional)</span>
+            </label>
+            <input
+              type="text"
+              value={backgroundImageUrl}
+              onChange={(e) => setBackgroundImageUrl(e.target.value)}
+              placeholder="https://images.unsplash.com/..."
+              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-medium text-foreground outline-none focus:border-blue-500"
+            />
+          </div>
         </div>
 
         <div className="admin-card p-6 space-y-4 transform-gpu">
@@ -223,46 +246,55 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
           </div>
 
           <div
-            className="p-6 rounded-2xl bg-slate-900 text-white shadow-xl overflow-hidden relative border border-slate-800"
-            style={{ fontFamily: fontStyle }}
+            className="p-6 rounded-2xl bg-slate-900 text-white shadow-xl overflow-hidden relative border border-slate-800 bg-cover bg-center"
+            style={{
+              fontFamily: fontStyle,
+              backgroundImage: backgroundImageUrl ? `url(${backgroundImageUrl})` : undefined,
+            }}
           >
-            <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shadow-2xs"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  {brand.name[0]}
+            {backgroundImageUrl && (
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
+            )}
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shadow-2xs"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    {brand.name[0]}
+                  </div>
+                  <span className="font-bold text-sm tracking-tight">{brand.name}</span>
                 </div>
-                <span className="font-bold text-sm tracking-tight">{brand.name}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-800/60">
+                  Live Preview
+                </span>
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-800/60">
-                Live Preview
-              </span>
-            </div>
 
-            <div className="space-y-3 mb-6">
-              <h1 className="text-xl font-extrabold leading-tight tracking-tight">
-                {headline}
-              </h1>
-              <p className="text-xs text-slate-300">
-                Get matched with verified professionals in 30 seconds.
-              </p>
-            </div>
+              <div className="space-y-3 mb-6">
+                <h1 className="text-xl font-extrabold leading-tight tracking-tight">
+                  {headline}
+                </h1>
+                <p className="text-xs text-slate-300">
+                  Get matched with verified professionals in 30 seconds.
+                </p>
+              </div>
 
-            <button
-              className="w-full py-3 px-4 rounded-xl font-bold text-xs shadow-md transition-all duration-200 cursor-pointer mb-4 hover:opacity-90"
-              style={{ backgroundColor: primaryColor }}
-            >
-              Start Free Assessment →
-            </button>
+              <button
+                className="w-full py-3 px-4 rounded-xl font-bold text-xs shadow-md transition-all duration-200 cursor-pointer mb-4 hover:opacity-90"
+                style={{ backgroundColor: primaryColor }}
+              >
+                Start Free Assessment →
+              </button>
 
-            <div className="text-[9px] text-slate-400 leading-tight border-t border-slate-800/80 pt-3">
-              <p className="mb-1">{tcpaText}</p>
-              <div className="flex gap-2 text-slate-500 font-medium">
-                <span>Privacy</span>
-                <span>•</span>
-                <span>Terms</span>
+              <div className="text-[9px] text-slate-400 leading-tight border-t border-slate-800/80 pt-3">
+                <p className="mb-1">{tcpaText}</p>
+                <div className="flex gap-2 text-slate-500 font-medium">
+                  <span>Privacy</span>
+                  <span>•</span>
+                  <span>Terms</span>
+                </div>
               </div>
             </div>
           </div>

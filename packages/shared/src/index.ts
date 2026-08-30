@@ -6,6 +6,7 @@ export interface ThemeConfig {
   logo_url: string;
   font_style: string;
   headline: string;
+  background_image_url?: string;
 }
 
 export interface LegalCopy {

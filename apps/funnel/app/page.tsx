@@ -77,9 +77,31 @@ export default async function HomePage() {
       </header>
 
       {/* Hero & Form Section */}
-      <section className="relative overflow-hidden py-12 md:py-16 px-6 bg-gradient-to-b from-white to-slate-100 border-b border-slate-200">
+      <section
+        className={`relative overflow-hidden py-12 md:py-16 px-6 border-b border-slate-200 ${
+          theme_config.background_image_url
+            ? 'bg-cover bg-center text-white'
+            : 'bg-gradient-to-b from-white to-slate-100'
+        }`}
+        style={
+          theme_config.background_image_url
+            ? { backgroundImage: `url(${theme_config.background_image_url})` }
+            : undefined
+        }
+      >
+        {/* Semi-transparent dark overlay when background image is present */}
+        {theme_config.background_image_url && (
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
+        )}
+
         <div className="max-w-4xl mx-auto text-center relative z-10 mb-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 bg-slate-100 text-slate-800 border border-slate-200">
+          <div
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 border ${
+              theme_config.background_image_url
+                ? 'bg-slate-900/80 text-slate-100 border-white/20'
+                : 'bg-slate-100 text-slate-800 border-slate-200'
+            }`}
+          >
             <span
               className="w-2 h-2 rounded-full inline-block"
               style={{ backgroundColor: theme_config.primary_color }}
@@ -87,21 +109,35 @@ export default async function HomePage() {
             {brand.sub_vertical || brand.vertical}
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight mb-4">
+          <h1
+            className={`text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-4 ${
+              theme_config.background_image_url ? 'text-white drop-shadow-sm' : 'text-slate-900'
+            }`}
+          >
             {theme_config.headline}
           </h1>
 
-          <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Welcome to <strong className="text-slate-900">{brand.name}</strong>. Complete the quick form below to get instant quotes & assistance.
+          <p
+            className={`text-base md:text-lg max-w-2xl mx-auto leading-relaxed ${
+              theme_config.background_image_url ? 'text-slate-200 drop-shadow-sm' : 'text-slate-600'
+            }`}
+          >
+            Welcome to{' '}
+            <strong className={theme_config.background_image_url ? 'text-white' : 'text-slate-900'}>
+              {brand.name}
+            </strong>
+            . Complete the quick form below to get instant quotes & assistance.
           </p>
         </div>
 
         {/* Dynamic Brand Form Renderer */}
-        <DynamicForm
-          brandId={brand.id}
-          formSchema={brand.form_schema as unknown as FormSchema}
-          themeConfig={theme_config}
-        />
+        <div className="relative z-10">
+          <DynamicForm
+            brandId={brand.id}
+            formSchema={brand.form_schema as unknown as FormSchema}
+            themeConfig={theme_config}
+          />
+        </div>
       </section>
 
       {/* Active Brand Metadata Inspection Card */}

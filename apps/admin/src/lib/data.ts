@@ -38,6 +38,7 @@ export interface AdminBrand {
     logo_url?: string;
     font_style?: string;
     headline?: string;
+    background_image_url?: string;
   };
   form_schema: {
     fields?: Array<{
