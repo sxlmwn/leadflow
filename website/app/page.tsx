@@ -39,16 +39,26 @@ export default async function HomePage() {
   const { theme_config } = brand;
 
   return (
-    <main className="min-h-screen flex flex-col bg-slate-50">
+    <main
+      className="min-h-[100dvh] flex flex-col relative overflow-x-hidden bg-slate-950 text-slate-100 bg-cover bg-center bg-no-repeat bg-fixed"
+      style={
+        theme_config.background_image_url
+          ? { backgroundImage: `url(${theme_config.background_image_url})` }
+          : { background: `linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)` }
+      }
+    >
       {/* Click Tracking Beacon */}
       <ClickTracker brandId={brand.id} />
 
-      {/* Dev Brand Switcher Bar */}
+      {/* Dev Brand Switcher Bar (Dev-only) */}
       <DevBrandSwitcher currentSlug={brand.slug} />
 
-      {/* Brand Navigation Header */}
-      <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      {/* Full-bleed ambient dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/70 backdrop-blur-[1px] pointer-events-none" />
+
+      {/* Transparent / Glassmorphic Header */}
+      <header className="w-full relative z-20 pt-[max(env(safe-area-inset-top),0.75rem)] pb-2 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             {theme_config.logo_url ? (
               <Image
@@ -56,111 +66,38 @@ export default async function HomePage() {
                 alt={`${brand.name} logo`}
                 width={180}
                 height={40}
-                className="h-10 w-auto object-contain"
+                className="h-8 sm:h-10 w-auto object-contain drop-shadow-md"
                 priority
               />
             ) : (
               <div
-                className="px-4 py-2 rounded-lg text-white font-extrabold text-lg shadow-sm"
+                className="px-3.5 py-1.5 rounded-xl text-white font-extrabold text-sm sm:text-base shadow-lg border border-white/20"
                 style={{ backgroundColor: theme_config.primary_color }}
               >
                 {brand.name}
               </div>
             )}
           </div>
+
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded-full border border-slate-200 uppercase tracking-wider">
+            <span className="px-3 py-1 bg-white/10 backdrop-blur-md text-white/90 text-[11px] sm:text-xs font-semibold rounded-full border border-white/20 uppercase tracking-wider shadow-xs">
               {brand.vertical.replace('_', ' ')}
             </span>
           </div>
         </div>
       </header>
 
-      {/* Hero & Form Section */}
-      <section
-        className={`relative overflow-hidden py-12 md:py-16 px-6 border-b border-slate-200 ${
-          theme_config.background_image_url
-            ? 'bg-cover bg-center text-white'
-            : 'bg-gradient-to-b from-white to-slate-100'
-        }`}
-        style={
-          theme_config.background_image_url
-            ? { backgroundImage: `url(${theme_config.background_image_url})` }
-            : undefined
-        }
-      >
-        {/* Semi-transparent dark overlay when background image is present */}
-        {theme_config.background_image_url && (
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
-        )}
-
-        <div className="max-w-4xl mx-auto text-center relative z-10 mb-8">
-          <div
-            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 border ${
-              theme_config.background_image_url
-                ? 'bg-slate-900/80 text-slate-100 border-white/20'
-                : 'bg-slate-100 text-slate-800 border-slate-200'
-            }`}
-          >
-            <span
-              className="w-2 h-2 rounded-full inline-block"
-              style={{ backgroundColor: theme_config.primary_color }}
-            />
-            {brand.sub_vertical || brand.vertical}
-          </div>
-
-          <h1
-            className={`text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-4 ${
-              theme_config.background_image_url ? 'text-white drop-shadow-sm' : 'text-slate-900'
-            }`}
-          >
-            {theme_config.headline}
-          </h1>
-
-          <p
-            className={`text-base md:text-lg max-w-2xl mx-auto leading-relaxed ${
-              theme_config.background_image_url ? 'text-slate-200 drop-shadow-sm' : 'text-slate-600'
-            }`}
-          >
-            Welcome to{' '}
-            <strong className={theme_config.background_image_url ? 'text-white' : 'text-slate-900'}>
-              {brand.name}
-            </strong>
-            . Complete the quick form below to get instant quotes & assistance.
-          </p>
-        </div>
-
+      {/* Centered Glassmorphic Form Section */}
+      <div className="flex-1 flex flex-col items-center justify-center relative z-20 px-3 sm:px-6 py-4 sm:py-8 max-w-5xl mx-auto w-full">
         {/* Dynamic Brand Form Renderer */}
-        <div className="relative z-10">
+        <div className="w-full">
           <DynamicForm
             brandId={brand.id}
             formSchema={brand.form_schema as unknown as FormSchema}
             themeConfig={theme_config}
           />
         </div>
-      </section>
-
-      {/* Active Brand Metadata Inspection Card */}
-      <section className="max-w-4xl mx-auto px-6 py-12 w-full">
-        <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            Resolved Brand Metadata (Supabase Record)
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Brand ID</div>
-              <div className="text-sm font-mono text-slate-800 truncate">{brand.id}</div>
-            </div>
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
-              <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Slug / Domain</div>
-              <div className="text-sm font-mono text-slate-800">{brand.slug} ({brand.domain})</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      </div>
     </main>
   );
 }
