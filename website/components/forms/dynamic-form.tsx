@@ -266,23 +266,23 @@ export default function DynamicForm({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="max-w-xl mx-auto w-full"
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="max-w-xl mx-auto w-full my-auto"
     >
-      <Card className="rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] border border-white/25 bg-white/[0.12] backdrop-blur-2xl text-white overflow-hidden">
+      <Card className="rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.65)] border border-white/20 bg-white/[0.12] backdrop-blur-2xl text-white overflow-hidden">
         {/* Step dots & thin animated progress bar header */}
-        <CardHeader className="p-5 sm:p-7 pb-4 sm:pb-5 border-b border-white/10">
+        <CardHeader className="p-3.5 sm:p-5 pb-2.5 sm:pb-3.5 border-b border-white/10">
           {themeConfig?.headline && (
-            <div className="text-center mb-4">
-              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug drop-shadow-sm font-heading">
+            <div className="text-center mb-2 sm:mb-2.5">
+              <h1 className="text-base sm:text-lg font-black text-white tracking-tight leading-tight drop-shadow-xs font-heading">
                 {themeConfig.headline}
               </h1>
             </div>
           )}
 
-          <div className="flex items-center justify-center gap-2 mb-3">
+          <div className="flex items-center justify-center gap-1.5 mb-2">
             {steps.map((step, idx) => {
               const isCompleted = idx < currentStepIndex;
               const isCurrent = idx === currentStepIndex;
@@ -290,17 +290,17 @@ export default function DynamicForm({
                 <div key={step.step_id || idx} className="flex items-center">
                   <div
                     className={cn(
-                      "w-3 h-3 rounded-full transition-all duration-300 flex items-center justify-center text-[8px]",
+                      "w-2.5 h-2.5 rounded-full transition-all duration-300 flex items-center justify-center text-[7px]",
                       isCompleted
                         ? "text-white"
                         : isCurrent
-                        ? "ring-2 ring-offset-2 ring-offset-black/40 scale-110"
+                        ? "ring-2 ring-offset-1 ring-offset-black/40 scale-105"
                         : "bg-white/20"
                     )}
                     style={{
                       backgroundColor: isCompleted || isCurrent ? primaryColor : undefined,
                       borderColor: isCurrent ? primaryColor : undefined,
-                      ...(isCurrent ? { boxShadow: `0 0 0 2px rgba(255,255,255,0.4), 0 0 0 4px ${primaryColor}` } : {}),
+                      ...(isCurrent ? { boxShadow: `0 0 0 1.5px rgba(255,255,255,0.4), 0 0 0 3px ${primaryColor}` } : {}),
                     }}
                   >
                     {isCompleted && <Check className="w-2 h-2 text-white stroke-[3]" />}
@@ -308,7 +308,7 @@ export default function DynamicForm({
                   {idx < steps.length - 1 && (
                     <div
                       className={cn(
-                        "w-8 sm:w-12 h-0.5 mx-1.5 transition-colors duration-300",
+                        "w-6 sm:w-10 h-0.5 mx-1 transition-colors duration-300",
                         idx < currentStepIndex ? "bg-white" : "bg-white/20"
                       )}
                       style={{
@@ -322,13 +322,13 @@ export default function DynamicForm({
           </div>
 
           {/* Thin animated progress bar */}
-          <div className="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-white/15 rounded-full overflow-hidden">
             <motion.div
               className="h-full rounded-full"
               style={{ backgroundColor: primaryColor }}
               initial={{ width: 0 }}
               animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 0.35, ease: 'easeInOut' }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
             />
           </div>
         </CardHeader>
@@ -338,9 +338,9 @@ export default function DynamicForm({
         <input type="hidden" name="xxTrustedFormPingUrl" id="xxTrustedFormPingUrl" />
 
         <form onSubmit={handleSubmit}>
-          <CardContent className="p-5 sm:p-7 pt-5 sm:pt-6">
+          <CardContent className="p-3.5 sm:p-5 pt-3 sm:pt-4">
             {submitError && (
-              <div className="mb-5 p-4 rounded-2xl bg-red-500/20 border border-red-400/40 text-red-200 text-sm font-medium backdrop-blur-md">
+              <div className="mb-3.5 p-3 rounded-xl bg-red-500/20 border border-red-400/40 text-red-200 text-xs font-medium backdrop-blur-md">
                 {submitError}
               </div>
             )}
@@ -353,10 +353,10 @@ export default function DynamicForm({
                 initial="enter"
                 animate="center"
                 exit="exit"
-                className="space-y-4 sm:space-y-5"
+                className="space-y-2.5 sm:space-y-3.5"
               >
-                <div className="mb-3 sm:mb-4">
-                  <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight font-heading drop-shadow-xs">
+                <div className="mb-2 sm:mb-2.5">
+                  <h2 className="text-sm sm:text-base font-extrabold text-white tracking-tight font-heading drop-shadow-xs">
                     {currentStep.title}
                   </h2>
                 </div>
@@ -368,9 +368,9 @@ export default function DynamicForm({
                     variants={fieldVariants}
                     initial="hidden"
                     animate="visible"
-                    className="space-y-1.5 sm:space-y-2 text-left"
+                    className="space-y-1 text-left"
                   >
-                    <Label className="block text-xs sm:text-sm font-bold text-white/95 drop-shadow-xs">
+                    <Label className="block text-[11px] sm:text-xs font-bold text-white/95 drop-shadow-xs">
                       {field.label} {field.required && <span className="text-red-400">*</span>}
                     </Label>
 
@@ -382,15 +382,15 @@ export default function DynamicForm({
                       >
                         <SelectTrigger
                           className={cn(
-                            "h-12 rounded-2xl border border-white/25 bg-black/25 hover:bg-black/35 focus:bg-black/45 text-white transition-all focus:ring-2 focus:ring-white/30 focus:border-white/60",
+                            "h-10 sm:h-11 rounded-xl border border-white/20 bg-black/25 hover:bg-black/35 focus:bg-black/45 text-white text-xs sm:text-sm transition-all focus:ring-2 focus:ring-white/30 focus:border-white/60",
                             errors[field.name] && "border-red-400 focus:ring-red-400"
                           )}
                         >
                           <SelectValue placeholder={field.placeholder || "Select an option"} />
                         </SelectTrigger>
-                        <SelectContent className="rounded-2xl border border-white/20 bg-slate-950/95 backdrop-blur-2xl text-white shadow-2xl p-1.5">
+                        <SelectContent className="rounded-xl border border-white/20 bg-slate-950/95 backdrop-blur-2xl text-white shadow-2xl p-1">
                           {field.options?.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value} className="rounded-xl text-white focus:bg-white/15 focus:text-white cursor-pointer">
+                            <SelectItem key={opt.value} value={opt.value} className="rounded-lg text-white text-xs sm:text-sm focus:bg-white/15 focus:text-white cursor-pointer">
                               {opt.label}
                             </SelectItem>
                           ))}
@@ -400,38 +400,38 @@ export default function DynamicForm({
                       <RadioGroup
                         value={(formData[field.name] as string) || ''}
                         onValueChange={(val) => handleInputChange(field.name, val)}
-                        className="space-y-2.5 pt-1"
+                        className="space-y-1.5 pt-0.5"
                       >
                         {field.options?.map((opt) => {
                           const isSelected = formData[field.name] === opt.value;
                           return (
                             <motion.label
                               key={opt.value}
-                              whileHover={{ scale: 1.008 }}
-                              whileTap={{ scale: 0.992 }}
+                              whileHover={{ scale: 1.006 }}
+                              whileTap={{ scale: 0.994 }}
                               className={cn(
-                                "flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl border cursor-pointer select-none transition-all duration-200",
+                                "flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl border cursor-pointer select-none transition-all duration-200",
                                 isSelected
-                                  ? "border-white/70 bg-white/20 shadow-md font-bold text-white backdrop-blur-md"
+                                  ? "border-white/70 bg-white/20 shadow-xs font-bold text-white backdrop-blur-md"
                                   : "border-white/15 bg-black/25 hover:bg-black/35 hover:border-white/30 text-white/90"
                               )}
                               style={
                                 isSelected
-                                  ? { borderColor: primaryColor, boxShadow: `0 0 0 1px ${primaryColor}, 0 4px 20px -2px ${primaryColor}40` }
+                                  ? { borderColor: primaryColor, boxShadow: `0 0 0 1px ${primaryColor}, 0 2px 10px -1px ${primaryColor}40` }
                                   : {}
                               }
                             >
                               <RadioGroupItem
                                 value={opt.value}
                                 id={`${field.name}-${opt.value}`}
-                                className="border-white/50 text-white data-[state=checked]:border-white"
+                                className="border-white/50 text-white data-[state=checked]:border-white w-3.5 h-3.5"
                                 style={
                                   isSelected
                                     ? { borderColor: primaryColor, color: primaryColor }
                                     : {}
                                 }
                               />
-                              <span className="text-sm font-semibold text-white flex-1 drop-shadow-xs">
+                              <span className="text-xs sm:text-sm font-semibold text-white flex-1 drop-shadow-xs">
                                 {opt.label}
                               </span>
                             </motion.label>
@@ -440,17 +440,17 @@ export default function DynamicForm({
                       </RadioGroup>
                     ) : field.type === 'checkbox' ? (
                       <motion.label
-                        whileHover={{ scale: 1.008 }}
-                        whileTap={{ scale: 0.992 }}
+                        whileHover={{ scale: 1.006 }}
+                        whileTap={{ scale: 0.994 }}
                         className={cn(
-                          "flex items-start gap-3.5 p-3.5 sm:p-4 rounded-2xl border cursor-pointer select-none transition-all duration-200",
+                          "flex items-start gap-2.5 p-2.5 sm:p-3 rounded-xl border cursor-pointer select-none transition-all duration-200",
                           Boolean(formData[field.name])
-                            ? "border-white/70 bg-white/20 shadow-md font-bold text-white backdrop-blur-md"
+                            ? "border-white/70 bg-white/20 shadow-xs font-bold text-white backdrop-blur-md"
                             : "border-white/15 bg-black/25 hover:bg-black/35 hover:border-white/30 text-white/90"
                         )}
                         style={
                           Boolean(formData[field.name])
-                            ? { borderColor: primaryColor, boxShadow: `0 0 0 1px ${primaryColor}, 0 4px 20px -2px ${primaryColor}40` }
+                            ? { borderColor: primaryColor, boxShadow: `0 0 0 1px ${primaryColor}, 0 2px 10px -1px ${primaryColor}40` }
                             : {}
                         }
                       >
@@ -460,9 +460,9 @@ export default function DynamicForm({
                           onCheckedChange={(checked) =>
                             handleInputChange(field.name, Boolean(checked))
                           }
-                          className="mt-0.5 border-white/50 data-[state=checked]:bg-white data-[state=checked]:text-black"
+                          className="mt-0.5 border-white/50 data-[state=checked]:bg-white data-[state=checked]:text-black w-3.5 h-3.5"
                         />
-                        <span className="text-sm font-medium text-white/95 leading-snug drop-shadow-xs">
+                        <span className="text-xs sm:text-sm font-medium text-white/95 leading-snug drop-shadow-xs">
                           {field.label}
                         </span>
                       </motion.label>
@@ -486,14 +486,14 @@ export default function DynamicForm({
                             : undefined)
                         }
                         className={cn(
-                          "h-12 rounded-2xl border border-white/25 bg-black/25 hover:bg-black/35 focus:bg-black/45 text-white placeholder:text-white/40 px-4 text-sm shadow-inner transition-all focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:border-white/60",
+                          "h-10 sm:h-11 rounded-xl border border-white/20 bg-black/25 hover:bg-black/35 focus:bg-black/45 text-white placeholder:text-white/40 px-3.5 text-xs sm:text-sm shadow-inner transition-all focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:border-white/60",
                           errors[field.name] && "border-red-400 focus-visible:ring-red-400"
                         )}
                       />
                     )}
 
                     {errors[field.name] && (
-                      <p className="text-xs text-red-300 font-medium mt-1 drop-shadow-xs">
+                      <p className="text-[11px] text-red-300 font-medium mt-0.5 drop-shadow-xs">
                         {errors[field.name]}
                       </p>
                     )}
@@ -504,15 +504,15 @@ export default function DynamicForm({
           </CardContent>
 
           {/* Card Footer with Back and Next/Submit buttons */}
-          <CardFooter className="flex items-center justify-between gap-4 pt-4 pb-5 sm:pb-6 px-5 sm:px-7 border-t border-white/10">
+          <CardFooter className="flex items-center justify-between gap-3 pt-3 pb-3.5 sm:pb-4 px-3.5 sm:px-5 border-t border-white/10">
             {!isFirstStep ? (
               <Button
                 type="button"
                 variant="outline"
                 onClick={handlePrev}
-                className="h-11 px-5 rounded-2xl border border-white/20 bg-white/10 text-white font-semibold hover:bg-white/20 hover:text-white transition-all cursor-pointer shadow-sm backdrop-blur-sm active:scale-95"
+                className="h-9 sm:h-10 px-4 rounded-xl border border-white/20 bg-white/10 text-white text-xs sm:text-sm font-semibold hover:bg-white/20 hover:text-white transition-all cursor-pointer shadow-xs backdrop-blur-sm active:scale-95"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" />
+                <ChevronLeft className="w-3.5 h-3.5 mr-1" />
                 Back
               </Button>
             ) : (
@@ -523,27 +523,27 @@ export default function DynamicForm({
               <Button
                 type="button"
                 onClick={handleNext}
-                className="h-11 px-6 rounded-2xl text-white font-black shadow-lg hover:opacity-95 ml-auto transition-all cursor-pointer active:scale-95"
-                style={{ backgroundColor: primaryColor, boxShadow: `0 4px 25px ${primaryColor}70` }}
+                className="h-9 sm:h-10 px-5 rounded-xl text-white text-xs sm:text-sm font-black shadow-md hover:opacity-95 ml-auto transition-all cursor-pointer active:scale-95"
+                style={{ backgroundColor: primaryColor, boxShadow: `0 3px 18px ${primaryColor}70` }}
               >
                 <span>Continue</span>
-                <ChevronRight className="w-4 h-4 ml-1.5" />
+                <ChevronRight className="w-3.5 h-3.5 ml-1" />
               </Button>
             ) : (
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-11 px-7 rounded-2xl text-white font-black shadow-lg hover:opacity-95 ml-auto transition-all disabled:opacity-50 cursor-pointer active:scale-95"
-                style={{ backgroundColor: primaryColor, boxShadow: `0 4px 25px ${primaryColor}70` }}
+                className="h-9 sm:h-10 px-6 rounded-xl text-white text-xs sm:text-sm font-black shadow-md hover:opacity-95 ml-auto transition-all disabled:opacity-50 cursor-pointer active:scale-95"
+                style={{ backgroundColor: primaryColor, boxShadow: `0 3px 18px ${primaryColor}70` }}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                     <span>Submitting...</span>
                   </>
                 ) : (
                   <>
-                    <Check className="w-4 h-4 mr-2 stroke-[2.5]" />
+                    <Check className="w-3.5 h-3.5 mr-1.5 stroke-[2.5]" />
                     <span>Submit Request</span>
                   </>
                 )}
@@ -552,14 +552,6 @@ export default function DynamicForm({
           </CardFooter>
         </form>
       </Card>
-
-      {/* Step counter text below card */}
-      <div className="mt-3 text-center">
-        <p className="text-xs font-medium text-white/75 drop-shadow-xs">
-          Step {currentStepIndex + 1} of {steps.length}:{' '}
-          <span className="text-white font-bold">{currentStep.title}</span>
-        </p>
-      </div>
     </motion.div>
   );
 }

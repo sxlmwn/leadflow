@@ -61,7 +61,63 @@ const DEFAULT_VERTICALS = [
   { value: 'custom', label: 'Custom Vertical' },
 ];
 
-const PRESET_COLORS = ['#2563eb', '#0d9488', '#16a34a', '#0284c7', '#d97706', '#dc2626', '#4f46e5'];
+const PRESET_COLORS = ['#2563eb', '#0d9488', '#16a34a', '#0284c7', '#d97706', '#dc2626', '#4f46e5', '#8b5cf6', '#ec4899'];
+
+function parseColorAndOpacity(colorStr: string): { hex: string; opacity: number } {
+  if (!colorStr) return { hex: '#2563eb', opacity: 100 };
+  const str = colorStr.trim();
+  
+  if (str.startsWith('#') && str.length === 9) {
+    const hex = str.slice(0, 7);
+    const alphaHex = str.slice(7, 9);
+    const alpha = parseInt(alphaHex, 16);
+    const opacity = Math.round((alpha / 255) * 100);
+    return { hex, opacity: isNaN(opacity) ? 100 : opacity };
+  }
+  
+  if (str.startsWith('#') && str.length === 7) {
+    return { hex: str, opacity: 100 };
+  }
+
+  if (str.startsWith('#') && str.length === 4) {
+    const r = str[1];
+    const g = str[2];
+    const b = str[3];
+    return { hex: `#${r}${r}${g}${g}${b}${b}`, opacity: 100 };
+  }
+
+  const rgbaMatch = str.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/i);
+  if (rgbaMatch) {
+    const r = parseInt(rgbaMatch[1], 10).toString(16).padStart(2, '0');
+    const g = parseInt(rgbaMatch[2], 10).toString(16).padStart(2, '0');
+    const b = parseInt(rgbaMatch[3], 10).toString(16).padStart(2, '0');
+    const hex = `#${r}${g}${b}`;
+    const a = rgbaMatch[4] !== undefined ? parseFloat(rgbaMatch[4]) : 1;
+    const opacity = Math.round(a * 100);
+    return { hex, opacity: isNaN(opacity) ? 100 : opacity };
+  }
+
+  return { hex: str.startsWith('#') ? str.slice(0, 7) : '#2563eb', opacity: 100 };
+}
+
+function combineColorAndOpacity(hex: string, opacity: number): string {
+  let cleanHex = hex.trim();
+  if (!cleanHex.startsWith('#')) {
+    cleanHex = `#${cleanHex}`;
+  }
+  if (cleanHex.length > 7) {
+    cleanHex = cleanHex.slice(0, 7);
+  }
+  if (cleanHex.length < 7) {
+    return cleanHex;
+  }
+  if (opacity >= 100) {
+    return cleanHex;
+  }
+  const alphaVal = Math.round((Math.max(0, Math.min(100, opacity)) / 100) * 255);
+  const alphaHex = alphaVal.toString(16).padStart(2, '0');
+  return `${cleanHex}${alphaHex}`;
+}
 
 const DEFAULT_FONTS = [
   { value: 'Inter, sans-serif', label: 'Inter (Clean & Modern)' },
@@ -733,33 +789,131 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                 Visual Branding &amp; Palette
               </h3>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-2 flex items-center gap-2">
-                  <Palette className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  <span>Primary Accent Color *</span>
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={themeConfig.primary_color || '#2563eb'}
-                    onChange={(e) => setThemeConfig({ ...themeConfig, primary_color: e.target.value })}
-                    className="w-10 h-10 rounded-xl cursor-pointer border-0 p-0 bg-transparent"
-                  />
-                  <input
-                    type="text"
-                    value={themeConfig.primary_color || '#2563eb'}
-                    onChange={(e) => setThemeConfig({ ...themeConfig, primary_color: e.target.value })}
-                    className="px-3 py-2 bg-card border border-border rounded-xl text-xs font-mono font-bold text-foreground outline-none focus:border-blue-500 w-32"
-                  />
-                  <div className="flex items-center gap-1.5 ml-2">
-                    {PRESET_COLORS.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setThemeConfig({ ...themeConfig, primary_color: c })}
-                        className="w-6 h-6 rounded-full border border-border transition-transform hover:scale-110 cursor-pointer shadow-2xs"
-                        style={{ backgroundColor: c }}
+              <div className="space-y-3.5">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold text-foreground flex items-center gap-2">
+                      <Palette className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <span>Primary Accent Color *</span>
+                    </label>
+                    <span className="text-[11px] font-mono font-bold text-muted-foreground">
+                      {themeConfig.primary_color || '#2563eb'}
+                    </span>
+                  </div>
+
+                  {/* Top row: Color Picker Wheel, Hex Text Input, and Swatches */}
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="relative group">
+                      <input
+                        type="color"
+                        value={parseColorAndOpacity(themeConfig.primary_color || '#2563eb').hex}
+                        onChange={(e) => {
+                          const { opacity } = parseColorAndOpacity(themeConfig.primary_color || '#2563eb');
+                          const newCombined = combineColorAndOpacity(e.target.value, opacity);
+                          setThemeConfig({ ...themeConfig, primary_color: newCombined });
+                        }}
+                        className="w-10 h-10 rounded-xl cursor-pointer border border-border p-0.5 bg-card shadow-2xs hover:scale-105 transition-transform"
+                        title="Click to open full color spectrum & wheel picker"
                       />
+                    </div>
+
+                    <div className="relative min-w-[110px] max-w-[140px]">
+                      <input
+                        type="text"
+                        value={themeConfig.primary_color || '#2563eb'}
+                        onChange={(e) => setThemeConfig({ ...themeConfig, primary_color: e.target.value })}
+                        placeholder="#2563eb"
+                        className="w-full px-3 py-2 bg-card border border-border rounded-xl text-xs font-mono font-bold text-foreground outline-none focus:border-blue-500 shadow-2xs"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {PRESET_COLORS.map((c) => {
+                        const isSelected = parseColorAndOpacity(themeConfig.primary_color || '#2563eb').hex.toLowerCase() === c.toLowerCase();
+                        return (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => {
+                              const { opacity } = parseColorAndOpacity(themeConfig.primary_color || '#2563eb');
+                              const newCombined = combineColorAndOpacity(c, opacity);
+                              setThemeConfig({ ...themeConfig, primary_color: newCombined });
+                            }}
+                            className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 cursor-pointer shadow-2xs ${
+                              isSelected ? 'ring-2 ring-blue-500 ring-offset-2 border-white' : 'border-border'
+                            }`}
+                            style={{ backgroundColor: c }}
+                            title={`Preset: ${c}`}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Alpha / Opacity Slider for Glass Aesthetic */}
+                <div className="p-3.5 bg-secondary/70 rounded-xl border border-border space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-foreground flex items-center gap-1.5 text-[11px]">
+                      <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      <span>Glass Accent Opacity / Alpha</span>
+                    </span>
+                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400 bg-card px-2 py-0.5 rounded-md border border-border text-[11px]">
+                      {parseColorAndOpacity(themeConfig.primary_color || '#2563eb').opacity}%
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min="10"
+                      max="100"
+                      step="5"
+                      value={parseColorAndOpacity(themeConfig.primary_color || '#2563eb').opacity}
+                      onChange={(e) => {
+                        const { hex } = parseColorAndOpacity(themeConfig.primary_color || '#2563eb');
+                        const newCombined = combineColorAndOpacity(hex, parseInt(e.target.value, 10));
+                        setThemeConfig({ ...themeConfig, primary_color: newCombined });
+                      }}
+                      className="w-full accent-blue-600 cursor-pointer h-2 bg-muted rounded-lg"
+                    />
+
+                    {/* Visual Checkered Swatch Preview */}
+                    <div
+                      className="w-7 h-7 rounded-lg border border-border shrink-0 shadow-2xs overflow-hidden"
+                      style={{
+                        backgroundImage: `linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+                        backgroundSize: '6px 6px',
+                        backgroundPosition: '0 0, 0 3px, 3px -3px, -3px 0px'
+                      }}
+                      title="Live alpha opacity preview"
+                    >
+                      <div
+                        className="w-full h-full"
+                        style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    {[
+                      { label: '100% Solid', val: 100 },
+                      { label: '85% Glass', val: 85 },
+                      { label: '70% Tint', val: 70 },
+                      { label: '50% Muted', val: 50 },
+                    ].map((preset) => (
+                      <button
+                        key={preset.val}
+                        type="button"
+                        onClick={() => {
+                          const { hex } = parseColorAndOpacity(themeConfig.primary_color || '#2563eb');
+                          const newCombined = combineColorAndOpacity(hex, preset.val);
+                          setThemeConfig({ ...themeConfig, primary_color: newCombined });
+                        }}
+                        className="px-2 py-0.5 bg-card hover:bg-muted rounded-lg text-[10px] font-semibold text-muted-foreground hover:text-foreground border border-border cursor-pointer transition-colors"
+                      >
+                        {preset.label}
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -871,18 +1025,20 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-800">
                     <div className="flex items-center gap-2">
                       {themeConfig.logo_url ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={themeConfig.logo_url}
-                          alt="Logo Preview"
-                          className="h-6 w-auto object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
+                        <div className="h-8 px-2 py-1 rounded-lg bg-white/90 dark:bg-white/95 backdrop-blur-sm border border-white/40 shadow-xs flex items-center justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={themeConfig.logo_url}
+                            alt="Logo Preview"
+                            className="h-full w-auto max-h-6 max-w-[100px] object-contain"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
                       ) : (
                         <div
-                          className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shadow-2xs"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shadow-2xs text-white"
                           style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
                         >
                           {name ? name[0] : 'B'}

@@ -40,7 +40,7 @@ export default async function HomePage() {
 
   return (
     <main
-      className="min-h-[100dvh] flex flex-col relative overflow-x-hidden bg-slate-950 text-slate-100 bg-cover bg-center bg-no-repeat bg-fixed"
+      className="min-h-[100dvh] flex flex-col relative overflow-x-hidden bg-slate-950 text-slate-100 bg-cover bg-center bg-no-repeat"
       style={
         theme_config.background_image_url
           ? { backgroundImage: `url(${theme_config.background_image_url})` }
@@ -57,21 +57,23 @@ export default async function HomePage() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/70 backdrop-blur-[1px] pointer-events-none" />
 
       {/* Transparent / Glassmorphic Header */}
-      <header className="w-full relative z-20 pt-[max(env(safe-area-inset-top),0.75rem)] pb-2 px-4 sm:px-6">
+      <header className="w-full relative z-20 pt-[max(env(safe-area-inset-top),0.5rem)] pb-1 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             {theme_config.logo_url ? (
-              <Image
-                src={theme_config.logo_url}
-                alt={`${brand.name} logo`}
-                width={180}
-                height={40}
-                className="h-8 sm:h-10 w-auto object-contain drop-shadow-md"
-                priority
-              />
+              <div className="h-9 sm:h-11 px-2.5 py-1 rounded-xl bg-white/90 dark:bg-white/95 backdrop-blur-md border border-white/40 shadow-sm flex items-center justify-center">
+                <Image
+                  src={theme_config.logo_url}
+                  alt={`${brand.name} logo`}
+                  width={140}
+                  height={36}
+                  className="h-full w-auto max-h-7 sm:max-h-8 max-w-[120px] sm:max-w-[150px] object-contain"
+                  priority
+                />
+              </div>
             ) : (
               <div
-                className="px-3.5 py-1.5 rounded-xl text-white font-extrabold text-sm sm:text-base shadow-lg border border-white/20"
+                className="px-3 py-1 rounded-xl text-white font-extrabold text-xs sm:text-sm shadow-md border border-white/20"
                 style={{ backgroundColor: theme_config.primary_color }}
               >
                 {brand.name}
@@ -80,7 +82,7 @@ export default async function HomePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-white/10 backdrop-blur-md text-white/90 text-[11px] sm:text-xs font-semibold rounded-full border border-white/20 uppercase tracking-wider shadow-xs">
+            <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 bg-white/10 backdrop-blur-md text-white/90 text-[10px] sm:text-xs font-semibold rounded-full border border-white/20 uppercase tracking-wider shadow-xs">
               {brand.vertical.replace('_', ' ')}
             </span>
           </div>
@@ -88,7 +90,7 @@ export default async function HomePage() {
       </header>
 
       {/* Centered Glassmorphic Form Section */}
-      <div className="flex-1 flex flex-col items-center justify-center relative z-20 px-3 sm:px-6 py-4 sm:py-8 max-w-5xl mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center justify-center relative z-20 px-3 sm:px-6 py-2 sm:py-5 max-w-5xl mx-auto w-full">
         {/* Dynamic Brand Form Renderer */}
         <div className="w-full">
           <DynamicForm
