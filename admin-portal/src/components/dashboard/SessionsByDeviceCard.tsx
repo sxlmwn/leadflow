@@ -1,7 +1,15 @@
 'use client';
 
 import React from 'react';
-import { MoreHorizontal, User, Laptop, Smartphone, Tablet } from 'lucide-react';
+import { MoreHorizontal, Laptop, Smartphone, Tablet } from 'lucide-react';
+import {
+  Label,
+  PolarGrid,
+  PolarRadiusAxis,
+  RadialBar,
+  RadialBarChart,
+} from 'recharts';
+import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 
 interface SessionsByDeviceCardProps {
   title?: string;
@@ -14,6 +22,16 @@ interface SessionsByDeviceCardProps {
     color: string;
   }>;
 }
+
+const chartConfig = {
+  visitors: {
+    label: "Total Visitors",
+  },
+  desktop: {
+    label: "Desktop",
+    color: "#2563eb",
+  },
+} satisfies ChartConfig;
 
 export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
   title = "Sessions by device",
@@ -38,25 +56,26 @@ export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
       percentage: 1.8,
       count: '194',
       icon: Tablet,
-      color: 'text-blue-300 dark:text-blue-200',
+      color: 'text-blue-400 dark:text-blue-300',
     },
   ]
 }) => {
-  // Circular Ring geometry parameters
-  const size = 160;
-  const strokeWidth = 14;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const progress = 78.5; // Main segment percentage
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  const chartData = [
+    { device: 'desktop', visitors: 10739, fill: '#2563eb' },
+  ];
 
   return (
     <div className="admin-card p-4 sm:p-6 flex flex-col justify-between h-full group shadow-xs">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
-          {title}
-        </h3>
+      {/* Card Header matching 1.jpg */}
+      <div className="flex items-center justify-between mb-1">
+        <div>
+          <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
+            {title}
+          </h3>
+          <p className="text-[11px] text-muted-foreground font-medium">
+            Traffic distribution by client platform
+          </p>
+        </div>
         <button
           type="button"
           className="w-7 h-7 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center justify-center transition-colors cursor-pointer"
@@ -66,62 +85,71 @@ export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
         </button>
       </div>
 
-      {/* Center Circular Progress Ring with centered number & icon (matching 1.jpg) */}
-      <div className="flex flex-col items-center justify-center py-3 relative">
-        <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-          <svg
-            width={size}
-            height={size}
-            className="transform -rotate-90 overflow-visible"
+      {/* shadcn Radial Chart - Text (Exact Pattern) */}
+      <div className="my-auto py-2 flex items-center justify-center">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square w-full max-h-[190px]"
+        >
+          <RadialBarChart
+            data={chartData}
+            startAngle={0}
+            endAngle={282}
+            outerRadius={88}
+            innerRadius={74}
           >
-            <defs>
-              <linearGradient id="deviceRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#2563eb" />
-                <stop offset="100%" stopColor="#38bdf8" />
-              </linearGradient>
-            </defs>
-
-            {/* Background Track Circle */}
-            <circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              stroke="currentColor"
-              className="text-slate-100 dark:text-slate-800/80"
-              strokeWidth={strokeWidth}
-              fill="transparent"
+            <PolarGrid
+              gridType="circle"
+              radialLines={false}
+              stroke="none"
+              className="first:fill-muted/40 last:fill-background"
+              polarRadius={[88, 74]}
             />
-
-            {/* Main Progress Arc */}
-            <circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              stroke="url(#deviceRingGradient)"
-              strokeWidth={strokeWidth}
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              fill="transparent"
-              className="transition-all duration-700 ease-out"
+            <RadialBar
+              dataKey="visitors"
+              background={{ fill: 'currentColor' }}
+              className="[&_.recharts-radial-bar-background-sector]:fill-slate-100 dark:[&_.recharts-radial-bar-background-sector]:fill-slate-800/80"
+              cornerRadius={10}
             />
-          </svg>
-
-          {/* Centered Number + Label (matching 1.jpg exact layout) */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none select-none">
-            <User className="w-4 h-4 text-blue-600 dark:text-blue-400 mb-1 opacity-90" />
-            <span className="text-2xl sm:text-3xl font-extrabold text-foreground font-heading tracking-tight leading-none">
-              {totalVisitors}
-            </span>
-            <span className="text-[11px] font-semibold text-muted-foreground mt-1">
-              Total visitor
-            </span>
-          </div>
-        </div>
+            <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+              <Label
+                content={({ viewBox }) => {
+                  if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) - 6}
+                          className="fill-foreground text-3xl sm:text-[34px] font-extrabold font-heading tracking-tight"
+                        >
+                          {typeof totalVisitors === 'number'
+                            ? totalVisitors.toLocaleString()
+                            : totalVisitors}
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 18}
+                          className="fill-muted-foreground text-xs font-semibold"
+                        >
+                          Total visitor
+                        </tspan>
+                      </text>
+                    );
+                  }
+                }}
+              />
+            </PolarRadiusAxis>
+          </RadialBarChart>
+        </ChartContainer>
       </div>
 
-      {/* Breakdown List Rows (matching 1.jpg bottom list) */}
-      <div className="mt-2 pt-3 border-t border-border/70 space-y-2.5">
+      {/* Breakdown List Rows matching 1.jpg */}
+      <div className="mt-2 pt-3 border-t border-border/70 space-y-2">
         {breakdowns.map((b) => {
           const Icon = b.icon;
           return (
@@ -134,7 +162,11 @@ export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
                 <span className="text-xs font-semibold text-foreground">{b.device}</span>
               </div>
               <div className="flex items-center gap-2 font-mono">
-                {b.count && <span className="text-[11px] text-muted-foreground hidden sm:inline">{b.count}</span>}
+                {b.count && (
+                  <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                    {b.count}
+                  </span>
+                )}
                 <span className="text-xs font-bold text-foreground">{b.percentage}%</span>
               </div>
             </div>

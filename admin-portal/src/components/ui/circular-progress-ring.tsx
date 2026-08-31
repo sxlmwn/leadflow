@@ -1,9 +1,18 @@
 'use client';
 
-import React, { useId } from 'react';
+import React from 'react';
+import {
+  Label,
+  PolarGrid,
+  PolarRadiusAxis,
+  RadialBar,
+  RadialBarChart,
+} from 'recharts';
+import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 
 export interface CircularProgressRingProps {
-  value: number; // 0 - 100
+  value: number; // 0 - 100 or metric count
+  maxValue?: number;
   size?: 'large' | 'small' | 'mini' | number;
   strokeWidth?: number;
   label?: string;
@@ -13,146 +22,156 @@ export interface CircularProgressRingProps {
   trackColor?: string;
   showShadow?: boolean;
   className?: string;
+  startAngle?: number;
+  endAngle?: number;
 }
 
 export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
   value,
+  maxValue = 100,
   size = 'large',
-  strokeWidth,
   label,
   displayValue,
   subtitle,
-  color = ['#2563eb', '#60a5fa'],
-  trackColor = 'text-slate-100 dark:text-slate-800/90',
-  showShadow = true,
+  color = '#2563eb',
   className = '',
+  startAngle = 0,
 }) => {
-  const rawId = useId();
-  const safeId = rawId.replace(/:/g, '');
-  const gradientId = `ring-grad-${safeId}`;
-  const filterId = `ring-shadow-${safeId}`;
-
-  // Dimension presets matching reference "Readiness" & "Important Expenses"
   const pixelSize =
     typeof size === 'number'
       ? size
       : size === 'large'
-      ? 140
+      ? 180
       : size === 'small'
-      ? 54
-      : 44;
-
-  const actualStrokeWidth =
-    strokeWidth ??
-    (pixelSize >= 120 ? 10.5 : pixelSize >= 50 ? 5.5 : 4.5);
-
-  const radius = pixelSize / 2;
-  const normalizedRadius = radius - actualStrokeWidth * 1.1;
-  const circumference = normalizedRadius * 2 * Math.PI;
-  const clampedValue = Math.min(100, Math.max(0, value));
-  const strokeDashoffset = circumference - (clampedValue / 100) * circumference;
+      ? 64
+      : 52;
 
   const isLarge = pixelSize >= 100;
-  const gradColors = Array.isArray(color) ? color : [color, color];
+  const clampedPercentage = Math.min(100, Math.max(0, (value / maxValue) * 100));
+  // Calculate sweep angle based on percentage (360 degrees full circle)
+  const sweepAngle = (clampedPercentage / 100) * 360;
+  const calculatedEndAngle = startAngle + sweepAngle;
+
+  const resolvedColor = Array.isArray(color) ? color[0] : color;
+
+  const chartData = [
+    {
+      metric: 'progress',
+      value: value,
+      fill: resolvedColor,
+    },
+  ];
+
+  const chartConfig = {
+    value: {
+      label: label || 'Progress',
+      color: resolvedColor,
+    },
+  } satisfies ChartConfig;
+
+  const outerRadius = isLarge ? 86 : 24;
+  const innerRadius = isLarge ? 72 : 18;
 
   return (
-    <div className={`relative flex flex-col items-center justify-center select-none ${className}`}>
-      <div
-        className="relative flex items-center justify-center"
-        style={{ width: pixelSize, height: pixelSize }}
+    <div
+      className={`relative flex flex-col items-center justify-center select-none ${className}`}
+      style={{ width: pixelSize, height: pixelSize }}
+    >
+      <ChartContainer
+        config={chartConfig}
+        className="w-full h-full aspect-square"
       >
-        {/* Soft Background Dial Disc for 3D Physical Lift (as seen in Readiness reference) */}
-        {isLarge && showShadow && (
-          <div
-            className="absolute rounded-full bg-card shadow-[0_6px_20px_rgba(0,0,0,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)] border border-border/40 pointer-events-none"
-            style={{
-              width: pixelSize - actualStrokeWidth * 2.2,
-              height: pixelSize - actualStrokeWidth * 2.2,
-            }}
-          />
-        )}
-
-        <svg
-          height={pixelSize}
-          width={pixelSize}
-          className="transform -rotate-90 overflow-visible drop-shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+        <RadialBarChart
+          data={chartData}
+          startAngle={startAngle}
+          endAngle={calculatedEndAngle}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
         >
-          <defs>
-            {/* Linear Gradient for Progress Arc */}
-            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={gradColors[0]} />
-              <stop offset="100%" stopColor={gradColors[1]} />
-            </linearGradient>
-
-            {/* Soft Ambient Shadow Filter under Ring Arc */}
-            {showShadow && (
-              <filter id={filterId} x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow
-                  dx="0"
-                  dy="3"
-                  stdDeviation="3"
-                  floodColor={gradColors[0]}
-                  floodOpacity={isLarge ? '0.22' : '0.15'}
-                />
-              </filter>
-            )}
-          </defs>
-
-          {/* Light Gray Track Circle */}
-          <circle
-            stroke="currentColor"
-            className={trackColor}
-            fill="transparent"
-            strokeWidth={actualStrokeWidth}
-            r={normalizedRadius}
-            cx={radius}
-            cy={radius}
+          <PolarGrid
+            gridType="circle"
+            radialLines={false}
+            stroke="none"
+            className="first:fill-muted/40 last:fill-background"
+            polarRadius={[outerRadius, innerRadius]}
           />
-
-          {/* Active Progress Arc with Rounded Line Caps & Soft Lift */}
-          <circle
-            stroke={`url(#${gradientId})`}
-            fill="transparent"
-            strokeWidth={actualStrokeWidth}
-            strokeDasharray={`${circumference} ${circumference}`}
-            style={{ strokeDashoffset }}
-            strokeLinecap="round"
-            r={normalizedRadius}
-            cx={radius}
-            cy={radius}
-            filter={showShadow ? `url(#${filterId})` : undefined}
-            className="transition-all duration-700 ease-out"
+          <RadialBar
+            dataKey="value"
+            background={{ fill: 'currentColor' }}
+            className="[&_.recharts-radial-bar-background-sector]:fill-slate-100 dark:[&_.recharts-radial-bar-background-sector]:fill-slate-800/80"
+            cornerRadius={isLarge ? 10 : 6}
           />
-        </svg>
+          <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+            <Label
+              content={({ viewBox }) => {
+                if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                  const cx = viewBox.cx || pixelSize / 2;
+                  const cy = viewBox.cy || pixelSize / 2;
 
-        {/* Center Content for Big Ring ("Readiness" style: small caption on top, large bold value below) */}
-        {isLarge ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none p-2 z-10">
-            {label && (
-              <span className="text-[11px] font-semibold text-muted-foreground leading-none mb-1">
-                {label}
-              </span>
-            )}
-            <span className="text-3xl font-extrabold text-foreground tracking-tight font-heading leading-tight">
-              {displayValue !== undefined ? displayValue : `${Math.round(value)}%`}
-            </span>
-            {subtitle && (
-              <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 mt-0.5">
-                {subtitle}
-              </span>
-            )}
-          </div>
-        ) : (
-          /* Center content for mini ring when displayValue is explicitly provided */
-          displayValue !== undefined && (
-            <div className="absolute inset-0 flex items-center justify-center text-center pointer-events-none">
-              <span className="text-[11px] font-bold text-foreground">
-                {displayValue}
-              </span>
-            </div>
-          )
-        )}
-      </div>
+                  if (isLarge) {
+                    return (
+                      <text
+                        x={cx}
+                        y={cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={cx}
+                          y={label ? cy - 4 : cy}
+                          className="fill-foreground text-3xl sm:text-4xl font-extrabold font-heading tracking-tight"
+                        >
+                          {displayValue !== undefined
+                            ? displayValue
+                            : `${Math.round(value)}%`}
+                        </tspan>
+                        {label && (
+                          <tspan
+                            x={cx}
+                            y={cy + 22}
+                            className="fill-muted-foreground text-xs font-semibold"
+                          >
+                            {label}
+                          </tspan>
+                        )}
+                        {subtitle && (
+                          <tspan
+                            x={cx}
+                            y={cy + 36}
+                            className="fill-blue-600 dark:fill-blue-400 text-[10px] font-bold"
+                          >
+                            {subtitle}
+                          </tspan>
+                        )}
+                      </text>
+                    );
+                  }
+
+                  // Compact / Mini indicator
+                  return (
+                    <text
+                      x={cx}
+                      y={cy}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                    >
+                      <tspan
+                        x={cx}
+                        y={cy}
+                        className="fill-foreground text-[11px] font-bold font-heading"
+                      >
+                        {displayValue !== undefined
+                          ? displayValue
+                          : `${Math.round(value)}%`}
+                      </tspan>
+                    </text>
+                  );
+                }
+              }}
+            />
+          </PolarRadiusAxis>
+        </RadialBarChart>
+      </ChartContainer>
     </div>
   );
 };
