@@ -51,16 +51,13 @@ export default function DomainsPage() {
             created_at: b.created_at || new Date().toISOString()
           }));
 
-        // Merge any additional mock domains (e.g. secondary subdomains)
-        const brandDomainSet = new Set(mappedDomains.map((d) => d.domain.toLowerCase()));
-        const extraMocks = MOCK_DOMAINS.filter((m) => !brandDomainSet.has(m.domain.toLowerCase()));
-        setDomains([...mappedDomains, ...extraMocks]);
+        setDomains(mappedDomains);
       } else {
-        setDomains(MOCK_DOMAINS);
+        setDomains([]);
       }
     } catch (err) {
       console.error('Failed to load domains:', err);
-      setDomains(MOCK_DOMAINS);
+      setDomains([]);
     } finally {
       setLoading(false);
     }

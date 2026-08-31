@@ -603,7 +603,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                     required
                     value={name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    placeholder="e.g. WindowHound"
+                    placeholder="e.g. SolarPro"
                     className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-semibold text-foreground"
                   />
                   <p className="text-[11px] text-muted-foreground mt-1">Visible in header and email footers</p>
@@ -622,7 +622,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                         setSlug(slugify(e.target.value));
                         setIsSlugManuallyEdited(true);
                       }}
-                      placeholder="e.g. windowhound"
+                      placeholder="e.g. solarpro"
                       className={`w-full px-3.5 py-2.5 bg-card border rounded-xl outline-none font-mono text-xs font-semibold ${
                         slugError ? 'border-rose-400 text-rose-600' : 'border-border focus:border-blue-500 text-foreground'
                       }`}
@@ -649,7 +649,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                       required
                       value={domain}
                       onChange={(e) => setDomain(e.target.value)}
-                      placeholder="e.g. quote.windowhound.com"
+                      placeholder="e.g. quote.solarpro.com"
                       className="w-full pl-9 pr-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-mono text-xs text-foreground"
                     />
                   </div>

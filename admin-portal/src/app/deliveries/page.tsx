@@ -34,68 +34,16 @@ export default function DeliveriesPage() {
       if (data && data.length > 0) {
         const formatted: AdminDelivery[] = data.map((d: any) => ({
           ...d,
-          buyer_name: d.buyers?.name || 'Apex Home Services',
-          brand_name: d.leads?.brands?.name || 'WindowHound'
+          buyer_name: d.buyers?.name || 'Unknown Buyer',
+          brand_name: d.leads?.brands?.name || 'Unassigned'
         }));
         setDeliveries(formatted);
       } else {
-        setDeliveries([
-          {
-            id: 'del-901',
-            lead_id: 'ld-1001-a',
-            buyer_id: 'by-1',
-            buyer_name: 'Apex Home Services',
-            brand_name: 'WindowHound',
-            delivered_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-            accepted: true,
-            price_paid: 65,
-            converted: true,
-            http_status: 200,
-            created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString()
-          },
-          {
-            id: 'del-902',
-            lead_id: 'ld-1002-b',
-            buyer_id: 'by-2',
-            buyer_name: 'Clinical Health Research Network',
-            brand_name: 'MedTrialMatch',
-            delivered_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-            accepted: true,
-            price_paid: 85,
-            converted: true,
-            http_status: 200,
-            created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString()
-          },
-          {
-            id: 'del-903',
-            lead_id: 'ld-1003-c',
-            buyer_id: 'by-3',
-            buyer_name: 'Relief Direct Buyers Group',
-            brand_name: 'ReliefOlogist',
-            delivered_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-            accepted: false,
-            price_paid: 0,
-            converted: false,
-            http_status: 422,
-            created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString()
-          },
-          {
-            id: 'del-904',
-            lead_id: 'ld-1004-d',
-            buyer_id: 'by-4',
-            buyer_name: 'National Home Contractors Exchange',
-            brand_name: 'WindowHound',
-            delivered_at: new Date(Date.now() - 1000 * 60 * 150).toISOString(),
-            accepted: true,
-            price_paid: 55,
-            converted: false,
-            http_status: 200,
-            created_at: new Date(Date.now() - 1000 * 60 * 150).toISOString()
-          }
-        ]);
+        setDeliveries([]);
       }
     } catch (err) {
       console.error('Deliveries fetch error:', err);
+      setDeliveries([]);
     } finally {
       setLoading(false);
     }

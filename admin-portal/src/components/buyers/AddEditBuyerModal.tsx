@@ -7,6 +7,7 @@ import { AdminBuyer } from '@/lib/data';
 interface AddEditBuyerModalProps {
   buyer: AdminBuyer | null;
   isOpen: boolean;
+  availableBrands?: string[];
   onClose: () => void;
   onSave: (buyerData: Partial<AdminBuyer>) => void;
 }
@@ -14,6 +15,7 @@ interface AddEditBuyerModalProps {
 export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
   buyer,
   isOpen,
+  availableBrands = [],
   onClose,
   onSave
 }) => {
@@ -23,7 +25,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
   const [pricingModel, setPricingModel] = useState<'flat' | 'tiered' | 'auction'>('flat');
   const [minScore, setMinScore] = useState(70);
   const [isActive, setIsActive] = useState(true);
-  const [acceptedBrands, setAcceptedBrands] = useState<string[]>(['WindowHound', 'MedTrialMatch']);
+  const [acceptedBrands, setAcceptedBrands] = useState<string[]>([]);
 
   useEffect(() => {
     if (buyer) {
@@ -33,7 +35,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
       setPricingModel(buyer.pricing_model || 'flat');
       setMinScore(buyer.min_score || buyer.min_accept_score || 70);
       setIsActive(buyer.is_active ?? buyer.active ?? true);
-      setAcceptedBrands(buyer.accepted_brands || ['WindowHound', 'MedTrialMatch']);
+      setAcceptedBrands(buyer.accepted_brands || []);
     } else {
       setName('');
       setApiEndpoint('https://api.buyer-network.com/leads/v1/ping-post');
@@ -41,9 +43,9 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
       setPricingModel('flat');
       setMinScore(70);
       setIsActive(true);
-      setAcceptedBrands(['WindowHound', 'MedTrialMatch']);
+      setAcceptedBrands(availableBrands);
     }
-  }, [buyer, isOpen]);
+  }, [buyer, isOpen, availableBrands]);
 
   if (!isOpen) return null;
 
@@ -162,24 +164,28 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
           <div>
             <label className="block text-xs font-bold text-foreground mb-2">Accepted Brands</label>
             <div className="flex flex-wrap gap-2">
-              {['WindowHound', 'MedTrialMatch', 'ReliefOlogist'].map((bName) => {
-                const selected = acceptedBrands.includes(bName);
-                return (
-                  <button
-                    type="button"
-                    key={bName}
-                    onClick={() => toggleBrandChip(bName)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
-                      selected
-                        ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 shadow-2xs'
-                        : 'bg-secondary border-border text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {selected && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
-                    <span>{bName}</span>
-                  </button>
-                );
-              })}
+              {availableBrands.length > 0 ? (
+                availableBrands.map((bName) => {
+                  const selected = acceptedBrands.includes(bName);
+                  return (
+                    <button
+                      type="button"
+                      key={bName}
+                      onClick={() => toggleBrandChip(bName)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
+                        selected
+                          ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 shadow-2xs'
+                          : 'bg-secondary border-border text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      {selected && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+                      <span>{bName}</span>
+                    </button>
+                  );
+                })
+              ) : (
+                <p className="text-xs text-muted-foreground italic">No active brands configured.</p>
+              )}
             </div>
           </div>
 

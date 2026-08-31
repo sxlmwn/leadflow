@@ -18,6 +18,7 @@ import { AdminBuyer } from '@/lib/data';
 
 export default function BuyersPage() {
   const [buyers, setBuyers] = useState<AdminBuyer[]>([]);
+  const [availableBrandNames, setAvailableBrandNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBuyer, setEditingBuyer] = useState<AdminBuyer | null>(null);
@@ -25,64 +26,36 @@ export default function BuyersPage() {
   const fetchBuyers = async () => {
     setLoading(true);
     try {
-      const { data } = await supabase.from('buyers').select('*');
-      if (data && data.length > 0) {
+      const [{ data: buyersData }, { data: brandsData }] = await Promise.all([
+        supabase.from('buyers').select(`
+          *,
+          buyer_brands ( brand_id, brands ( name ) )
+        `),
+        supabase.from('brands').select('id, name').eq('is_active', true)
+      ]);
+
+      if (brandsData) {
+        setAvailableBrandNames(brandsData.map((b) => b.name));
+      }
+
+      if (buyersData && buyersData.length > 0) {
         setBuyers(
-          data.map((b: any) => ({
-            ...b,
-            accepted_brands: ['WindowHound', 'MedTrialMatch']
-          }))
+          buyersData.map((b: any) => {
+            const acceptedBrands = (b.buyer_brands || [])
+              .map((bb: any) => bb.brands?.name)
+              .filter(Boolean);
+            return {
+              ...b,
+              accepted_brands: acceptedBrands.length > 0 ? acceptedBrands : (b.accepted_brands || [])
+            };
+          })
         );
       } else {
-        setBuyers([
-          {
-            id: 'by-1',
-            name: 'Apex Home Services',
-            api_endpoint: 'https://api.apexhomes.com/v1/leads/post',
-            price_per_lead: 65,
-            pricing_model: 'flat',
-            min_score: 75,
-            is_active: true,
-            accepted_brands: ['WindowHound'],
-            created_at: new Date().toISOString()
-          },
-          {
-            id: 'by-2',
-            name: 'Clinical Health Research Network',
-            api_endpoint: 'https://webhook.clinicaltrials.org/ingest',
-            price_per_lead: 85,
-            pricing_model: 'tiered',
-            min_score: 80,
-            is_active: true,
-            accepted_brands: ['MedTrialMatch'],
-            created_at: new Date().toISOString()
-          },
-          {
-            id: 'by-3',
-            name: 'Relief Direct Buyers Group',
-            api_endpoint: 'https://leads.reliefdirect.net/api/v2',
-            price_per_lead: 45,
-            pricing_model: 'flat',
-            min_score: 65,
-            is_active: true,
-            accepted_brands: ['ReliefOlogist'],
-            created_at: new Date().toISOString()
-          },
-          {
-            id: 'by-4',
-            name: 'National Home Contractors Exchange',
-            api_endpoint: 'https://exchange.homepros.com/ping-post',
-            price_per_lead: 55,
-            pricing_model: 'auction',
-            min_score: 70,
-            is_active: false,
-            accepted_brands: ['WindowHound', 'ReliefOlogist'],
-            created_at: new Date().toISOString()
-          }
-        ]);
+        setBuyers([]);
       }
     } catch (err) {
       console.error('Buyers fetch error:', err);
+      setBuyers([]);
     } finally {
       setLoading(false);
     }
@@ -135,7 +108,7 @@ export default function BuyersPage() {
         pricing_model: buyerData.pricing_model || 'flat',
         min_score: buyerData.min_score || 70,
         is_active: buyerData.is_active ?? true,
-        accepted_brands: buyerData.accepted_brands || ['WindowHound'],
+        accepted_brands: buyerData.accepted_brands || [],
         created_at: new Date().toISOString()
       };
       setBuyers([newB, ...buyers]);
@@ -256,7 +229,7 @@ export default function BuyersPage() {
 
                     <td className="py-3.5 px-4">
                       <div className="flex flex-wrap gap-1">
-                        {(buyer.accepted_brands || ['WindowHound']).map((brandName, idx) => (
+                        {(buyer.accepted_brands || []).map((brandName, idx) => (
                           <span
                             key={idx}
                             className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-700 dark:text-slate-300 bg-secondary px-2 py-0.5 rounded-md border border-border"
@@ -303,6 +276,7 @@ export default function BuyersPage() {
 
       <AddEditBuyerModal
         buyer={editingBuyer}
+        availableBrands={availableBrandNames}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveBuyer}

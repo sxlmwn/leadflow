@@ -11,6 +11,13 @@ interface DonutRingWidgetProps {
   soldCount?: number;
   unsoldCount?: number;
   totalLeads?: number;
+  breakdowns?: Array<{
+    name: string;
+    percent: string;
+    leads: string;
+    color: string;
+    icon?: any;
+  }>;
 }
 
 export const DonutRingWidget: React.FC<DonutRingWidgetProps> = ({
@@ -18,27 +25,28 @@ export const DonutRingWidget: React.FC<DonutRingWidgetProps> = ({
   percentage = 78,
   label = "Sold Ratio",
   soldCount = 111,
-  totalLeads = 142
+  totalLeads = 142,
+  breakdowns
 }) => {
-  const brandBreakdowns = [
+  const brandBreakdowns = breakdowns || [
     {
-      name: 'WindowHound (Home Imp.)',
-      percent: '48%',
-      leads: `${Math.round(soldCount * 0.48)} leads`,
+      name: 'Direct Funnel Leads',
+      percent: '55%',
+      leads: `${Math.round(soldCount * 0.55)} leads`,
       color: 'bg-blue-600',
       icon: Home,
     },
     {
-      name: 'MedTrialMatch (Clinical)',
-      percent: '32%',
-      leads: `${Math.round(soldCount * 0.32)} leads`,
+      name: 'Partner Network',
+      percent: '30%',
+      leads: `${Math.round(soldCount * 0.30)} leads`,
       color: 'bg-teal-500',
       icon: Stethoscope,
     },
     {
-      name: 'ReliefOlogist (Health)',
-      percent: '20%',
-      leads: `${Math.round(soldCount * 0.20)} leads`,
+      name: 'Organic / Referral',
+      percent: '15%',
+      leads: `${Math.round(soldCount * 0.15)} leads`,
       color: 'bg-sky-500',
       icon: HeartPulse,
     },

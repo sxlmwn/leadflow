@@ -75,18 +75,7 @@ export async function getCurrentBrand(): Promise<Brand | null> {
     }
   }
 
-  // 4. Default fallback ONLY for localhost development
-  if (isLocalhost) {
-    const { data: defaultBrand } = await supabase
-      .from('brands')
-      .select('*')
-      .eq('slug', 'windowhound')
-      .eq('is_active', true)
-      .maybeSingle();
-
-    return (defaultBrand as Brand) || null;
-  }
-
-  // On non-localhost domains, if not matched, return null (404 Not Found)
+  // If not matched via query param, domain mapping, or dev cookie override, return null (renders Brand Not Found)
   return null;
 }
+

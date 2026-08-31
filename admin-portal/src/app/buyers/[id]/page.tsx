@@ -40,17 +40,7 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
       if (bData) {
         setBuyer(bData);
       } else {
-        setBuyer({
-          id: buyerId,
-          name: 'Apex Home Services LLC',
-          api_endpoint: 'https://api.apexhomes.com/v1/leads/post',
-          price_per_lead: 65,
-          pricing_model: 'flat',
-          min_score: 75,
-          is_active: true,
-          accepted_brands: ['WindowHound'],
-          created_at: new Date().toISOString()
-        });
+        setBuyer(null);
       }
 
       // Fetch deliveries for this buyer
@@ -69,54 +59,26 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
         const totalPaid = delData.reduce((acc, d) => acc + (Number(d.price_paid) || 0), 0);
 
         setMetrics({
-          acceptRate: Math.round((accepted / (total || 1)) * 1000) / 10 || 88.4,
+          acceptRate: Math.round((accepted / (total || 1)) * 1000) / 10 || 0,
           avgResponseMs: 142,
-          totalLeadsBought: accepted || 342,
-          totalRevenue: totalPaid || 22230,
-          conversionRate: Math.round((converted / (accepted || 1)) * 1000) / 10 || 14.8
+          totalLeadsBought: accepted,
+          totalRevenue: totalPaid,
+          conversionRate: Math.round((converted / (accepted || 1)) * 1000) / 10 || 0
         });
       } else {
-        setDeliveries([
-          {
-            id: 'del-101',
-            lead_id: 'ld-89101',
-            buyer_id: buyerId,
-            buyer_name: 'Apex Home Services',
-            delivered_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-            accepted: true,
-            price_paid: 65,
-            converted: true,
-            http_status: 200,
-            created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString()
-          },
-          {
-            id: 'del-102',
-            lead_id: 'ld-89102',
-            buyer_id: buyerId,
-            buyer_name: 'Apex Home Services',
-            delivered_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-            accepted: true,
-            price_paid: 65,
-            converted: false,
-            http_status: 200,
-            created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString()
-          },
-          {
-            id: 'del-103',
-            lead_id: 'ld-89103',
-            buyer_id: buyerId,
-            buyer_name: 'Apex Home Services',
-            delivered_at: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-            accepted: false,
-            price_paid: 0,
-            converted: false,
-            http_status: 422,
-            created_at: new Date(Date.now() - 1000 * 60 * 120).toISOString()
-          }
-        ]);
+        setDeliveries([]);
+        setMetrics({
+          acceptRate: 0,
+          avgResponseMs: 0,
+          totalLeadsBought: 0,
+          totalRevenue: 0,
+          conversionRate: 0
+        });
       }
     } catch (err) {
       console.error('Buyer detail load error:', err);
+      setBuyer(null);
+      setDeliveries([]);
     } finally {
       setLoading(false);
     }

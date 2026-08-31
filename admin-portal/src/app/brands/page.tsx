@@ -48,11 +48,11 @@ export default function BrandsPage() {
       if (data && data.length > 0) {
         setBrands(data as unknown as Brand[]);
       } else {
-        setBrands(MOCK_BRANDS as unknown as Brand[]);
+        setBrands([]);
       }
     } catch (err) {
       console.error('Brands load error:', err);
-      setBrands(MOCK_BRANDS as unknown as Brand[]);
+      setBrands([]);
     } finally {
       setLoading(false);
     }

@@ -38,105 +38,15 @@ export default function LeadsPage() {
       if (data && data.length > 0) {
         const formatted: AdminLead[] = data.map((l: any) => ({
           ...l,
-          brand_name: l.brands?.name || 'WindowHound'
+          brand_name: l.brands?.name || 'Unassigned'
         }));
         setLeads(formatted);
       } else {
-        setLeads([
-          {
-            id: 'ld-1001-a',
-            brand_id: 'b1',
-            brand_name: 'WindowHound',
-            full_name: 'Arthur Pendelton',
-            email: 'arthur.p@gmail.com',
-            phone: '(555) 234-5678',
-            zip_code: '90210',
-            form_answers: { window_count: '4-9 Windows', project_type: 'Replacement' },
-            subid_params: { utm_source: 'google_cpc', campaign: 'windows_la' },
-            status: 'sold',
-            is_duplicate: false,
-            score: 94,
-            trustedform_cert_url: 'https://cert.trustedform.com/2891x',
-            dnc_flagged: false,
-            sold: true,
-            sold_to_buyer_name: 'Apex Home Services',
-            created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString()
-          },
-          {
-            id: 'ld-1002-b',
-            brand_id: 'b2',
-            brand_name: 'MedTrialMatch',
-            full_name: 'Sophia Loren',
-            email: 'sophia@yahoo.com',
-            phone: '(555) 987-6543',
-            zip_code: '30301',
-            form_answers: { condition: 'Asthma', age: '31-50' },
-            subid_params: { utm_source: 'fb_ads', campaign: 'clinical_trials' },
-            status: 'sold',
-            is_duplicate: false,
-            score: 89,
-            trustedform_cert_url: 'https://cert.trustedform.com/9812y',
-            dnc_flagged: false,
-            sold: true,
-            sold_to_buyer_name: 'Clinical Health Research',
-            created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString()
-          },
-          {
-            id: 'ld-1003-c',
-            brand_id: 'b3',
-            brand_name: 'ReliefOlogist',
-            full_name: 'Brandon Vance',
-            email: 'bvance@outlook.com',
-            phone: '(555) 345-6789',
-            zip_code: '75001',
-            form_answers: { pain_area: 'Back/Spine', severity: 'Severe (7-10)' },
-            subid_params: { utm_source: 'tiktok', campaign: 'pain_relief' },
-            status: 'verified',
-            is_duplicate: false,
-            score: 78,
-            trustedform_cert_url: 'https://cert.trustedform.com/7712z',
-            dnc_flagged: false,
-            sold: false,
-            created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString()
-          },
-          {
-            id: 'ld-1004-d',
-            brand_id: 'b1',
-            brand_name: 'WindowHound',
-            full_name: 'Elena Rostova',
-            email: 'elena@gmail.com',
-            phone: '(555) 456-7890',
-            zip_code: '60601',
-            form_answers: { window_count: '10+ Windows' },
-            subid_params: { utm_source: 'bing_cpc' },
-            status: 'duplicate',
-            is_duplicate: true,
-            score: 42,
-            dnc_flagged: false,
-            sold: false,
-            created_at: new Date(Date.now() - 1000 * 60 * 150).toISOString()
-          },
-          {
-            id: 'ld-1005-e',
-            brand_id: 'b2',
-            brand_name: 'MedTrialMatch',
-            full_name: 'George Washington',
-            email: 'gwash@mtvernon.org',
-            phone: '(555) 567-8901',
-            zip_code: '22121',
-            form_answers: { condition: 'Migraine' },
-            subid_params: { utm_source: 'google_search' },
-            status: 'rejected',
-            is_duplicate: false,
-            score: 25,
-            dnc_flagged: true,
-            sold: false,
-            created_at: new Date(Date.now() - 1000 * 60 * 240).toISOString()
-          }
-        ]);
+        setLeads([]);
       }
     } catch (err) {
       console.error('Leads fetch error:', err);
+      setLeads([]);
     } finally {
       setLoading(false);
     }
@@ -202,9 +112,9 @@ export default function LeadsPage() {
             className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer transition-colors"
           >
             <option value="all">All Brands</option>
-            <option value="WindowHound">WindowHound</option>
-            <option value="MedTrialMatch">MedTrialMatch</option>
-            <option value="ReliefOlogist">ReliefOlogist</option>
+            {Array.from(new Set(leads.map((l) => l.brand_name).filter(Boolean))).map((bName) => (
+              <option key={bName} value={bName}>{bName}</option>
+            ))}
           </select>
 
           <select

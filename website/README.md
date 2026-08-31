@@ -48,12 +48,9 @@ Open [http://localhost:3000](http://localhost:3000) in your web browser to view 
 
 ---
 
-## Testing Different Brands Locally
+## Testing Configured Brands Locally
 
-You can preview different brand themes and landing pages by adding the `?brand=` query parameter in your browser:
-- **WindowHound**: [http://localhost:3000/?brand=windowhound](http://localhost:3000/?brand=windowhound)
-- **MedTrialMatch**: [http://localhost:3000/?brand=medtrialmatch](http://localhost:3000/?brand=medtrialmatch)
-- **ReliefOlogist**: [http://localhost:3000/?brand=reliefologist](http://localhost:3000/?brand=reliefologist)
+You can preview configured brands and test themes locally by using the Dev Brand Switcher at the top of the page, or by adding the `?brand=<slug>` query parameter in your browser (e.g. `http://localhost:3000/?brand=footballnig`).
 
 ---
 

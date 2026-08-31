@@ -18,13 +18,11 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
   onAddDomain,
   availableBrands
 }) => {
-  const brandList = availableBrands && availableBrands.length > 0
-    ? availableBrands
-    : MOCK_BRANDS.map((b) => ({ id: b.id, name: b.name, vertical: b.vertical }));
+  const brandList = availableBrands || [];
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [domainInput, setDomainInput] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState(brandList[0] || { id: 'b1', name: 'WindowHound' });
+  const [selectedBrand, setSelectedBrand] = useState(brandList[0] || { id: '', name: 'Select Brand' });
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
 
@@ -119,7 +117,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                     type="text"
                     value={domainInput}
                     onChange={(e) => setDomainInput(e.target.value)}
-                    placeholder="e.g. quote.windowhound.com"
+                    placeholder="e.g. quote.yourbrand.com"
                     className="w-full pl-10 pr-4 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl font-mono text-sm outline-none text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
@@ -240,7 +238,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                   Domain Successfully Connected!
                 </h4>
                 <p className="text-xs text-muted-foreground font-mono mt-1">
-                  {domainInput || 'quote.windowhound.com'} → {selectedBrand.name}
+                  {domainInput || 'quote.yourbrand.com'} → {selectedBrand.name}
                 </p>
               </div>
 

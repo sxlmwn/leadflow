@@ -6,7 +6,6 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { BrandEditor } from '@/components/brands/BrandEditor';
 import { supabase } from '@/lib/supabase';
 import { Brand } from '@/types';
-import { MOCK_BRANDS } from '@/lib/data';
 
 export default function BrandEditRoute({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -28,10 +27,7 @@ export default function BrandEditRoute({ params }: { params: Promise<{ id: strin
         if (data) {
           setBrand(data as unknown as Brand);
         } else {
-          const found = MOCK_BRANDS.find((b) => b.id === brandId || b.slug === brandId);
-          if (found) {
-            setBrand(found as unknown as Brand);
-          }
+          setBrand(null);
         }
       } catch (err) {
         console.error('Failed to load brand:', err);

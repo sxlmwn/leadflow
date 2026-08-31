@@ -10,18 +10,12 @@ interface BrandOption {
   color: string;
 }
 
-const DEFAULT_BRANDS: BrandOption[] = [
-  { slug: 'windowhound', name: 'WindowHound', color: '#2563eb' },
-  { slug: 'medtrialmatch', name: 'MedTrialMatch', color: '#0d9488' },
-  { slug: 'reliefologist', name: 'ReliefOlogist', color: '#16a34a' },
-];
-
 export default function DevBrandSwitcher({ currentSlug }: { currentSlug?: string }) {
   if (process.env.NODE_ENV === 'production') return null;
 
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [brands, setBrands] = useState<BrandOption[]>(DEFAULT_BRANDS);
+  const [brands, setBrands] = useState<BrandOption[]>([]);
 
   useEffect(() => {
     async function fetchActiveBrands() {

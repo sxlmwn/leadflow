@@ -62,7 +62,7 @@ export default function DashboardPage() {
       if (leadsData && leadsData.length > 0) {
         const formatted: AdminLead[] = leadsData.map((l: any) => ({
           ...l,
-          brand_name: l.brands?.name || 'WindowHound'
+          brand_name: l.brands?.name || 'Unassigned'
         }));
         setRecentLeads(formatted);
 
@@ -73,102 +73,27 @@ export default function DashboardPage() {
         const avgS = Math.round((scores.reduce((a: number, b: number) => a + b, 0) / (scores.length || 1)) * 10) / 10;
 
         setStats({
-          totalLeadsToday: total > 5 ? total * 14 : 142,
-          soldPercent: Math.round((sold / (total || 1)) * 100) || 78.4,
+          totalLeadsToday: total,
+          soldPercent: Math.round((sold / (total || 1)) * 100) || 0,
           estRevenue: revenueSum,
-          activeBrands: brandCount || 3,
-          avgScore: avgS || 84.2,
-          dncFlaggedCount: dnc || 4
+          activeBrands: brandCount || 0,
+          avgScore: avgS || 0,
+          dncFlaggedCount: dnc || 0
         });
       } else {
-        setRecentLeads([
-          {
-            id: 'ld-89101',
-            brand_id: 'b1',
-            brand_name: 'WindowHound',
-            full_name: 'Robert Miller',
-            email: 'r.miller@gmail.com',
-            phone: '(555) 234-5678',
-            zip_code: '90210',
-            form_answers: { window_count: '4-9 Windows' },
-            subid_params: { utm_source: 'google_search' },
-            status: 'sold',
-            is_duplicate: false,
-            score: 92,
-            sold: true,
-            sold_to_buyer_name: 'Apex Home Services',
-            created_at: new Date(Date.now() - 1000 * 60 * 12).toISOString()
-          },
-          {
-            id: 'ld-89102',
-            brand_id: 'b2',
-            brand_name: 'MedTrialMatch',
-            full_name: 'Sarah Jenkins',
-            email: 's.jenkins@yahoo.com',
-            phone: '(555) 876-5432',
-            zip_code: '30301',
-            form_answers: { condition: 'Asthma' },
-            subid_params: { utm_source: 'fb_ads' },
-            status: 'sold',
-            is_duplicate: false,
-            score: 88,
-            sold: true,
-            sold_to_buyer_name: 'Clinical Health Research',
-            created_at: new Date(Date.now() - 1000 * 60 * 35).toISOString()
-          },
-          {
-            id: 'ld-89103',
-            brand_id: 'b3',
-            brand_name: 'ReliefOlogist',
-            full_name: 'David Vance',
-            email: 'd.vance@outlook.com',
-            phone: '(555) 345-6789',
-            zip_code: '75001',
-            form_answers: { pain_area: 'Back/Spine' },
-            subid_params: { utm_source: 'tiktok' },
-            status: 'verified',
-            is_duplicate: false,
-            score: 79,
-            sold: false,
-            created_at: new Date(Date.now() - 1000 * 60 * 58).toISOString()
-          },
-          {
-            id: 'ld-89104',
-            brand_id: 'b1',
-            brand_name: 'WindowHound',
-            full_name: 'Karen Davis',
-            email: 'kdavis@gmail.com',
-            phone: '(555) 456-7890',
-            zip_code: '60601',
-            form_answers: { window_count: '10+ Windows' },
-            subid_params: { utm_source: 'bing_cpc' },
-            status: 'duplicate',
-            is_duplicate: true,
-            score: 45,
-            sold: false,
-            created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString()
-          },
-          {
-            id: 'ld-89105',
-            brand_id: 'b2',
-            brand_name: 'MedTrialMatch',
-            full_name: 'Michael Scott',
-            email: 'mscott@dundermifflin.com',
-            phone: '(555) 567-8901',
-            zip_code: '18503',
-            form_answers: { condition: 'Migraine' },
-            subid_params: { utm_source: 'google_search' },
-            status: 'rejected',
-            is_duplicate: false,
-            dnc_flagged: true,
-            score: 30,
-            sold: false,
-            created_at: new Date(Date.now() - 1000 * 60 * 140).toISOString()
-          }
-        ]);
+        setRecentLeads([]);
+        setStats({
+          totalLeadsToday: 0,
+          soldPercent: 0,
+          estRevenue: revenueSum,
+          activeBrands: brandCount || 0,
+          avgScore: 0,
+          dncFlaggedCount: 0
+        });
       }
     } catch (err) {
       console.error("Dashboard load error:", err);
+      setRecentLeads([]);
     } finally {
       setLoading(false);
     }
