@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { MoreHorizontal, ArrowRight } from 'lucide-react';
 import {
   AreaChart,
   Area,
@@ -10,7 +10,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  CartesianGrid
+  CartesianGrid,
 } from 'recharts';
 
 interface WavyAreaChartProps {
@@ -20,165 +20,216 @@ interface WavyAreaChartProps {
   reportHref?: string;
 }
 
+// Smooth multi-peak dataset matching the flowing waves in 2.jpg
 const MONTHLY_DATA = [
-  { name: 'Jan', organic: 140, paid: 280, direct: 90 },
-  { name: 'Feb', organic: 190, paid: 320, direct: 130 },
-  { name: 'Mar', organic: 170, paid: 310, direct: 110 },
-  { name: 'Apr', organic: 240, paid: 420, direct: 180 },
-  { name: 'May', organic: 210, paid: 390, direct: 150 },
-  { name: 'Jun', organic: 340, paid: 560, direct: 260 },
-  { name: 'Jul', organic: 290, paid: 480, direct: 220 },
-  { name: 'Aug', organic: 380, paid: 640, direct: 310 },
-  { name: 'Sep', organic: 310, paid: 530, direct: 250 },
-  { name: 'Oct', organic: 420, paid: 680, direct: 340 },
-  { name: 'Nov', organic: 360, paid: 590, direct: 290 },
-  { name: 'Dec', organic: 450, paid: 730, direct: 380 },
+  { name: 'Jan, 18', direct: 180, links: 120, search: 90 },
+  { name: 'Feb, 18', direct: 260, links: 220, search: 160 },
+  { name: 'Mar, 18', direct: 210, links: 180, search: 140 },
+  { name: 'Apr, 18', direct: 290, links: 270, search: 190 },
+  { name: 'May, 18', direct: 360, links: 310, search: 220 },
+  { name: 'Jun, 18', direct: 420, links: 370, search: 280 },
+  { name: 'Jul, 18', direct: 330, links: 280, search: 210 },
+  { name: 'Aug, 18', direct: 480, links: 390, search: 310 },
+  { name: 'Sep, 18', direct: 410, links: 340, search: 260 },
+  { name: 'Oct, 18', direct: 520, links: 430, search: 350 },
+  { name: 'Nov, 18', direct: 460, links: 380, search: 290 },
+  { name: 'Dec, 18', direct: 580, links: 490, search: 390 },
 ];
 
-const DAILY_DATA = [
-  { name: 'Mon', organic: 35, paid: 65, direct: 20 },
-  { name: 'Tue', organic: 42, paid: 80, direct: 28 },
-  { name: 'Wed', organic: 50, paid: 95, direct: 34 },
-  { name: 'Thu', organic: 48, paid: 90, direct: 30 },
-  { name: 'Fri', organic: 62, paid: 110, direct: 42 },
-  { name: 'Sat', organic: 28, paid: 45, direct: 18 },
-  { name: 'Sun', organic: 20, paid: 35, direct: 12 },
+const WEEKLY_DATA = [
+  { name: 'Mon', direct: 70, links: 50, search: 35 },
+  { name: 'Tue', direct: 110, links: 85, search: 60 },
+  { name: 'Wed', direct: 95, links: 75, search: 50 },
+  { name: 'Thu', direct: 140, links: 110, search: 80 },
+  { name: 'Fri', direct: 160, links: 130, search: 95 },
+  { name: 'Sat', direct: 85, links: 65, search: 45 },
+  { name: 'Sun', direct: 60, links: 45, search: 30 },
 ];
 
 const YEARLY_DATA = [
-  { name: '2023', organic: 2200, paid: 4100, direct: 1600 },
-  { name: '2024', organic: 3100, paid: 5800, direct: 2400 },
-  { name: '2025', organic: 4400, paid: 7900, direct: 3300 },
-  { name: '2026', organic: 5800, paid: 9600, direct: 4200 },
+  { name: '2023', direct: 2800, links: 2100, search: 1500 },
+  { name: '2024', direct: 4200, links: 3300, search: 2400 },
+  { name: '2025', direct: 6100, links: 4900, search: 3600 },
+  { name: '2026', direct: 8400, links: 6800, search: 5100 },
 ];
 
 export const WavyAreaChart: React.FC<WavyAreaChartProps> = ({
-  title = "Lead Volume Over Time",
-  subtitle = "Lead acquisition channels across paid, organic & direct traffic",
-  height = 240,
+  title = "New visitors",
+  subtitle = "Lead volume & acquisition channels over time",
+  height = 250,
   reportHref = "/leads"
 }) => {
-  const [timeframe, setTimeframe] = useState<'Day' | 'Month' | 'Year'>('Month');
+  const [timeframe, setTimeframe] = useState<'Week' | 'Month' | 'Year'>('Month');
 
   const chartData =
-    timeframe === 'Day'
-      ? DAILY_DATA
+    timeframe === 'Week'
+      ? WEEKLY_DATA
       : timeframe === 'Year'
       ? YEARLY_DATA
       : MONTHLY_DATA;
 
   return (
-    <div className="admin-card p-4 sm:p-5 flex flex-col justify-between h-full group transform-gpu">
-      {/* Top Header Row with Legend at Top-Right */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3">
+    <div className="admin-card p-4 sm:p-6 flex flex-col justify-between h-full group shadow-xs">
+      {/* Top Header Row matching 2.jpg: Title (Left) + Timeframe Pills + More Menu (Right) */}
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">{title}</h3>
-          <p className="text-[11px] text-muted-foreground font-medium">{subtitle}</p>
+          {subtitle && <p className="text-[11px] text-muted-foreground font-medium">{subtitle}</p>}
         </div>
-        <div className="flex items-center gap-3 text-[11px]">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-500 shadow-2xs"></span>
-            <span className="text-foreground font-semibold">Paid Traffic</span>
+
+        <div className="flex items-center gap-3">
+          {/* Timeframe Toggle Pills (2.jpg style) */}
+          <div className="flex items-center gap-1 bg-secondary/80 p-0.5 rounded-xl border border-border/70">
+            {(['Week', 'Month', 'Year'] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTimeframe(t)}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer ${
+                  timeframe === t
+                    ? 'bg-card text-foreground shadow-2xs border border-border/80'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400 shadow-2xs"></span>
-            <span className="text-foreground font-semibold">Organic</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-sky-500 dark:bg-sky-400 shadow-2xs"></span>
-            <span className="text-foreground font-semibold">Direct</span>
-          </div>
+
+          <button
+            type="button"
+            className="w-7 h-7 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary flex items-center justify-center transition-colors cursor-pointer"
+            title="More options"
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {/* Recharts Area Chart */}
-      <div style={{ width: '100%', height }}>
+      {/* Recharts Flowing Organic Wave Area Chart (matching 2.jpg) */}
+      <div style={{ width: '100%', height }} className="my-1">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -24, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 12, right: 10, left: -20, bottom: 0 }}>
             <defs>
-              <linearGradient id="colorPaid" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#2563eb" stopOpacity={0.01} />
+              {/* Layer 1 Gradient: Deep Blue Wave */}
+              <linearGradient id="wavePaid" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#2563eb" stopOpacity={0.45} />
+                <stop offset="50%" stopColor="#3b82f6" stopOpacity={0.2} />
+                <stop offset="100%" stopColor="#2563eb" stopOpacity={0.01} />
               </linearGradient>
-              <linearGradient id="colorOrganic" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#0d9488" stopOpacity={0.01} />
+
+              {/* Layer 2 Gradient: Sky/Cyan Wave */}
+              <linearGradient id="waveOrganic" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.38} />
+                <stop offset="50%" stopColor="#38bdf8" stopOpacity={0.15} />
+                <stop offset="100%" stopColor="#0ea5e9" stopOpacity={0.01} />
               </linearGradient>
-              <linearGradient id="colorDirect" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0284c7" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#0284c7" stopOpacity={0.01} />
+
+              {/* Layer 3 Gradient: Indigo Wave */}
+              <linearGradient id="waveDirect" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
+                <stop offset="50%" stopColor="#818cf8" stopOpacity={0.1} />
+                <stop offset="100%" stopColor="#6366f1" stopOpacity={0.01} />
               </linearGradient>
             </defs>
 
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" className="dark:stroke-slate-800" />
+            {/* Soft, minimal gridlines (matching 2.jpg - no harsh dark grid) */}
+            <CartesianGrid
+              strokeDasharray="4 4"
+              vertical={false}
+              stroke="#e2e8f0"
+              className="dark:stroke-slate-800/60"
+            />
+
             <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#64748b', fontSize: 10 }}
+              tick={{ fill: '#64748b', fontSize: 10, fontWeight: 500 }}
+              dy={6}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#64748b', fontSize: 10 }}
+              tick={{ fill: '#64748b', fontSize: 10, fontWeight: 500 }}
+              dx={-4}
             />
+
             <Tooltip
-              contentStyle={{
-                backgroundColor: '#ffffff',
-                borderRadius: '12px',
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 14px -2px rgba(0, 0, 0, 0.08)',
-                color: '#0f172a',
-                fontSize: '11px',
-                fontWeight: 600
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="bg-card/95 backdrop-blur-md border border-border p-3 rounded-2xl shadow-xl text-xs space-y-1.5 min-w-[140px]">
+                      <p className="font-bold text-foreground pb-1 border-b border-border/60">{label}</p>
+                      <div className="flex items-center justify-between text-blue-600 dark:text-blue-400 font-medium">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-blue-600"></span> Direct login
+                        </span>
+                        <span className="font-bold">{payload[0]?.value}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sky-500 dark:text-sky-400 font-medium">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-sky-500"></span> Links to sites
+                        </span>
+                        <span className="font-bold">{payload[1]?.value}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-indigo-500 dark:text-indigo-400 font-medium">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-indigo-500"></span> Direct search
+                        </span>
+                        <span className="font-bold">{payload[2]?.value}</span>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
               }}
             />
 
+            {/* Smooth flowing organic overlapping wave areas with type="natural" */}
             <Area
-              type="monotone"
-              dataKey="paid"
+              type="natural"
+              dataKey="direct"
               stroke="#2563eb"
-              strokeWidth={2.2}
+              strokeWidth={2.5}
               fillOpacity={1}
-              fill="url(#colorPaid)"
+              fill="url(#wavePaid)"
             />
             <Area
-              type="monotone"
-              dataKey="organic"
-              stroke="#0d9488"
+              type="natural"
+              dataKey="links"
+              stroke="#0ea5e9"
+              strokeWidth={2}
+              fillOpacity={1}
+              fill="url(#waveOrganic)"
+            />
+            <Area
+              type="natural"
+              dataKey="search"
+              stroke="#6366f1"
               strokeWidth={1.8}
               fillOpacity={1}
-              fill="url(#colorOrganic)"
-            />
-            <Area
-              type="monotone"
-              dataKey="direct"
-              stroke="#0284c7"
-              strokeWidth={1.5}
-              fillOpacity={1}
-              fill="url(#colorDirect)"
+              fill="url(#waveDirect)"
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Bottom Footer Bar: Day/Month/Year Toggles (Left) + View Report Link (Right) */}
-      <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs">
-        <div className="flex items-center bg-secondary p-0.5 rounded-lg border border-border">
-          {(['Day', 'Month', 'Year'] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTimeframe(t)}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all duration-150 cursor-pointer ${
-                timeframe === t
-                  ? 'bg-card text-foreground shadow-2xs'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
+      {/* Bottom Minimal Colored Dot Legend matching 2.jpg */}
+      <div className="mt-3 pt-3 border-t border-border/70 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-4 text-[11px]">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-blue-600 shadow-2xs"></span>
+            <span className="text-muted-foreground font-semibold">Direct login</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-sky-500 shadow-2xs"></span>
+            <span className="text-muted-foreground font-semibold">Links to sites</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-2xs"></span>
+            <span className="text-muted-foreground font-semibold">Direct search</span>
+          </div>
         </div>
 
         <Link
@@ -192,3 +243,5 @@ export const WavyAreaChart: React.FC<WavyAreaChartProps> = ({
     </div>
   );
 };
+
+export default WavyAreaChart;
