@@ -1,8 +1,8 @@
-import Image from 'next/image';
 import { getCurrentBrand } from '@/lib/brand';
 import DevBrandSwitcher from '@/components/dev/dev-brand-switcher';
 import ClickTracker from '@/components/tracking/click-tracker';
 import DynamicForm, { FormSchema } from '@/components/forms/dynamic-form';
+import BrandLogo from '@/components/branding/brand-logo';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Disable static caching for dynamic multi-brand resolution
@@ -60,25 +60,11 @@ export default async function HomePage() {
       <header className="w-full relative z-20 pt-[max(env(safe-area-inset-top),0.5rem)] pb-1 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {theme_config.logo_url ? (
-              <div className="h-9 sm:h-11 px-2.5 py-1 rounded-xl bg-white/90 dark:bg-white/95 backdrop-blur-md border border-white/40 shadow-sm flex items-center justify-center">
-                <Image
-                  src={theme_config.logo_url}
-                  alt={`${brand.name} logo`}
-                  width={140}
-                  height={36}
-                  className="h-full w-auto max-h-7 sm:max-h-8 max-w-[120px] sm:max-w-[150px] object-contain"
-                  priority
-                />
-              </div>
-            ) : (
-              <div
-                className="px-3 py-1 rounded-xl text-white font-extrabold text-xs sm:text-sm shadow-md border border-white/20"
-                style={{ backgroundColor: theme_config.primary_color }}
-              >
-                {brand.name}
-              </div>
-            )}
+            <BrandLogo
+              logoUrl={theme_config.logo_url}
+              brandName={brand.name}
+              primaryColor={theme_config.primary_color}
+            />
           </div>
 
           <div className="flex items-center gap-2">
