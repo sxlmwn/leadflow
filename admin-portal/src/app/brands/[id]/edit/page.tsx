@@ -18,7 +18,7 @@ export default function BrandEditRoute({ params }: { params: Promise<{ id: strin
     async function loadBrand() {
       setLoading(true);
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('brands')
           .select('*')
           .or(`id.eq.${brandId},slug.eq.${brandId}`)

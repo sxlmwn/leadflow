@@ -6,21 +6,17 @@ import {
   Plus,
   Globe,
   Layers,
-  ArrowRight,
   RefreshCw,
   Edit2,
   Trash2,
   AlertTriangle,
   ExternalLink,
-  CheckCircle2,
-  XCircle,
   LayoutGrid,
   List
 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { supabase } from '@/lib/supabase';
 import { Brand } from '@/types';
-import { MOCK_BRANDS } from '@/lib/data';
 
 export default function BrandsPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -40,7 +36,7 @@ export default function BrandsPage() {
   const fetchBrands = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('brands')
         .select('*')
         .order('created_at', { ascending: false });

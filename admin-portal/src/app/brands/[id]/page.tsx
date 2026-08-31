@@ -18,7 +18,7 @@ export default function BrandEditPage({ params }: { params: Promise<{ id: string
     async function loadBrand() {
       setLoading(true);
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('brands')
           .select('*')
           .or(`id.eq.${brandId},slug.eq.${brandId}`)

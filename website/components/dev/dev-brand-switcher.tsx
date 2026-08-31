@@ -11,8 +11,6 @@ interface BrandOption {
 }
 
 export default function DevBrandSwitcher({ currentSlug }: { currentSlug?: string }) {
-  if (process.env.NODE_ENV === 'production') return null;
-
   const searchParams = useSearchParams();
   const router = useRouter();
   const [brands, setBrands] = useState<BrandOption[]>([]);
@@ -20,14 +18,14 @@ export default function DevBrandSwitcher({ currentSlug }: { currentSlug?: string
   useEffect(() => {
     async function fetchActiveBrands() {
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('brands')
           .select('slug, name, theme_config, is_active')
           .eq('is_active', true)
           .order('created_at', { ascending: true });
 
         if (data && data.length > 0) {
-          const dynamicBrands: BrandOption[] = data.map((b: any) => ({
+          const dynamicBrands: BrandOption[] = data.map((b: { slug: string; name: string; theme_config?: { primary_color?: string } }) => ({
             slug: b.slug,
             name: b.name,
             color: b.theme_config?.primary_color || '#2563eb',
@@ -41,6 +39,8 @@ export default function DevBrandSwitcher({ currentSlug }: { currentSlug?: string
 
     fetchActiveBrands();
   }, []);
+
+  if (process.env.NODE_ENV === 'production') return null;
 
   const switchBrand = (slug: string) => {
     const params = new URLSearchParams(searchParams.toString());

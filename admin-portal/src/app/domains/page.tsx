@@ -32,7 +32,7 @@ export default function DomainsPage() {
     setLoading(true);
     try {
       // Query brands from Supabase to derive active domain bindings
-      const { data: brandsData, error } = await supabase
+      const { data: brandsData } = await supabase
         .from('brands')
         .select('id, name, domain, vertical, created_at, is_active')
         .order('created_at', { ascending: false });

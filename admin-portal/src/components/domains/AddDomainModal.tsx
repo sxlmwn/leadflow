@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import { X, Globe, CheckCircle2, ArrowRight, Copy, Check, ShieldCheck, AlertCircle } from 'lucide-react';
 
-import { AdminBrand, MOCK_BRANDS } from '@/lib/data';
-
 interface AddDomainModalProps {
   isOpen: boolean;
   onClose: () => void;
