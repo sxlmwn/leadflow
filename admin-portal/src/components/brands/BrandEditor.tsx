@@ -1025,12 +1025,12 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-800">
                     <div className="flex items-center gap-2">
                       {themeConfig.logo_url ? (
-                        <div className="h-8 px-2 py-1 rounded-lg bg-white/90 dark:bg-white/95 backdrop-blur-sm border border-white/40 shadow-xs flex items-center justify-center">
+                        <div className="w-8 h-8 aspect-square p-1 rounded-xl bg-white/95 backdrop-blur-sm border border-white/80 shadow-xs flex items-center justify-center shrink-0 overflow-hidden">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={themeConfig.logo_url}
                             alt="Logo Preview"
-                            className="h-full w-auto max-h-6 max-w-[100px] object-contain"
+                            className="w-full h-full object-contain block"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                             }}
@@ -1038,10 +1038,10 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                         </div>
                       ) : (
                         <div
-                          className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shadow-2xs text-white"
+                          className="w-8 h-8 aspect-square rounded-xl flex items-center justify-center font-bold text-xs shadow-2xs text-white shrink-0"
                           style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
                         >
-                          {name ? name[0] : 'B'}
+                          {name ? name.slice(0, 2).toUpperCase() : 'LF'}
                         </div>
                       )}
                       <span className="font-bold text-sm tracking-tight">{name || 'Brand Name'}</span>
