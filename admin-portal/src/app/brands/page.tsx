@@ -15,6 +15,7 @@ import {
   List
 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
 import { supabase } from '@/lib/supabase';
 import { Brand } from '@/types';
 
@@ -291,16 +292,19 @@ export default function BrandsPage() {
 
       {/* Grid View */}
       {viewMode === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
+        <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
           {brands.map((brand) => {
             const primaryColor = brand.theme_config?.primary_color || '#2563eb';
             const totalQuestions = getQuestionCount(brand);
             const totalSteps = brand.form_schema?.steps?.length || 1;
 
             return (
-              <div
+              <SpotlightCard
                 key={brand.id}
-                className="admin-card p-6 flex flex-col justify-between group transform-gpu"
+                id={brand.id}
+                color={primaryColor}
+                tiltMax={6}
+                className="p-6 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
@@ -390,15 +394,15 @@ export default function BrandsPage() {
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
+              </SpotlightCard>
             );
           })}
-        </div>
+        </SpotlightCardGroup>
       )}
 
       {/* Table View */}
       {viewMode === 'table' && (
-        <div className="admin-card overflow-hidden transform-gpu">
+        <SpotlightCard color="#2563eb" tiltMax={2} className="p-0 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
@@ -482,7 +486,7 @@ export default function BrandsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </SpotlightCard>
       )}
 
       {/* DELETE CONFIRMATION DIALOG MODAL */}

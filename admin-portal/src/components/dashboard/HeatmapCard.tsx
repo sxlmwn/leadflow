@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 
 interface HeatmapCardProps {
   title?: string;
@@ -57,7 +58,11 @@ export const HeatmapCard: React.FC<HeatmapCardProps> = ({ title = "User by time 
   const [hoveredCell, setHoveredCell] = useState<{ day: string; hour: string; val: number } | null>(null);
 
   return (
-    <div className="admin-card p-4 sm:p-6 flex flex-col justify-between h-full group shadow-xs">
+    <SpotlightCard
+      color="#3b82f6"
+      tiltMax={4}
+      className="p-4 sm:p-6 flex flex-col justify-between h-full group"
+    >
       {/* Card Header matching 1.jpg */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -96,7 +101,7 @@ export const HeatmapCard: React.FC<HeatmapCardProps> = ({ title = "User by time 
                       onMouseEnter={() => setHoveredCell({ day, hour: HOURS[hIdx], val })}
                       onMouseLeave={() => setHoveredCell(null)}
                       title={`${day} @ ${HOURS[hIdx]}: ${val} leads`}
-                      className={`h-5 sm:h-5.5 rounded-[5px] border ${border} transition-all duration-150 transform-gpu hover:scale-110 hover:z-20 cursor-pointer ${bg}`}
+                      className={`h-5 sm:h-5.5 rounded-[5px] border ${border} transition-all duration-150 transform-gpu hover:scale-115 hover:z-20 cursor-pointer ${bg}`}
                     />
                   );
                 })}
@@ -127,7 +132,7 @@ export const HeatmapCard: React.FC<HeatmapCardProps> = ({ title = "User by time 
           <span className="text-foreground">800+</span>
         </div>
       </div>
-    </div>
+    </SpotlightCard>
   );
 };
 

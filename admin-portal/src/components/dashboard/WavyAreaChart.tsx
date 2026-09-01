@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 
 interface WavyAreaChartProps {
   title?: string;
@@ -20,7 +21,6 @@ interface WavyAreaChartProps {
   reportHref?: string;
 }
 
-// Smooth multi-peak dataset matching the flowing waves in 2.jpg
 const MONTHLY_DATA = [
   { name: 'Jan, 18', direct: 180, links: 120, search: 90 },
   { name: 'Feb, 18', direct: 260, links: 220, search: 160 },
@@ -69,7 +69,11 @@ export const WavyAreaChart: React.FC<WavyAreaChartProps> = ({
       : MONTHLY_DATA;
 
   return (
-    <div className="admin-card p-4 sm:p-6 flex flex-col justify-between h-full group shadow-xs">
+    <SpotlightCard
+      color="#2563eb"
+      tiltMax={4}
+      className="p-4 sm:p-6 flex flex-col justify-between h-full group"
+    >
       {/* Top Header Row matching 2.jpg: Title (Left) + Timeframe Pills + More Menu (Right) */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -133,7 +137,6 @@ export const WavyAreaChart: React.FC<WavyAreaChartProps> = ({
               </linearGradient>
             </defs>
 
-            {/* Soft, minimal gridlines (matching 2.jpg - no harsh dark grid) */}
             <CartesianGrid
               strokeDasharray="4 4"
               vertical={false}
@@ -186,7 +189,6 @@ export const WavyAreaChart: React.FC<WavyAreaChartProps> = ({
               }}
             />
 
-            {/* Smooth flowing organic overlapping wave areas with type="natural" */}
             <Area
               type="natural"
               dataKey="direct"
@@ -240,7 +242,7 @@ export const WavyAreaChart: React.FC<WavyAreaChartProps> = ({
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
-    </div>
+    </SpotlightCard>
   );
 };
 

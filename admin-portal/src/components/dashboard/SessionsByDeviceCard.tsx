@@ -10,6 +10,7 @@ import {
   RadialBarChart,
 } from 'recharts';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 
 interface SessionsByDeviceCardProps {
   title?: string;
@@ -65,7 +66,11 @@ export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
   ];
 
   return (
-    <div className="admin-card p-4 sm:p-6 flex flex-col justify-between h-full group shadow-xs">
+    <SpotlightCard
+      color="#0ea5e9"
+      tiltMax={5}
+      className="p-4 sm:p-6 flex flex-col justify-between h-full group"
+    >
       {/* Card Header matching 1.jpg */}
       <div className="flex items-center justify-between mb-1">
         <div>
@@ -173,7 +178,7 @@ export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
           );
         })}
       </div>
-    </div>
+    </SpotlightCard>
   );
 };
 

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AddEditBuyerModal } from '@/components/buyers/AddEditBuyerModal';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 import { supabase } from '@/lib/supabase';
 import { AdminBuyer } from '@/lib/data';
 
@@ -166,7 +167,7 @@ export default function BuyersPage() {
       </div>
 
       {/* Main Buyer Endpoints Table */}
-      <div className="admin-card overflow-hidden transform-gpu">
+      <SpotlightCard color="#2563eb" tiltMax={2} className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
@@ -272,7 +273,7 @@ export default function BuyersPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </SpotlightCard>
 
       <AddEditBuyerModal
         buyer={editingBuyer}

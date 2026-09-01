@@ -12,6 +12,7 @@ import {
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { WavyAreaChart } from '@/components/dashboard/WavyAreaChart';
+import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
 import { supabase } from '@/lib/supabase';
 import { AdminBuyer, AdminDelivery } from '@/lib/data';
 
@@ -118,16 +119,19 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {/* Computed Performance Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
+          id="accept-rate"
           title="Accept Rate"
           value={`${metrics.acceptRate}%`}
           change="+2.1%"
           isPositive={true}
           icon={CheckCircle}
+          color="#10b981"
           subtitle="successful API ping responses"
         />
         <StatCard
+          id="avg-response"
           title="Avg Response Time"
           value={`${metrics.avgResponseMs} ms`}
           change="-12ms"
@@ -135,17 +139,21 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
           icon={Clock}
           iconBgColor="bg-teal-50 dark:bg-teal-950/50"
           iconColor="text-teal-600 dark:text-teal-400"
+          color="#0d9488"
           subtitle="webhook roundtrip latency"
         />
         <StatCard
+          id="leads-bought"
           title="Leads Purchased"
           value={metrics.totalLeadsBought.toLocaleString()}
           change="+18.4%"
           isPositive={true}
           icon={Send}
+          color="#2563eb"
           subtitle="accepted leads delivered"
         />
         <StatCard
+          id="postback-rate"
           title="Postback Conv. Rate"
           value={`${metrics.conversionRate}%`}
           change="+1.8%"
@@ -153,9 +161,10 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
           icon={TrendingUp}
           iconBgColor="bg-emerald-50 dark:bg-emerald-950/50"
           iconColor="text-emerald-600 dark:text-emerald-400"
+          color="#059669"
           subtitle="downstream conversion postbacks"
         />
-      </div>
+      </SpotlightCardGroup>
 
       {/* Delivery Performance Chart */}
       <WavyAreaChart
@@ -165,9 +174,9 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
       />
 
       {/* Buyer Delivery History Table */}
-      <div className="admin-card p-6 transform-gpu">
+      <SpotlightCard color="#2563eb" tiltMax={2} className="p-6">
         <h3 className="text-base font-bold text-foreground font-heading mb-4">
-          Buyer Delivery & Postback Audit Log
+          Buyer Delivery &amp; Postback Audit Log
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -221,7 +230,7 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
             </tbody>
           </table>
         </div>
-      </div>
+      </SpotlightCard>
     </AdminLayout>
   );
 }

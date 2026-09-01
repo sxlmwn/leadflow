@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 
 interface StatCardProps {
+  id?: string;
   title: string;
   value: string | number;
   change?: string;
@@ -12,10 +14,12 @@ interface StatCardProps {
   subtitle?: string;
   iconBgColor?: string;
   iconColor?: string;
+  color?: string;
   compact?: boolean;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
+  id,
   title,
   value,
   change,
@@ -24,10 +28,15 @@ export const StatCard: React.FC<StatCardProps> = ({
   subtitle = 'from last week',
   iconBgColor = 'bg-blue-50 dark:bg-blue-950/60',
   iconColor = 'text-blue-600 dark:text-blue-400',
-  compact = true
+  color = '#2563eb',
 }) => {
   return (
-    <div className="admin-card p-4 sm:p-4.5 flex flex-col justify-between h-full group transform-gpu transition-all duration-200 hover:-translate-y-0.5">
+    <SpotlightCard
+      id={id || title}
+      color={color}
+      tiltMax={7}
+      className="p-4 sm:p-5 flex flex-col justify-between h-full group"
+    >
       {/* Top: Circular Icon Badge + Caption Label */}
       <div className="flex items-center gap-2 mb-1.5">
         <div
@@ -69,6 +78,8 @@ export const StatCard: React.FC<StatCardProps> = ({
           {subtitle}
         </span>
       </div>
-    </div>
+    </SpotlightCard>
   );
 };
+
+export default StatCard;

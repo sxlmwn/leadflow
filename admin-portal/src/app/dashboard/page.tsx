@@ -15,6 +15,7 @@ import { HeatmapCard } from '@/components/dashboard/HeatmapCard';
 import { WavyAreaChart } from '@/components/dashboard/WavyAreaChart';
 import { SessionsByDeviceCard } from '@/components/dashboard/SessionsByDeviceCard';
 import { CircularProgressRing } from '@/components/ui/circular-progress-ring';
+import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
 import { supabase } from '@/lib/supabase';
 import { AdminLead } from '@/lib/data';
 
@@ -121,11 +122,8 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* ROW 1 (Layout matching 1.jpg Gotics Top Row): 
-          Left: 2x2 Compact Stat Cards Grid (~42%) 
-          Right: GitHub-Style User by Time of Day Heatmap (~58%) 
-      */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+      {/* ROW 1: 2x2 Compact Stat Cards Grid + GitHub Heatmap */}
+      <SpotlightCardGroup className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         <div className="lg:col-span-5 xl:col-span-5 flex flex-col">
           <StatGridCard stats={stats} />
         </div>
@@ -133,13 +131,10 @@ export default function DashboardPage() {
         <div className="lg:col-span-7 xl:col-span-7 flex flex-col">
           <HeatmapCard title="User by time of day" />
         </div>
-      </div>
+      </SpotlightCardGroup>
 
-      {/* ROW 2 (Layout matching 1.jpg Gotics Bottom Row + 2.jpg Wave Area Chart):
-          Left: Smooth Flowing Multi-Layer Wave Chart (~67%)
-          Right: Sessions by Device Circular Ring Card (~33%)
-      */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+      {/* ROW 2: Wave Chart + Sessions by Device */}
+      <SpotlightCardGroup className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         <div className="lg:col-span-8 xl:col-span-8 flex flex-col">
           <WavyAreaChart
             title="New visitors"
@@ -155,190 +150,199 @@ export default function DashboardPage() {
             totalVisitors="10,739"
           />
         </div>
-      </div>
+      </SpotlightCardGroup>
 
-      {/* ROW 3: Recent Incoming Leads Live Table (Left) + Quality Compliance Guardrails (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+      {/* ROW 3: Recent Incoming Leads Table + Quality Compliance Guardrails */}
+      <SpotlightCardGroup className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         {/* Left: Recent Incoming Leads Table */}
-        <div className="lg:col-span-8 xl:col-span-8 admin-card p-4 sm:p-6 flex flex-col justify-between shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
-                Recent Incoming Leads
-              </h3>
-              <p className="text-[11px] text-muted-foreground font-medium">
-                Latest submissions across active brand funnels
-              </p>
+        <div className="lg:col-span-8 xl:col-span-8 flex flex-col">
+          <SpotlightCard
+            color="#2563eb"
+            tiltMax={3}
+            className="p-4 sm:p-6 flex flex-col justify-between h-full group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
+                  Recent Incoming Leads
+                </h3>
+                <p className="text-[11px] text-muted-foreground font-medium">
+                  Latest submissions across active brand funnels
+                </p>
+              </div>
+              <Link
+                href="/leads"
+                className="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 px-3 py-1.5 rounded-xl border border-blue-100 dark:border-blue-900 transition-colors"
+              >
+                <span>View All Leads</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
-            <Link
-              href="/leads"
-              className="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 px-3 py-1.5 rounded-xl border border-blue-100 dark:border-blue-900 transition-colors"
-            >
-              <span>View All Leads</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
 
-          <div className="overflow-x-auto my-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                  <th className="py-2.5 px-3">Lead ID</th>
-                  <th className="py-2.5 px-3">Brand</th>
-                  <th className="py-2.5 px-3">Contact</th>
-                  <th className="py-2.5 px-3">Score</th>
-                  <th className="py-2.5 px-3">Status</th>
-                  <th className="py-2.5 px-3">Buyer Sold</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border font-medium">
-                {recentLeads.length > 0 ? (
-                  recentLeads.map((lead) => (
-                    <tr
-                      key={lead.id}
-                      className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
-                    >
-                      <td className="py-2.5 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">
-                        {lead.id.substring(0, 8)}
-                      </td>
-                      <td className="py-2.5 px-3 text-foreground font-semibold">
-                        {lead.brand_name}
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <div className="flex flex-col">
-                          <span className="text-foreground font-bold">{lead.full_name}</span>
-                          <span className="text-[10px] text-muted-foreground">{lead.email}</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            (lead.score || 0) >= 80
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                              : (lead.score || 0) >= 50
-                              ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-                              : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-                          }`}
-                        >
-                          {lead.score || 85}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            lead.status === 'sold'
-                              ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                              : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          }`}
-                        >
-                          {lead.status || 'verified'}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 text-muted-foreground text-xs">
-                        {lead.sold_to_buyer_name || 'Buyer Assigned'}
+            <div className="overflow-x-auto my-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    <th className="py-2.5 px-3">Lead ID</th>
+                    <th className="py-2.5 px-3">Brand</th>
+                    <th className="py-2.5 px-3">Contact</th>
+                    <th className="py-2.5 px-3">Score</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3">Buyer Sold</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border font-medium">
+                  {recentLeads.length > 0 ? (
+                    recentLeads.map((lead) => (
+                      <tr
+                        key={lead.id}
+                        className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
+                      >
+                        <td className="py-2.5 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">
+                          {lead.id.substring(0, 8)}
+                        </td>
+                        <td className="py-2.5 px-3 text-foreground font-semibold">
+                          {lead.brand_name}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <div className="flex flex-col">
+                            <span className="text-foreground font-bold">{lead.full_name}</span>
+                            <span className="text-[10px] text-muted-foreground">{lead.email}</span>
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              (lead.score || 0) >= 80
+                                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                : (lead.score || 0) >= 50
+                                ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                                : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                            }`}
+                          >
+                            {lead.score || 85}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                              lead.status === 'sold'
+                                ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                                : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            }`}
+                          >
+                            {lead.status || 'verified'}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-muted-foreground text-xs">
+                          {lead.sold_to_buyer_name || 'Buyer Assigned'}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="py-6 text-center text-muted-foreground text-xs">
+                        No recent leads recorded yet. New leads from brand funnels will stream here live.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="py-6 text-center text-muted-foreground text-xs">
-                      No recent leads recorded yet. New leads from brand funnels will stream here live.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </SpotlightCard>
         </div>
 
-        {/* Right: Quality & Compliance Guardrails with Mini Rings */}
-        <div className="lg:col-span-4 xl:col-span-4 admin-card p-4 sm:p-6 flex flex-col justify-between shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-border/70 pb-3">
+        {/* Right: Quality & Compliance Guardrails */}
+        <div className="lg:col-span-4 xl:col-span-4 flex flex-col">
+          <SpotlightCard
+            color="#10b981"
+            tiltMax={4}
+            className="p-4 sm:p-6 flex flex-col justify-between h-full group space-y-4"
+          >
+            <div className="flex items-center justify-between border-b border-border/70 pb-3">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
+                  Quality &amp; Compliance
+                </h3>
+                <p className="text-[11px] text-muted-foreground font-medium">TCPA, DNC &amp; Scoring Guardrails</p>
+              </div>
+              <span className="flex items-center gap-1 text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>Active</span>
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-2xl bg-secondary/60 border border-border">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                  <Award className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Avg Score</span>
+                </div>
+                <div className="text-xl font-extrabold text-foreground font-heading">
+                  {stats.avgScore} <span className="text-xs text-muted-foreground font-normal">/ 100</span>
+                </div>
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                  ↑ +2.4 from last week
+                </span>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-secondary/60 border border-border">
+                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">DNC Flagged</span>
+                </div>
+                <div className="text-xl font-extrabold text-foreground font-heading">
+                  {stats.dncFlaggedCount} <span className="text-xs text-muted-foreground font-normal">blocked</span>
+                </div>
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                  ↓ -1.2% this week
+                </span>
+              </div>
+            </div>
+
+            {/* Mini Verification Rings */}
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
-                Quality &amp; Compliance
-              </h3>
-              <p className="text-[11px] text-muted-foreground font-medium">TCPA, DNC &amp; Scoring Guardrails</p>
-            </div>
-            <span className="flex items-center gap-1 text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-              <CheckCircle2 className="w-3 h-3" />
-              <span>Active</span>
-            </span>
-          </div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                Verification Compliance Rate
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-card/80 border border-border/80 shadow-2xs">
+                  <CircularProgressRing
+                    value={92}
+                    size={46}
+                    color="#059669"
+                    showShadow={false}
+                  />
+                  <span className="text-[11px] font-bold text-foreground mt-1.5">TCPA</span>
+                  <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">92%</span>
+                </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-2xl bg-secondary/60 border border-border">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
-                <Award className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">Avg Score</span>
-              </div>
-              <div className="text-xl font-extrabold text-foreground font-heading">
-                {stats.avgScore} <span className="text-xs text-muted-foreground font-normal">/ 100</span>
-              </div>
-              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
-                ↑ +2.4 from last week
-              </span>
-            </div>
+                <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-card/80 border border-border/80 shadow-2xs">
+                  <CircularProgressRing
+                    value={80}
+                    size={46}
+                    color="#2563eb"
+                    showShadow={false}
+                  />
+                  <span className="text-[11px] font-bold text-foreground mt-1.5">DNC</span>
+                  <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">80%</span>
+                </div>
 
-            <div className="p-3 rounded-2xl bg-secondary/60 border border-border">
-              <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
-                <ShieldAlert className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">DNC Flagged</span>
-              </div>
-              <div className="text-xl font-extrabold text-foreground font-heading">
-                {stats.dncFlaggedCount} <span className="text-xs text-muted-foreground font-normal">blocked</span>
-              </div>
-              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
-                ↓ -1.2% this week
-              </span>
-            </div>
-          </div>
-
-          {/* Mini Verification Rings */}
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-              Verification Compliance Rate
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-card border border-border/80 shadow-2xs">
-                <CircularProgressRing
-                  value={92}
-                  size={46}
-                  strokeWidth={4.5}
-                  color={['#059669', '#34d399']}
-                  showShadow={false}
-                />
-                <span className="text-[11px] font-bold text-foreground mt-1.5">TCPA</span>
-                <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">92%</span>
-              </div>
-
-              <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-card border border-border/80 shadow-2xs">
-                <CircularProgressRing
-                  value={80}
-                  size={46}
-                  strokeWidth={4.5}
-                  color={['#2563eb', '#60a5fa']}
-                  showShadow={false}
-                />
-                <span className="text-[11px] font-bold text-foreground mt-1.5">DNC</span>
-                <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">80%</span>
-              </div>
-
-              <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-card border border-border/80 shadow-2xs">
-                <CircularProgressRing
-                  value={78}
-                  size={46}
-                  strokeWidth={4.5}
-                  color={['#0284c7', '#38bdf8']}
-                  showShadow={false}
-                />
-                <span className="text-[11px] font-bold text-foreground mt-1.5">Score 80+</span>
-                <span className="text-[10px] font-semibold text-sky-600 dark:text-sky-400">78%</span>
+                <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-card/80 border border-border/80 shadow-2xs">
+                  <CircularProgressRing
+                    value={78}
+                    size={46}
+                    color="#0284c7"
+                    showShadow={false}
+                  />
+                  <span className="text-[11px] font-bold text-foreground mt-1.5">Score 80+</span>
+                  <span className="text-[10px] font-semibold text-sky-600 dark:text-sky-400">78%</span>
+                </div>
               </div>
             </div>
-          </div>
+          </SpotlightCard>
         </div>
-      </div>
+      </SpotlightCardGroup>
     </AdminLayout>
   );
 }

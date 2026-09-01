@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { AdminLead, AdminDelivery } from '@/lib/data';
 import { CircularProgressRing } from '@/components/ui/circular-progress-ring';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 
 interface LeadDetailDrawerProps {
   lead: AdminLead | null;
@@ -85,7 +86,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
         {/* Drawer Body Sections */}
         <div className="p-6 space-y-6 flex-1">
           {/* 1. Contact Information Card */}
-          <div className="admin-card p-5">
+          <SpotlightCard color="#2563eb" tiltMax={3} className="p-5">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
               <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>Contact Information</span>
@@ -121,22 +122,21 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                 </span>
               </div>
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* 2. Verification & Compliance Audit Breakdown */}
-          <div className="admin-card p-5">
+          <SpotlightCard color="#10b981" tiltMax={3} className="p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>Verification & Compliance Audit</span>
+                <span>Verification &amp; Compliance Audit</span>
               </h3>
               <div className="flex items-center gap-2.5">
                 <CircularProgressRing
                   value={lead.score || 85}
                   size={46}
-                  strokeWidth={4.5}
                   displayValue={String(lead.score || 85)}
-                  color={(lead.score || 85) >= 80 ? ['#059669', '#34d399'] : (lead.score || 85) >= 50 ? ['#2563eb', '#60a5fa'] : ['#dc2626', '#f87171']}
+                  color={(lead.score || 85) >= 80 ? '#059669' : (lead.score || 85) >= 50 ? '#2563eb' : '#dc2626'}
                   showShadow={true}
                 />
                 <div>
@@ -215,10 +215,10 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                 })}
               </div>
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* 3. Form Answers */}
-          <div className="admin-card p-5">
+          <SpotlightCard color="#6366f1" tiltMax={3} className="p-5">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
               <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>Form Answers ({lead.brand_name})</span>
@@ -235,10 +235,10 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                 <p className="text-muted-foreground italic">No specific form answers captured</p>
               )}
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* 4. Delivery Attempts to Buyers */}
-          <div className="admin-card p-5">
+          <SpotlightCard color="#0ea5e9" tiltMax={3} className="p-5">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
               <Send className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>Buyer Delivery History</span>
@@ -290,7 +290,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                 )}
               </div>
             )}
-          </div>
+          </SpotlightCard>
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 import { supabase } from '@/lib/supabase';
 import { AdminDelivery } from '@/lib/data';
 
@@ -94,7 +95,12 @@ export default function DeliveriesPage() {
       </div>
 
       {/* Filter Bar in Animated Card */}
-      <div className="admin-card p-4 flex flex-wrap items-center justify-between gap-4 transform-gpu">
+      <SpotlightCard
+        color="#2563eb"
+        tiltMax={2}
+        enableShimmer={false}
+        className="p-4 flex flex-wrap items-center justify-between gap-4"
+      >
         <div className="flex flex-wrap items-center gap-3 flex-1">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground mr-2">
             <Filter className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -116,10 +122,10 @@ export default function DeliveriesPage() {
         <div className="text-xs font-semibold text-muted-foreground">
           Showing <span className="text-foreground font-bold">{filteredDeliveries.length}</span> log records
         </div>
-      </div>
+      </SpotlightCard>
 
       {/* Main Delivery Audit Table in Animated Card */}
-      <div className="admin-card overflow-hidden transform-gpu">
+      <SpotlightCard color="#3b82f6" tiltMax={2} className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
@@ -175,7 +181,7 @@ export default function DeliveriesPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </SpotlightCard>
     </AdminLayout>
   );
 }

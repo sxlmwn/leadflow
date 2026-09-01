@@ -2,14 +2,15 @@
 
 import React, { useEffect, useState } from 'react';
 import {
+  RefreshCw,
   Download,
+  SlidersHorizontal,
   ShieldCheck,
   ShieldAlert,
-  RefreshCw,
-  SlidersHorizontal
 } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { LeadDetailDrawer } from '@/components/leads/LeadDetailDrawer';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 import { supabase } from '@/lib/supabase';
 import { AdminLead } from '@/lib/data';
 
@@ -18,35 +19,33 @@ export default function LeadsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState<AdminLead | null>(null);
 
-  // Filters
-  const [searchQuery, setSearchQuery] = useState('');
-  const [brandFilter, setBrandFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [minScoreFilter, setMinScoreFilter] = useState('0');
+  // Filter States
+  const [brandFilter, setBrandFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [minScoreFilter, setMinScoreFilter] = useState<string>('0');
 
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('leads')
         .select(`
           *,
-          brands ( name, slug )
+          brands ( name )
         `)
         .order('created_at', { ascending: false });
 
-      if (data && data.length > 0) {
+      if (error) throw error;
+
+      if (data) {
         const formatted: AdminLead[] = data.map((l: any) => ({
           ...l,
-          brand_name: l.brands?.name || 'Unassigned'
+          brand_name: l.brands?.name || 'Unassigned',
         }));
         setLeads(formatted);
-      } else {
-        setLeads([]);
       }
     } catch (err) {
-      console.error('Leads fetch error:', err);
-      setLeads([]);
+      console.error('Error fetching leads:', err);
     } finally {
       setLoading(false);
     }
@@ -56,27 +55,20 @@ export default function LeadsPage() {
     fetchLeads();
   }, []);
 
-  const filteredLeads = leads.filter((lead) => {
-    const matchesSearch =
-      lead.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.brand_name?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesBrand = brandFilter === 'all' || lead.brand_name?.toLowerCase() === brandFilter.toLowerCase();
-    const matchesStatus = statusFilter === 'all' || lead.status.toLowerCase() === statusFilter.toLowerCase();
-    const matchesScore = (lead.score || 0) >= Number(minScoreFilter);
-
-    return matchesSearch && matchesBrand && matchesStatus && matchesScore;
+  const filteredLeads = leads.filter((l) => {
+    if (brandFilter !== 'all' && l.brand_name !== brandFilter) return false;
+    if (statusFilter !== 'all' && l.status !== statusFilter) return false;
+    if (minScoreFilter !== '0' && (l.score || 0) < Number(minScoreFilter)) return false;
+    return true;
   });
 
   return (
-    <AdminLayout title="Lead Management Audit" onSearchChange={setSearchQuery}>
-      {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <AdminLayout title="Leads">
+      {/* Top Action Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
-          <h2 className="text-2xl font-extrabold text-foreground tracking-tight font-heading">
-            All Inbound Leads
+          <h2 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight font-heading">
+            Lead Management &amp; Audit
           </h2>
           <p className="text-xs text-muted-foreground font-medium mt-0.5">
             Filter, inspect compliance certificates, and view buyer distribution logs
@@ -99,7 +91,12 @@ export default function LeadsPage() {
       </div>
 
       {/* Filter Control Bar */}
-      <div className="admin-card p-4 flex flex-wrap items-center justify-between gap-4 transform-gpu">
+      <SpotlightCard
+        color="#2563eb"
+        tiltMax={2}
+        enableShimmer={false}
+        className="p-4 flex flex-wrap items-center justify-between gap-4"
+      >
         <div className="flex flex-wrap items-center gap-3 flex-1">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground mr-2">
             <SlidersHorizontal className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -146,10 +143,14 @@ export default function LeadsPage() {
         <div className="text-xs font-semibold text-muted-foreground">
           Showing <span className="text-foreground font-bold">{filteredLeads.length}</span> of {leads.length} leads
         </div>
-      </div>
+      </SpotlightCard>
 
       {/* Main Filterable Data Table */}
-      <div className="admin-card overflow-hidden transform-gpu">
+      <SpotlightCard
+        color="#3b82f6"
+        tiltMax={2}
+        className="p-0 overflow-hidden"
+      >
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
@@ -245,7 +246,7 @@ export default function LeadsPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </SpotlightCard>
 
       {/* Row Click Detail Drawer */}
       <LeadDetailDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} />
