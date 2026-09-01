@@ -14,8 +14,8 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       type={type}
       data-slot="input"
       className={cn(
-        "flex h-10 w-full min-w-0 rounded-xl border bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 shadow-2xs transition-all duration-200 outline-none",
-        "focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
+        "flex h-10 w-full min-w-0 rounded-xl border bg-slate-50 dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-neutral-500 shadow-2xs transition-all duration-200 outline-none",
+        "focus:bg-white dark:focus:bg-black focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20",
         "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
@@ -66,14 +66,8 @@ export function AdminSignInCard() {
   return (
     <div className="min-h-screen w-screen bg-slate-50 dark:bg-black relative overflow-hidden flex items-center justify-center p-4">
       {/* Light & Clean Ambient Background with subtle blue gradients */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-100/60 via-slate-50 to-white dark:from-blue-950/40 dark:via-black dark:to-black" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120vh] h-[60vh] rounded-b-[50%] bg-blue-400/10 dark:bg-blue-400/15 blur-[90px]" />
-      <motion.div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[100vh] h-[50vh] rounded-b-full bg-blue-300/15 dark:bg-blue-300/15 blur-[70px]"
-        animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.98, 1.02, 0.98] }}
-        transition={{ duration: 8, repeat: Infinity, repeatType: "mirror" }}
-      />
-      <div className="absolute left-1/4 top-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-100/60 via-slate-50 to-white dark:hidden" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120vh] h-[60vh] rounded-b-[50%] bg-blue-400/10 dark:hidden blur-[90px]" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -87,7 +81,7 @@ export function AdminSignInCard() {
             {/* Subtle card glow border */}
             <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-blue-400/20 via-blue-500/30 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl p-7 border border-slate-200/90 dark:border-slate-800 shadow-xl overflow-hidden">
+            <div className="relative bg-white/95 dark:bg-[#0a0a0a] backdrop-blur-xl rounded-2xl p-7 border border-slate-200/90 dark:border-neutral-800 shadow-2xl overflow-hidden">
               <div className="text-center space-y-1 mb-6">
                 <motion.div
                   initial={{ scale: 0.6, opacity: 0 }}
@@ -144,11 +138,11 @@ export function AdminSignInCard() {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={() => setRememberMe(!rememberMe)}
-                      className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 accent-blue-600 cursor-pointer"
+                      className="h-4 w-4 rounded border-border dark:border-neutral-700 accent-blue-600 cursor-pointer"
                     />
                     Remember me
                   </label>
-                  <Link href="/login" className="text-xs text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  <Link href="/login" className="text-xs text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                     Forgot password?
                   </Link>
                 </div>
@@ -185,8 +179,8 @@ export function AdminSignInCard() {
                 </motion.button>
               </form>
 
-              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+              <div className="mt-6 pt-4 border-t border-border dark:border-neutral-800 text-center">
+                <p className="text-[11px] text-muted-foreground font-medium">
                   Protected with Supabase Authentication &amp; RBAC Policy
                 </p>
               </div>

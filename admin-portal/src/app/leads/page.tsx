@@ -470,7 +470,7 @@ export default function LeadsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3.5 px-4">Lead ID</th>
                 <th className="py-3.5 px-4">Brand</th>
                 <th className="py-3.5 px-4">Contact Info</th>
@@ -505,7 +505,7 @@ export default function LeadsPage() {
                   <tr
                     key={lead.id}
                     onClick={() => setSelectedLead(lead)}
-                    className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                    className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 cursor-pointer transition-colors group"
                   >
                     <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
                       {lead.id.substring(0, 8)}
@@ -539,7 +539,7 @@ export default function LeadsPage() {
                             ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                             : lead.status === 'duplicate'
                             ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                            : 'bg-secondary dark:bg-neutral-900 text-muted-foreground'
                         }`}
                       >
                         {lead.status}
@@ -548,7 +548,7 @@ export default function LeadsPage() {
                     <td className="py-3.5 px-4 text-muted-foreground font-mono text-[11px]">
                       {String(lead.subid_params?.utm_source || 'direct')}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-semibold">
+                    <td className="py-3.5 px-4 text-foreground font-semibold">
                       {lead.sold_to_buyer_name || (lead.sold ? 'Buyer Assigned' : 'Unsold')}
                     </td>
                     <td className="py-3.5 px-4">

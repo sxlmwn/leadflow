@@ -449,7 +449,7 @@ export default function BuyersPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4">Buyer Endpoint</th>
                 <th className="py-3.5 px-4">Payout / Model</th>
@@ -482,7 +482,7 @@ export default function BuyersPage() {
                   const minS = buyer.min_score ?? buyer.min_accept_score ?? 70;
 
                   return (
-                    <tr key={buyer.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr key={buyer.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors">
                       <td className="py-3.5 px-4">
                         <button
                           onClick={() => handleToggleActive(buyer.id, active)}

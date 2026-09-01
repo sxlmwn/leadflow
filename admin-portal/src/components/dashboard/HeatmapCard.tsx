@@ -26,7 +26,7 @@ const HEATMAP_DATA: number[][] = [
 function getCellShadeClass(val: number): { bg: string; border: string } {
   if (val < 50) {
     return {
-      bg: 'bg-slate-100/80 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700',
+      bg: 'bg-secondary/80 dark:bg-neutral-900/60 hover:bg-slate-200 dark:hover:bg-neutral-800',
       border: 'border-transparent',
     };
   }

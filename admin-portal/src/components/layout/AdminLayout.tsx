@@ -45,8 +45,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     <div className="min-h-screen flex bg-background text-foreground font-sans relative selection:bg-blue-500 selection:text-white transition-colors duration-200">
       {/* Background ambient lighting */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[100vw] h-[50vh] bg-blue-500/[0.03] dark:bg-blue-500/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-40 right-1/4 w-[50vw] h-[50vh] bg-blue-600/[0.02] dark:bg-blue-600/5 blur-[140px] rounded-full" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[100vw] h-[50vh] bg-blue-500/[0.02] dark:hidden blur-[120px] rounded-full" />
       </div>
 
       {/* Collapsible Left Sidebar */}

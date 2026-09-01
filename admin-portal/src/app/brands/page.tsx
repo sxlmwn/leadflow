@@ -606,7 +606,7 @@ export default function BrandsPage() {
                       href={`http://${brand.domain}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-2 rounded-xl bg-secondary hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-foreground border border-border transition-colors"
+                      className="p-2 rounded-xl bg-secondary hover:bg-slate-200 dark:hover:bg-neutral-800 text-muted-foreground hover:text-foreground border border-border transition-colors"
                       title="Visit Live Funnel Domain"
                     >
                       <ExternalLink className="w-4 h-4" />
@@ -633,7 +633,7 @@ export default function BrandsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                   <th className="py-3.5 px-4">Brand</th>
                   <th className="py-3.5 px-4">Slug / Domain</th>
                   <th className="py-3.5 px-4">Vertical</th>
@@ -660,7 +660,7 @@ export default function BrandsPage() {
                     const totalQuestions = getQuestionCount(brand);
 
                     return (
-                      <tr key={brand.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                      <tr key={brand.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors">
                         <td className="py-3.5 px-4 font-bold text-foreground">
                           <Link href={`/brands/${brand.id}/edit`} className="hover:text-blue-600 transition-colors font-heading text-sm">
                             {brand.name}

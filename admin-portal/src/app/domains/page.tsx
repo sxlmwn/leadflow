@@ -447,7 +447,7 @@ export default function DomainsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3.5 px-4">Domain Name</th>
                 <th className="py-3.5 px-4">Attached Brand</th>
                 <th className="py-3.5 px-4">Routing Status</th>
@@ -475,7 +475,7 @@ export default function DomainsPage() {
                 </tr>
               ) : (
                 domains.map((dom) => (
-                  <tr key={dom.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <tr key={dom.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors">
                     <td className="py-3.5 px-4 font-mono font-bold text-foreground flex items-center gap-2">
                       <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                       <span>{dom.domain}</span>

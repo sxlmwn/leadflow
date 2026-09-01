@@ -196,7 +196,7 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-border text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3 px-3">Delivery ID</th>
                 <th className="py-3 px-3">Lead ID</th>
                 <th className="py-3 px-3">Outcome</th>
@@ -208,7 +208,7 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
             </thead>
             <tbody className="divide-y divide-border font-medium">
               {deliveries.map((del) => (
-                <tr key={del.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                <tr key={del.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors">
                   <td className="py-3 px-3 font-mono text-muted-foreground">{del.id.substring(0, 8)}</td>
                   <td className="py-3 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">
                     {del.lead_id.substring(0, 8)}

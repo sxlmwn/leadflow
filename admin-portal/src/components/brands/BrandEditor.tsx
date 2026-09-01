@@ -1106,7 +1106,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   <button
                     type="button"
                     onClick={openRawJsonEditor}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-secondary hover:bg-slate-200 dark:hover:bg-slate-700 text-foreground text-xs font-semibold transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-secondary hover:bg-slate-200 dark:hover:bg-neutral-800 text-foreground text-xs font-semibold transition-colors cursor-pointer"
                   >
                     <Code2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     <span>Edit Raw JSON</span>

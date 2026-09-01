@@ -89,7 +89,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-secondary hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-secondary hover:bg-slate-200 dark:hover:bg-neutral-800 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

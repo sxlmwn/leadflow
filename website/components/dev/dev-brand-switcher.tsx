@@ -49,26 +49,26 @@ export default function DevBrandSwitcher({ currentSlug }: { currentSlug?: string
   };
 
   return (
-    <div className="w-full bg-slate-900 text-slate-200 py-2.5 px-4 text-xs font-mono shadow-md border-b border-slate-800">
+    <div className="w-full bg-black text-neutral-200 py-2.5 px-4 text-xs font-mono shadow-md border-b border-neutral-800">
       <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="font-semibold text-slate-400">DEV BRAND OVERRIDE:</span>
-          <span className="bg-slate-800 px-2 py-0.5 rounded text-amber-300 font-bold">
+          <span className="font-semibold text-neutral-400">DEV BRAND OVERRIDE:</span>
+          <span className="bg-neutral-900 px-2 py-0.5 rounded text-amber-300 font-bold border border-neutral-800">
             {currentSlug || 'None (Domain Mode)'}
           </span>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-slate-400 font-medium mr-1">Switch Brand:</span>
+          <span className="text-neutral-400 font-medium mr-1">Switch Brand:</span>
           {brands.map((b) => (
             <button
               key={b.slug}
               onClick={() => switchBrand(b.slug)}
               className={`px-3 py-1 rounded-md text-xs font-sans font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                 currentSlug === b.slug
-                  ? 'bg-slate-100 text-slate-900 shadow-sm ring-2 ring-amber-400 font-bold scale-105'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                  ? 'bg-white text-black shadow-sm ring-2 ring-amber-400 font-bold scale-105'
+                  : 'bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-white border border-neutral-800'
               }`}
             >
               <span
@@ -83,7 +83,7 @@ export default function DevBrandSwitcher({ currentSlug }: { currentSlug?: string
             className={`px-2.5 py-1 rounded-md text-xs font-sans transition-all cursor-pointer ${
               currentSlug === 'invalid-brand'
                 ? 'bg-red-500 text-white font-bold'
-                : 'bg-slate-800 text-slate-400 hover:bg-red-900/50 hover:text-red-200'
+                : 'bg-neutral-900 text-neutral-400 hover:bg-red-900/50 hover:text-red-200 border border-neutral-800'
             }`}
             title="Test invalid brand fallback state"
           >

@@ -8,6 +8,11 @@
   --foreground: #0f172a;
 }
 
+.dark {
+  --background: #000000;
+  --foreground: #ededed;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -37,4 +42,10 @@ body {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.dark .glass-panel {
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }

@@ -12,23 +12,23 @@ export default async function HomePage() {
 
   if (!brand) {
     return (
-      <main className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+      <main className="min-h-screen flex flex-col bg-black text-neutral-100">
         <DevBrandSwitcher currentSlug="unknown" />
 
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="max-w-md w-full glass-panel !bg-slate-900/90 !border-slate-800 rounded-2xl p-8 text-center shadow-2xl">
+          <div className="max-w-md w-full glass-panel !bg-neutral-950/90 !border-neutral-800 rounded-2xl p-8 text-center shadow-2xl">
             <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-5 border border-red-500/20">
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
             <h1 className="text-2xl font-extrabold text-white mb-2">Brand Not Found</h1>
-            <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+            <p className="text-neutral-400 text-sm mb-6 leading-relaxed">
               No active brand is associated with this domain or requested dev override slug.
             </p>
-            <div className="p-4 bg-slate-950/60 rounded-lg text-left text-xs font-mono text-slate-300 border border-slate-800 mb-6">
-              <div><span className="text-slate-500">Status:</span> 404 Unresolved</div>
-              <div><span className="text-slate-500">Suggested Action:</span> Use the dev override bar above to select a seed brand.</div>
+            <div className="p-4 bg-black/60 rounded-lg text-left text-xs font-mono text-neutral-300 border border-neutral-800 mb-6">
+              <div><span className="text-neutral-500">Status:</span> 404 Unresolved</div>
+              <div><span className="text-neutral-500">Suggested Action:</span> Use the dev override bar above to select a seed brand.</div>
             </div>
           </div>
         </div>
@@ -40,11 +40,11 @@ export default async function HomePage() {
 
   return (
     <main
-      className="min-h-[100dvh] flex flex-col relative overflow-x-hidden bg-slate-950 text-slate-100 bg-cover bg-center bg-no-repeat"
+      className="min-h-[100dvh] flex flex-col relative overflow-x-hidden bg-black text-neutral-100 bg-cover bg-center bg-no-repeat"
       style={
         theme_config.background_image_url
           ? { backgroundImage: `url(${theme_config.background_image_url})` }
-          : { background: `linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)` }
+          : { background: `linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%)` }
       }
     >
       {/* Click Tracking Beacon */}

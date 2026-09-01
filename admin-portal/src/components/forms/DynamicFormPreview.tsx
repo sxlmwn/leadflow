@@ -25,7 +25,7 @@ export const DynamicFormPreview: React.FC<DynamicFormPreviewProps> = ({
 
   if (!steps.length || !steps[0]?.fields?.length) {
     return (
-      <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-border text-muted-foreground">
+      <div className="p-8 text-center bg-slate-50 dark:bg-neutral-900/50 rounded-2xl border border-dashed border-border text-muted-foreground">
         <p className="text-sm font-semibold">No form fields configured yet.</p>
         <p className="text-xs mt-1">Add fields to your form schema to preview the interactive funnel form.</p>
       </div>

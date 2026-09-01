@@ -425,7 +425,7 @@ export default function DeliveriesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-border bg-slate-50/70 dark:bg-slate-800/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 <th className="py-3.5 px-4">Lead ID</th>
                 <th className="py-3.5 px-4">Buyer Endpoint</th>
                 <th className="py-3.5 px-4">Brand Origin</th>
@@ -455,7 +455,7 @@ export default function DeliveriesPage() {
                 </tr>
               ) : (
                 filteredDeliveries.map((del) => (
-                  <tr key={del.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <tr key={del.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors">
                     <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
                       {del.lead_id.substring(0, 8)}
                     </td>

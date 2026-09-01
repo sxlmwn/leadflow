@@ -66,7 +66,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-secondary hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-secondary hover:bg-slate-200 dark:hover:bg-neutral-800 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -83,7 +83,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
           <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`}>
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                step >= 2 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-muted-foreground'
+                step >= 2 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-neutral-800 text-muted-foreground'
               }`}
             >
               2
@@ -93,7 +93,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
           <div className={`flex items-center gap-2 ${step >= 3 ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`}>
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                step >= 3 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-muted-foreground'
+                step >= 3 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-neutral-800 text-muted-foreground'
               }`}
             >
               3
