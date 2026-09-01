@@ -39,6 +39,7 @@ import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { Brand } from '@/types';
 import { ExpandableStatusBadge, ExpandableModal } from '@/components/ui/expandable-card';
+import { motion } from 'motion/react';
 
 const radialChartConfig = {
   active: {
@@ -57,6 +58,7 @@ export default function BrandsPage() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [inspectingBrand, setInspectingBrand] = useState<Brand | null>(null);
+  const [activeMetricId, setActiveMetricId] = useState<string | null>(null);
 
   // Delete modal state
   const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
@@ -289,103 +291,111 @@ export default function BrandsPage() {
         </div>
       </div>
 
-      {/* ROW 1: Summary Stat Cards */}
+      {/* ROW 1: Summary Stat Cards with Aceternity Expandable Interaction */}
       <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <SpotlightCard
-          id="stat-total-brands"
-          color="#2563eb"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Building2 className="w-3.5 h-3.5" />
+        <motion.div layoutId="brands-stat-total" className="cursor-pointer" onClick={() => setActiveMetricId('brands-stat-total')}>
+          <SpotlightCard
+            id="stat-total-brands"
+            color="#2563eb"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Building2 className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Configured Brands
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Configured Brands
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.total}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.total}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>{metrics.active} active funnels live</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>{metrics.active} active funnels live</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-questions"
-          color="#10b981"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <FileQuestion className="w-3.5 h-3.5" />
+        <motion.div layoutId="brands-stat-questions" className="cursor-pointer" onClick={() => setActiveMetricId('brands-stat-questions')}>
+          <SpotlightCard
+            id="stat-questions"
+            color="#10b981"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <FileQuestion className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Total Form Fields
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Total Form Fields
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.totalQuestions}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.totalQuestions}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>Across {metrics.totalSteps} multi-step flows</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Across {metrics.totalSteps} multi-step flows</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-domains"
-          color="#8b5cf6"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Globe className="w-3.5 h-3.5" />
+        <motion.div layoutId="brands-stat-domains" className="cursor-pointer" onClick={() => setActiveMetricId('brands-stat-domains')}>
+          <SpotlightCard
+            id="stat-domains"
+            color="#8b5cf6"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Globe className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Custom Domains Bound
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Custom Domains Bound
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.total}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.total}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>100% SSL &amp; CNAME Valid</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>100% SSL &amp; CNAME Valid</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-verticals"
-          color="#0ea5e9"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Layers className="w-3.5 h-3.5" />
+        <motion.div layoutId="brands-stat-verticals" className="cursor-pointer" onClick={() => setActiveMetricId('brands-stat-verticals')}>
+          <SpotlightCard
+            id="stat-verticals"
+            color="#0ea5e9"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Layers className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Active Verticals
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Active Verticals
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {Object.keys(metrics.verticals).length}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {Object.keys(metrics.verticals).length}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>Home, Auto, Legal &amp; Custom</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Home, Auto, Legal &amp; Custom</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
       </SpotlightCardGroup>
 
       {/* ROW 2: Funnel Schema Comparison Bar Chart + Active Rate Radial Ring */}
@@ -531,98 +541,112 @@ export default function BrandsPage() {
               const totalSteps = brand.form_schema?.steps?.length || 1;
 
               return (
-                <SpotlightCard
+                <motion.div
                   key={brand.id}
-                  id={brand.id}
-                  color={primaryColor}
-                  tiltMax={6}
-                  className="p-6 flex flex-col justify-between"
+                  layoutId={`brand-card-${brand.id}`}
+                  onClick={() => setInspectingBrand(brand)}
+                  className="h-full cursor-pointer group"
                 >
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-4 h-9 rounded-full shadow-2xs shrink-0"
-                          style={{ backgroundColor: primaryColor }}
-                          title={`Theme Color: ${primaryColor}`}
-                        />
-                        <div className="overflow-hidden">
-                          <h3 className="text-lg font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 font-heading truncate">
-                            {brand.name}
-                          </h3>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block truncate">
-                            {brand.vertical?.replace(/_/g, ' ') || 'General'}
+                  <SpotlightCard
+                    id={brand.id}
+                    color={primaryColor}
+                    tiltMax={6}
+                    className="p-6 flex flex-col justify-between h-full group-hover:border-neutral-700/60 transition-colors"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-4 h-9 rounded-full shadow-2xs shrink-0"
+                            style={{ backgroundColor: primaryColor }}
+                            title={`Theme Color: ${primaryColor}`}
+                          />
+                          <div className="overflow-hidden">
+                            <h3 className="text-lg font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 font-heading truncate">
+                              {brand.name}
+                            </h3>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block truncate">
+                              {brand.vertical?.replace(/_/g, ' ') || 'General'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleBrandActive(brand.id, brand.is_active);
+                          }}
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
+                            brand.is_active
+                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                              : 'bg-secondary text-muted-foreground border border-border'
+                          }`}
+                        >
+                          <span className={`w-2 h-2 rounded-full ${brand.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                          <span>{brand.is_active ? 'Active' : 'Paused'}</span>
+                        </button>
+                      </div>
+
+                      <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 mb-4 italic bg-secondary/70 p-3 rounded-xl border border-border">
+                        &quot;{brand.theme_config?.headline || 'High converting lead funnel'}&quot;
+                      </p>
+
+                      <div className="space-y-2 text-xs mb-5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground flex items-center gap-1.5">
+                            <Globe className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                            Domain:
+                          </span>
+                          <span className="font-mono font-bold text-foreground truncate max-w-[170px]">
+                            {brand.domain}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground flex items-center gap-1.5">
+                            <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                            Form Structure:
+                          </span>
+                          <span className="font-bold text-foreground">
+                            {totalSteps} {totalSteps === 1 ? 'Step' : 'Steps'} • {totalQuestions} Questions
                           </span>
                         </div>
                       </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-border flex items-center justify-between gap-2">
+                      <Link
+                        href={`/brands/${brand.id}/edit`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex-1 py-2 px-3 bg-secondary hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 text-foreground font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-border hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 transform-gpu shadow-2xs"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        <span>Edit Brand</span>
+                      </Link>
+
+                      <a
+                        href={`http://${brand.domain}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-2 rounded-xl bg-secondary hover:bg-slate-200 dark:hover:bg-neutral-800 text-muted-foreground hover:text-foreground border border-border transition-colors"
+                        title="Visit Live Funnel Domain"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
 
                       <button
-                        onClick={() => toggleBrandActive(brand.id, brand.is_active)}
-                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
-                          brand.is_active
-                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                            : 'bg-secondary text-muted-foreground border border-border'
-                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          initiateDelete(brand);
+                        }}
+                        className="p-2 rounded-xl bg-secondary hover:bg-rose-50 dark:hover:bg-rose-950/40 text-muted-foreground hover:text-rose-600 border border-border transition-colors cursor-pointer"
+                        title="Delete Brand"
                       >
-                        <span className={`w-2 h-2 rounded-full ${brand.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-                        <span>{brand.is_active ? 'Active' : 'Paused'}</span>
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-
-                    <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 mb-4 italic bg-secondary/70 p-3 rounded-xl border border-border">
-                      &quot;{brand.theme_config?.headline || 'High converting lead funnel'}&quot;
-                    </p>
-
-                    <div className="space-y-2 text-xs mb-5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground flex items-center gap-1.5">
-                          <Globe className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                          Domain:
-                        </span>
-                        <span className="font-mono font-bold text-foreground truncate max-w-[170px]">
-                          {brand.domain}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground flex items-center gap-1.5">
-                          <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                          Form Structure:
-                        </span>
-                        <span className="font-bold text-foreground">
-                          {totalSteps} {totalSteps === 1 ? 'Step' : 'Steps'} • {totalQuestions} Questions
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-border flex items-center justify-between gap-2">
-                    <Link
-                      href={`/brands/${brand.id}/edit`}
-                      className="flex-1 py-2 px-3 bg-secondary hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 text-foreground font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-border hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 transform-gpu shadow-2xs"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      <span>Edit Brand</span>
-                    </Link>
-
-                    <a
-                      href={`http://${brand.domain}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-2 rounded-xl bg-secondary hover:bg-slate-200 dark:hover:bg-neutral-800 text-muted-foreground hover:text-foreground border border-border transition-colors"
-                      title="Visit Live Funnel Domain"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-
-                    <button
-                      onClick={() => initiateDelete(brand)}
-                      className="p-2 rounded-xl bg-secondary hover:bg-rose-50 dark:hover:bg-rose-950/40 text-muted-foreground hover:text-rose-600 border border-border transition-colors cursor-pointer"
-                      title="Delete Brand"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </SpotlightCard>
+                  </SpotlightCard>
+                </motion.div>
               );
             })}
           </SpotlightCardGroup>
@@ -662,8 +686,9 @@ export default function BrandsPage() {
                     const totalQuestions = getQuestionCount(brand);
 
                     return (
-                      <tr
+                      <motion.tr
                         key={brand.id}
+                        layoutId={`brand-card-${brand.id}`}
                         onClick={() => setInspectingBrand(brand)}
                         className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors cursor-pointer group"
                         title="Click to inspect brand specs"
@@ -725,7 +750,7 @@ export default function BrandsPage() {
                             </button>
                           </div>
                         </td>
-                      </tr>
+                      </motion.tr>
                     );
                   })
                 )}
@@ -862,8 +887,8 @@ export default function BrandsPage() {
         <ExpandableModal
           isOpen={Boolean(inspectingBrand)}
           onClose={() => setInspectingBrand(null)}
-          layoutId={`brand-inspect-${inspectingBrand.id}`}
-          maxWidth="max-w-xl"
+          layoutId={`brand-card-${inspectingBrand.id}`}
+          maxWidth="max-w-2xl sm:max-w-3xl"
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -873,78 +898,200 @@ export default function BrandsPage() {
                   style={{ backgroundColor: inspectingBrand.theme_config?.primary_color || '#2563eb' }}
                 />
                 <div>
-                  <h3 className="text-xl font-bold font-heading text-foreground">{inspectingBrand.name}</h3>
-                  <span className="text-xs text-muted-foreground font-semibold">
-                    Vertical: {inspectingBrand.vertical?.replace(/_/g, ' ') || 'General'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                      Brand Funnel
+                    </span>
+                    <span className="text-xs text-muted-foreground font-semibold">
+                      {inspectingBrand.vertical?.replace(/_/g, ' ') || 'General'} Vertical
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-extrabold font-heading text-foreground mt-0.5">
+                    {inspectingBrand.name}
+                  </h3>
                 </div>
               </div>
-              <span
-                className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+
+              <button
+                type="button"
+                onClick={() => {
+                  toggleBrandActive(inspectingBrand.id, inspectingBrand.is_active);
+                  setInspectingBrand({ ...inspectingBrand, is_active: !inspectingBrand.is_active });
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                   inspectingBrand.is_active
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                     : 'bg-secondary text-muted-foreground border border-border'
                 }`}
+                title="Click to toggle active status"
               >
                 {inspectingBrand.is_active ? 'Active Funnel' : 'Paused'}
-              </span>
+              </button>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-300 italic bg-secondary/50 p-3 rounded-xl border border-border mb-4">
+            <p className="text-xs text-slate-600 dark:text-slate-300 italic bg-secondary/60 p-3 rounded-xl border border-border mb-4">
               &quot;{inspectingBrand.theme_config?.headline || 'High converting lead funnel'}&quot;
             </p>
 
-            <div className="grid grid-cols-2 gap-3 mb-5 text-xs">
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">Domain Binding</span>
-                <span className="font-bold text-foreground font-mono truncate block mt-0.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-xs">
+              <div className="p-3.5 rounded-xl bg-secondary/40 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-bold uppercase tracking-wider">
+                  Domain &amp; Edge Route
+                </span>
+                <span className="font-bold text-foreground font-mono text-sm block mt-1 truncate">
                   {inspectingBrand.domain}
                 </span>
-              </div>
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">Form Flow</span>
-                <span className="font-bold text-foreground block mt-0.5">
-                  {inspectingBrand.form_schema?.steps?.length || 1} Steps • {getQuestionCount(inspectingBrand)} Questions
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 block">
+                  CNAME Bound • SSL TLS 1.3 Active
                 </span>
               </div>
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">Theme Color</span>
-                <div className="flex items-center gap-2 mt-0.5">
+
+              <div className="p-3.5 rounded-xl bg-secondary/40 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-bold uppercase tracking-wider">
+                  Theme Palette &amp; Brand Styling
+                </span>
+                <div className="flex items-center gap-2 mt-1">
                   <span
-                    className="w-3.5 h-3.5 rounded-full border border-border"
+                    className="w-4 h-4 rounded-full border border-border shadow-2xs shrink-0"
                     style={{ backgroundColor: inspectingBrand.theme_config?.primary_color || '#2563eb' }}
                   />
                   <span className="font-mono font-bold text-foreground">
                     {inspectingBrand.theme_config?.primary_color || '#2563eb'}
                   </span>
+                  <span className="text-muted-foreground font-sans text-[11px]">• Primary Brand Tint</span>
                 </div>
-              </div>
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">System Slug</span>
-                <span className="font-bold text-foreground font-mono block mt-0.5">
-                  {inspectingBrand.slug}
+                <span className="text-[10px] text-muted-foreground block mt-0.5 font-mono">
+                  Slug: {inspectingBrand.slug}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
-              <Link
-                href={`/brands/${inspectingBrand.id}/edit`}
-                onClick={() => setInspectingBrand(null)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+            {/* Form Schema Summary */}
+            <div className="p-3.5 rounded-xl bg-secondary/40 border border-border mb-4 text-xs">
+              <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-border/60">
+                <span className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground">
+                  Form Schema ({inspectingBrand.form_schema?.steps?.length || 1} Steps • {getQuestionCount(inspectingBrand)} Questions)
+                </span>
+                <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">LeadFlow Dynamic Engine</span>
+              </div>
+
+              <div className="space-y-2">
+                {(inspectingBrand.form_schema?.steps || []).map((step: any, sIdx: number) => (
+                  <div key={sIdx} className="p-2 rounded-lg bg-card/60 border border-border/70">
+                    <span className="text-[11px] font-bold text-foreground block mb-1">
+                      Step {sIdx + 1}: {step.title || `Question Group ${sIdx + 1}`}
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(step.fields || []).map((f: any, fIdx: number) => (
+                        <span
+                          key={fIdx}
+                          className="inline-flex items-center gap-1 text-[10px] font-medium bg-secondary px-2 py-0.5 rounded-md border border-border"
+                        >
+                          <span className="font-bold text-foreground">{f.label || f.name}</span>
+                          <span className="text-muted-foreground font-mono">({f.type})</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-border">
+              <button
+                type="button"
+                onClick={() => {
+                  const toDelete = inspectingBrand;
+                  setInspectingBrand(null);
+                  initiateDelete(toDelete);
+                }}
+                className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 cursor-pointer"
               >
-                <Edit2 className="w-3.5 h-3.5" />
-                <span>Edit Brand Funnel</span>
-              </Link>
-              <a
-                href={`http://${inspectingBrand.domain}`}
-                target="_blank"
-                rel="noreferrer"
-                className="px-4 py-2 bg-secondary hover:bg-neutral-200 dark:hover:bg-neutral-800 text-foreground font-bold rounded-xl text-xs flex items-center gap-1.5 border border-border transition-colors"
-              >
-                <span>Visit Live Domain</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Brand</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={`http://${inspectingBrand.domain}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3.5 py-2 bg-secondary hover:bg-neutral-200 dark:hover:bg-neutral-800 text-foreground font-bold rounded-xl text-xs flex items-center gap-1.5 border border-border transition-colors"
+                >
+                  <span>Visit Funnel</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+
+                <Link
+                  href={`/brands/${inspectingBrand.id}/edit`}
+                  onClick={() => setInspectingBrand(null)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                  <span>Edit Brand &amp; Form</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </ExpandableModal>
+      )}
+
+      {/* Morphing Metric Card Modal */}
+      {activeMetricId && (
+        <ExpandableModal
+          isOpen={Boolean(activeMetricId)}
+          onClose={() => setActiveMetricId(null)}
+          layoutId={activeMetricId}
+          maxWidth="max-w-md"
+        >
+          <div className="p-6">
+            <h3 className="text-lg font-bold font-heading text-foreground mb-1">
+              {activeMetricId === 'brands-stat-total'
+                ? 'Configured Brands Telemetry'
+                : activeMetricId === 'brands-stat-questions'
+                ? 'Form Questions & Complexity Audit'
+                : activeMetricId === 'brands-stat-domains'
+                ? 'Custom Domain Health & TLS'
+                : 'Brand Verticals Distribution'}
+            </h3>
+            <p className="text-xs text-muted-foreground mb-5">
+              Live funnel architecture and deployment metrics
+            </p>
+
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-xl bg-secondary/50 border border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground font-semibold">Active Snapshot</span>
+                <span className="text-xl font-extrabold text-foreground font-heading">
+                  {activeMetricId === 'brands-stat-total'
+                    ? `${metrics.total} brands (${metrics.active} active)`
+                    : activeMetricId === 'brands-stat-questions'
+                    ? `${metrics.totalQuestions} fields across ${metrics.totalSteps} steps`
+                    : activeMetricId === 'brands-stat-domains'
+                    ? `${metrics.total} domains (100% SSL)`
+                    : `${Object.keys(metrics.verticals).length} verticals active`}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Active Rate</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">{metrics.activeRate}% live</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Avg Step Depth</span>
+                  <span className="font-bold text-foreground">
+                    {Math.round((metrics.totalSteps / (metrics.total || 1)) * 10) / 10} steps
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Anycast CDN</span>
+                  <span className="font-bold text-foreground">100% Active</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Theme Engines</span>
+                  <span className="font-bold text-foreground">Dynamic CSS</span>
+                </div>
+              </div>
             </div>
           </div>
         </ExpandableModal>

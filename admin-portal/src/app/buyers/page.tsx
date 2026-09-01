@@ -36,6 +36,7 @@ import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminBuyer } from '@/lib/data';
 import { ExpandableStatusBadge, ExpandableModal } from '@/components/ui/expandable-card';
+import { motion } from 'motion/react';
 
 const radialChartConfig = {
   active: {
@@ -51,6 +52,7 @@ export default function BuyersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBuyer, setEditingBuyer] = useState<AdminBuyer | null>(null);
   const [inspectingBuyer, setInspectingBuyer] = useState<AdminBuyer | null>(null);
+  const [activeMetricId, setActiveMetricId] = useState<string | null>(null);
 
   const fetchBuyers = async () => {
     setLoading(true);
@@ -222,103 +224,111 @@ export default function BuyersPage() {
         </div>
       </div>
 
-      {/* ROW 1: Summary Stat Cards */}
+      {/* ROW 1: Summary Stat Cards with Aceternity Expandable Interaction */}
       <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <SpotlightCard
-          id="stat-buyers-total"
-          color="#2563eb"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Zap className="w-3.5 h-3.5" />
+        <motion.div layoutId="buyers-stat-total" className="cursor-pointer" onClick={() => setActiveMetricId('buyers-stat-total')}>
+          <SpotlightCard
+            id="stat-buyers-total"
+            color="#2563eb"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Zap className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Buyer Endpoints
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Buyer Endpoints
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.total}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.total}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>{metrics.active} active webhook listeners</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>{metrics.active} active webhook listeners</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-avg-payout"
-          color="#10b981"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <DollarSign className="w-3.5 h-3.5" />
+        <motion.div layoutId="buyers-stat-payout" className="cursor-pointer" onClick={() => setActiveMetricId('buyers-stat-payout')}>
+          <SpotlightCard
+            id="stat-avg-payout"
+            color="#10b981"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <DollarSign className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Avg Lead Payout
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Avg Lead Payout
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              ${metrics.avgPayout} <span className="text-sm font-normal text-muted-foreground">/ lead</span>
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                ${metrics.avgPayout} <span className="text-sm font-normal text-muted-foreground">/ lead</span>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>Flat fee &amp; tiered dynamic models</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Flat fee &amp; tiered dynamic models</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-min-score"
-          color="#8b5cf6"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Award className="w-3.5 h-3.5" />
+        <motion.div layoutId="buyers-stat-min-score" className="cursor-pointer" onClick={() => setActiveMetricId('buyers-stat-min-score')}>
+          <SpotlightCard
+            id="stat-min-score"
+            color="#8b5cf6"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Award className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Min Quality Threshold
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Min Quality Threshold
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.avgMinScore}+ <span className="text-sm font-normal text-muted-foreground">pts</span>
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.avgMinScore}+ <span className="text-sm font-normal text-muted-foreground">pts</span>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>Auto-filter low intent leads</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Auto-filter low intent leads</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-delivery-latency"
-          color="#0ea5e9"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5" />
+        <motion.div layoutId="buyers-stat-latency" className="cursor-pointer" onClick={() => setActiveMetricId('buyers-stat-latency')}>
+          <SpotlightCard
+            id="stat-delivery-latency"
+            color="#0ea5e9"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Avg API Ping Latency
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Avg API Ping Latency
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              142 <span className="text-sm font-normal text-muted-foreground">ms</span>
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                142 <span className="text-sm font-normal text-muted-foreground">ms</span>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>Sub-200ms ping-post response</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Sub-200ms ping-post response</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
       </SpotlightCardGroup>
 
       {/* ROW 2: Buyer Payout Comparison Bar Chart + Active Rate Radial Ring */}
@@ -484,8 +494,9 @@ export default function BuyersPage() {
                   const minS = buyer.min_score ?? buyer.min_accept_score ?? 70;
 
                   return (
-                    <tr
+                    <motion.tr
                       key={buyer.id}
+                      layoutId={`buyer-row-${buyer.id}`}
                       onClick={() => setInspectingBuyer(buyer)}
                       className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors cursor-pointer group"
                       title="Click to inspect buyer endpoint details"
@@ -549,7 +560,7 @@ export default function BuyersPage() {
                         {buyer.api_endpoint || 'https://api.buyer.com/v1/ping'}
                       </td>
 
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => {
@@ -570,7 +581,7 @@ export default function BuyersPage() {
                           </Link>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
                 })
               )}
@@ -592,17 +603,25 @@ export default function BuyersPage() {
         <ExpandableModal
           isOpen={Boolean(inspectingBuyer)}
           onClose={() => setInspectingBuyer(null)}
-          layoutId={`buyer-inspect-${inspectingBuyer.id}`}
-          maxWidth="max-w-xl"
+          layoutId={`buyer-row-${inspectingBuyer.id}`}
+          maxWidth="max-w-2xl sm:max-w-3xl"
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                  Buyer Integration
-                </span>
-                <h3 className="text-xl font-bold font-heading text-foreground mt-1">{inspectingBuyer.name}</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                    Buyer Partner Integration
+                  </span>
+                  <span className="text-xs text-muted-foreground font-semibold">
+                    ID: {inspectingBuyer.id.substring(0, 8)}
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold font-heading text-foreground mt-1">
+                  {inspectingBuyer.name}
+                </h3>
               </div>
+
               <button
                 type="button"
                 onClick={() => {
@@ -610,7 +629,7 @@ export default function BuyersPage() {
                   handleToggleActive(inspectingBuyer.id, currentVal);
                   setInspectingBuyer({ ...inspectingBuyer, is_active: !currentVal, active: !currentVal });
                 }}
-                className={`px-2.5 py-0.5 rounded-full text-xs font-bold cursor-pointer transition-colors ${
+                className={`px-3 py-1 rounded-full text-xs font-bold cursor-pointer transition-colors ${
                   inspectingBuyer.is_active ?? inspectingBuyer.active ?? true
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                     : 'bg-secondary text-muted-foreground border border-border'
@@ -621,34 +640,80 @@ export default function BuyersPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-5 text-xs">
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">Lead Payout Rate</span>
-                <span className="text-lg font-extrabold text-foreground mt-0.5 block">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-xs">
+              <div className="p-3.5 rounded-xl bg-secondary/40 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-bold uppercase tracking-wider">
+                  Lead Payout Rate
+                </span>
+                <span className="text-2xl font-extrabold text-foreground mt-1 block">
                   ${inspectingBuyer.price_per_lead || 45}.00
                 </span>
-                <span className="text-[10px] text-muted-foreground uppercase">{inspectingBuyer.pricing_model || 'flat'} model</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold uppercase">
+                  {inspectingBuyer.pricing_model || 'flat'} model • Instant monetization
+                </span>
               </div>
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">Quality Acceptance Filter</span>
-                <span className="text-lg font-extrabold text-blue-600 dark:text-blue-400 mt-0.5 block">
+
+              <div className="p-3.5 rounded-xl bg-secondary/40 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-bold uppercase tracking-wider">
+                  Quality Acceptance Filter
+                </span>
+                <span className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1 block">
                   {inspectingBuyer.min_score ?? inspectingBuyer.min_accept_score ?? 70}+ Score
                 </span>
-                <span className="text-[10px] text-muted-foreground">Scored by LeadScoreGuard</span>
-              </div>
-              <div className="col-span-2 p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">Webhook Endpoint URL</span>
-                <span className="font-mono text-xs font-bold text-foreground truncate block mt-0.5">
-                  {inspectingBuyer.api_endpoint || 'https://api.buyer.com/v1/lead-postback'}
+                <span className="text-[10px] text-muted-foreground">
+                  Scored via LeadScoreGuard™ multi-factor filter
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
+            {/* API Webhook Endpoint Box */}
+            <div className="p-3.5 rounded-xl bg-secondary/40 border border-border mb-4 text-xs">
+              <div className="flex items-center justify-between mb-1.5 pb-1.5 border-b border-border/60">
+                <span className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground">
+                  Webhook Dispatch Endpoint
+                </span>
+                <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                  POST • TLS 1.3 • ~142ms ping
+                </span>
+              </div>
+              <span className="font-mono text-xs font-bold text-foreground break-all block">
+                {inspectingBuyer.api_endpoint || 'https://api.buyer.com/v1/lead-postback'}
+              </span>
+            </div>
+
+            {/* Accepted Brand Routing */}
+            <div className="p-3.5 rounded-xl bg-secondary/40 border border-border mb-5 text-xs">
+              <span className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground block mb-2">
+                Routed Brands ({(inspectingBuyer.accepted_brands || []).length} Funnels Active)
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {(inspectingBuyer.accepted_brands || []).map((brandName, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground bg-card px-2.5 py-1 rounded-lg border border-border shadow-2xs"
+                  >
+                    <Tag className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                    {brandName}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-border">
+              <Link
+                href={`/buyers/${inspectingBuyer.id}`}
+                onClick={() => setInspectingBuyer(null)}
+                className="px-4 py-2 bg-secondary hover:bg-neutral-200 dark:hover:bg-neutral-800 text-foreground font-bold rounded-xl text-xs flex items-center gap-1.5 border border-border transition-colors"
+              >
+                <span>Full Buyer Analytics</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+
               <button
                 onClick={() => {
-                  setEditingBuyer(inspectingBuyer);
+                  const b = inspectingBuyer;
                   setInspectingBuyer(null);
+                  setEditingBuyer(b);
                   setIsModalOpen(true);
                 }}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
@@ -656,14 +721,65 @@ export default function BuyersPage() {
                 <Edit2 className="w-3.5 h-3.5" />
                 <span>Configure Endpoint</span>
               </button>
-              <Link
-                href={`/buyers/${inspectingBuyer.id}`}
-                onClick={() => setInspectingBuyer(null)}
-                className="px-4 py-2 bg-secondary hover:bg-neutral-200 dark:hover:bg-neutral-800 text-foreground font-bold rounded-xl text-xs flex items-center gap-1.5 border border-border transition-colors"
-              >
-                <span>Analytics</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </Link>
+            </div>
+          </div>
+        </ExpandableModal>
+      )}
+
+      {/* Morphing Metric Card Modal */}
+      {activeMetricId && (
+        <ExpandableModal
+          isOpen={Boolean(activeMetricId)}
+          onClose={() => setActiveMetricId(null)}
+          layoutId={activeMetricId}
+          maxWidth="max-w-md"
+        >
+          <div className="p-6">
+            <h3 className="text-lg font-bold font-heading text-foreground mb-1">
+              {activeMetricId === 'buyers-stat-total'
+                ? 'Buyer Endpoints Telemetry'
+                : activeMetricId === 'buyers-stat-payout'
+                ? 'Monetization & Payout Analysis'
+                : activeMetricId === 'buyers-stat-min-score'
+                ? 'Quality Filtering & Thresholds'
+                : 'Webhook Ping-Post Latency'}
+            </h3>
+            <p className="text-xs text-muted-foreground mb-5">
+              Real-time delivery network and buyer performance stats
+            </p>
+
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-xl bg-secondary/50 border border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground font-semibold">Current Metric</span>
+                <span className="text-xl font-extrabold text-foreground font-heading">
+                  {activeMetricId === 'buyers-stat-total'
+                    ? `${metrics.total} buyers (${metrics.active} active)`
+                    : activeMetricId === 'buyers-stat-payout'
+                    ? `$${metrics.avgPayout} avg / lead`
+                    : activeMetricId === 'buyers-stat-min-score'
+                    ? `${metrics.avgMinScore}+ min score`
+                    : '142ms avg ping'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Active Listeners</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">{metrics.activeRate}% live</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Retry Policy</span>
+                  <span className="font-bold text-foreground">3x Exponential</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Payload Format</span>
+                  <span className="font-bold text-foreground">JSON Webhook</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">SLA Target</span>
+                  <span className="font-bold text-foreground">&lt; 250ms</span>
+                </div>
+              </div>
             </div>
           </div>
         </ExpandableModal>

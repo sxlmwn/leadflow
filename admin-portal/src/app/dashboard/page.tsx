@@ -21,6 +21,7 @@ import { supabase } from '@/lib/supabase';
 import { AdminLead } from '@/lib/data';
 import { LeadDetailDrawer } from '@/components/leads/LeadDetailDrawer';
 import { ExpandableStatusBadge } from '@/components/ui/expandable-card';
+import { motion } from 'motion/react';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -208,8 +209,9 @@ export default function DashboardPage() {
                     </tr>
                   ) : recentLeads.length > 0 ? (
                     recentLeads.map((lead) => (
-                      <tr
+                      <motion.tr
                         key={lead.id}
+                        layoutId={`dash-lead-${lead.id}`}
                         onClick={() => setSelectedLead(lead)}
                         className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors cursor-pointer group"
                         title="Click to inspect lead"
@@ -259,7 +261,7 @@ export default function DashboardPage() {
                         <td className="py-2.5 px-3 text-muted-foreground text-xs">
                           {lead.sold_to_buyer_name || 'Buyer Assigned'}
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))
                   ) : (
                     <tr>
@@ -367,7 +369,7 @@ export default function DashboardPage() {
       </SpotlightCardGroup>
 
       {/* Expanded Lead Detail Drawer with Aceternity Motion */}
-      <LeadDetailDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} />
+      <LeadDetailDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} layoutIdPrefix="dash-lead" />
     </AdminLayout>
   );
 }

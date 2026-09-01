@@ -513,8 +513,9 @@ export default function LeadsPage() {
                 </tr>
               ) : (
                 filteredLeads.map((lead) => (
-                  <tr
+                  <motion.tr
                     key={lead.id}
+                    layoutId={`lead-row-${lead.id}`}
                     onClick={() => setSelectedLead(lead)}
                     className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 cursor-pointer transition-colors group"
                   >
@@ -599,7 +600,7 @@ export default function LeadsPage() {
                     <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
                       {new Date(lead.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               )}
             </tbody>

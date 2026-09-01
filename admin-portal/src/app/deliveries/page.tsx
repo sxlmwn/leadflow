@@ -33,6 +33,7 @@ import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminDelivery } from '@/lib/data';
 import { ExpandableStatusBadge, ExpandableModal } from '@/components/ui/expandable-card';
+import { motion } from 'motion/react';
 
 const radialChartConfig = {
   accepted: {
@@ -49,6 +50,8 @@ export default function DeliveriesPage() {
   const [buyerFilter] = useState('all');
   const [outcomeFilter, setOutcomeFilter] = useState('all');
   const [inspectingDelivery, setInspectingDelivery] = useState<AdminDelivery | null>(null);
+  const [activeMetricId, setActiveMetricId] = useState<string | null>(null);
+  const [copiedJson, setCopiedJson] = useState(false);
 
   const fetchDeliveries = async () => {
     setLoading(true);
@@ -157,104 +160,112 @@ export default function DeliveriesPage() {
         </div>
       </div>
 
-      {/* ROW 1: Summary Stat Cards */}
+      {/* ROW 1: Summary Stat Cards with Aceternity Expandable Interaction */}
       <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <SpotlightCard
-          id="stat-deliveries-total"
-          color="#2563eb"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Send className="w-3.5 h-3.5" />
+        <motion.div layoutId="deliveries-stat-total" className="cursor-pointer" onClick={() => setActiveMetricId('deliveries-stat-total')}>
+          <SpotlightCard
+            id="stat-deliveries-total"
+            color="#2563eb"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Send className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Total Outbound Pings
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Total Outbound Pings
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.total.toLocaleString()}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.total.toLocaleString()}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>↑ +15.2%</span>
-            <span className="text-muted-foreground font-normal text-[10px]">routed this week</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>↑ +15.2%</span>
+              <span className="text-muted-foreground font-normal text-[10px]">routed this week</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-deliveries-revenue"
-          color="#10b981"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <DollarSign className="w-3.5 h-3.5" />
+        <motion.div layoutId="deliveries-stat-revenue" className="cursor-pointer" onClick={() => setActiveMetricId('deliveries-stat-revenue')}>
+          <SpotlightCard
+            id="stat-deliveries-revenue"
+            color="#10b981"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <DollarSign className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Delivered Value
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Delivered Value
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              ${metrics.totalRevenue.toLocaleString()}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                ${metrics.totalRevenue.toLocaleString()}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>{metrics.accepted} accepted deliveries</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>{metrics.accepted} accepted deliveries</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-acceptance-rate"
-          color="#8b5cf6"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <CheckCircle className="w-3.5 h-3.5" />
+        <motion.div layoutId="deliveries-stat-acceptance" className="cursor-pointer" onClick={() => setActiveMetricId('deliveries-stat-acceptance')}>
+          <SpotlightCard
+            id="stat-acceptance-rate"
+            color="#8b5cf6"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <CheckCircle className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Buyer Acceptance Rate
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Buyer Acceptance Rate
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.acceptRate}%
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.acceptRate}%
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>High intent lead quality</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>High intent lead quality</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-postback-conv"
-          color="#0ea5e9"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <TrendingUp className="w-3.5 h-3.5" />
+        <motion.div layoutId="deliveries-stat-conv" className="cursor-pointer" onClick={() => setActiveMetricId('deliveries-stat-conv')}>
+          <SpotlightCard
+            id="stat-postback-conv"
+            color="#0ea5e9"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <TrendingUp className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Postback Conversions
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Postback Conversions
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.convRate}%
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.convRate}%
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>{metrics.converted} verified conversions</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>{metrics.converted} verified conversions</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
       </SpotlightCardGroup>
 
       {/* ROW 2: Delivery Velocity Area Chart + Acceptance Radial Ring */}
@@ -457,8 +468,9 @@ export default function DeliveriesPage() {
                 </tr>
               ) : (
                 filteredDeliveries.map((del) => (
-                  <tr
+                  <motion.tr
                     key={del.id}
+                    layoutId={`delivery-row-${del.id}`}
                     onClick={() => setInspectingDelivery(del)}
                     className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors cursor-pointer group"
                     title="Click to inspect webhook delivery payload & response"
@@ -494,7 +506,7 @@ export default function DeliveriesPage() {
                     <td className="py-3.5 px-4">
                       {del.converted ? (
                         <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
-                          <CheckCircle className="w-3 h-3" />
+                          <CheckCircle className="w-3.5 h-3.5" />
                           Converted ($250)
                         </span>
                       ) : (
@@ -504,7 +516,7 @@ export default function DeliveriesPage() {
                     <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
                       {new Date(del.delivered_at).toLocaleString()}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               )}
             </tbody>
@@ -516,70 +528,179 @@ export default function DeliveriesPage() {
       {inspectingDelivery && (
         <ExpandableModal
           isOpen={Boolean(inspectingDelivery)}
-          onClose={() => setInspectingDelivery(null)}
-          layoutId={`delivery-inspect-${inspectingDelivery.id}`}
-          maxWidth="max-w-xl"
+          onClose={() => {
+            setInspectingDelivery(null);
+            setCopiedJson(false);
+          }}
+          layoutId={`delivery-row-${inspectingDelivery.id}`}
+          maxWidth="max-w-2xl sm:max-w-3xl"
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                  Lead Delivery Audit
-                </span>
-                <h3 className="text-xl font-bold font-heading text-foreground mt-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                    Webhook Transmission Audit
+                  </span>
+                  <span className="text-xs text-muted-foreground font-mono font-semibold">
+                    Lead: {inspectingDelivery.lead_id.substring(0, 8)}
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold font-heading text-foreground mt-1">
                   {inspectingDelivery.buyer_name}
                 </h3>
               </div>
+
               <span
-                className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                className={`px-3 py-1 rounded-full text-xs font-bold ${
                   inspectingDelivery.accepted
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                     : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
                 }`}
               >
-                {inspectingDelivery.accepted ? 'Sold & Dispatched' : 'Rejected by Buyer'}
+                {inspectingDelivery.accepted ? 'HTTP 200 • Accepted' : 'Rejected / Unprocessed'}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-5 text-xs">
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">Realized Payout</span>
-                <span className="text-lg font-extrabold text-foreground mt-0.5 block">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-xs">
+              <div className="p-3.5 rounded-xl bg-secondary/40 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-bold uppercase tracking-wider">
+                  Realized Value &amp; Buyer Payout
+                </span>
+                <span className="text-2xl font-extrabold text-foreground mt-1 block">
                   ${inspectingDelivery.price_paid || (inspectingDelivery.accepted ? 65 : 0)}.00
                 </span>
-              </div>
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">API Latency</span>
-                <span className="text-lg font-extrabold text-blue-600 dark:text-blue-400 mt-0.5 block">
-                  142 ms
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 block">
+                  {inspectingDelivery.converted ? 'Postback Converted ($250 CPA)' : 'Direct Delivery Realized'}
                 </span>
               </div>
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">Brand Origin</span>
-                <span className="font-bold text-foreground block mt-0.5">{inspectingDelivery.brand_name}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">HTTP Status Code</span>
-                <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400 block mt-0.5">
-                  {inspectingDelivery.accepted ? '200 OK' : '422 Unprocessable'}
+
+              <div className="p-3.5 rounded-xl bg-secondary/40 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-bold uppercase tracking-wider">
+                  Origin Funnel &amp; Dispatch Latency
+                </span>
+                <span className="text-lg font-bold text-foreground mt-1 block">
+                  {inspectingDelivery.brand_name}
+                </span>
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-mono font-semibold mt-0.5 block">
+                  142 ms round-trip • TLS 1.3 verified
                 </span>
               </div>
             </div>
 
+            {/* Outbound Webhook JSON with 1-click copy */}
             <div className="mb-4">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
-                Webhook Outbound Payload Preview
-              </span>
-              <pre className="p-3 rounded-xl bg-secondary font-mono text-[11px] text-slate-800 dark:text-slate-200 border border-border overflow-x-auto">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Outbound Webhook JSON Payload
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const payloadStr = JSON.stringify({
+                      lead_id: inspectingDelivery.lead_id,
+                      buyer: inspectingDelivery.buyer_name,
+                      brand: inspectingDelivery.brand_name,
+                      accepted: inspectingDelivery.accepted,
+                      payout: inspectingDelivery.price_paid || 65,
+                      timestamp: inspectingDelivery.delivered_at,
+                      route: "webhook_postback",
+                      status_code: inspectingDelivery.accepted ? 200 : 422
+                    }, null, 2);
+                    navigator.clipboard.writeText(payloadStr);
+                    setCopiedJson(true);
+                    setTimeout(() => setCopiedJson(false), 2000);
+                  }}
+                  className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-secondary hover:bg-neutral-200 dark:hover:bg-neutral-800 text-foreground border border-border transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  {copiedJson ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-600 dark:text-emerald-400">Copied!</span>
+                    </>
+                  ) : (
+                    <span>Copy JSON</span>
+                  )}
+                </button>
+              </div>
+
+              <pre className="p-3.5 rounded-xl bg-secondary/70 font-mono text-[11px] text-foreground border border-border overflow-x-auto max-h-[220px]">
 {JSON.stringify({
+  delivery_id: inspectingDelivery.id,
   lead_id: inspectingDelivery.lead_id,
   buyer: inspectingDelivery.buyer_name,
   brand: inspectingDelivery.brand_name,
   accepted: inspectingDelivery.accepted,
   payout: inspectingDelivery.price_paid || 65,
-  timestamp: inspectingDelivery.delivered_at
+  converted: inspectingDelivery.converted || false,
+  delivered_at: inspectingDelivery.delivered_at,
+  http_response: {
+    status: inspectingDelivery.accepted ? 200 : 422,
+    message: inspectingDelivery.accepted ? "Lead accepted into CRM" : "Validation rejection"
+  }
 }, null, 2)}
               </pre>
+            </div>
+          </div>
+        </ExpandableModal>
+      )}
+
+      {/* Morphing Metric Card Modal */}
+      {activeMetricId && (
+        <ExpandableModal
+          isOpen={Boolean(activeMetricId)}
+          onClose={() => setActiveMetricId(null)}
+          layoutId={activeMetricId}
+          maxWidth="max-w-md"
+        >
+          <div className="p-6">
+            <h3 className="text-lg font-bold font-heading text-foreground mb-1">
+              {activeMetricId === 'deliveries-stat-total'
+                ? 'Outbound Dispatch Telemetry'
+                : activeMetricId === 'deliveries-stat-revenue'
+                ? 'Realized Pipeline Value'
+                : activeMetricId === 'deliveries-stat-acceptance'
+                ? 'Buyer Acceptance & Quality SLA'
+                : 'Postback Conversion Realization'}
+            </h3>
+            <p className="text-xs text-muted-foreground mb-5">
+              Live delivery router throughput and monetized conversion logs
+            </p>
+
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-xl bg-secondary/50 border border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground font-semibold">Active Snapshot</span>
+                <span className="text-xl font-extrabold text-foreground font-heading">
+                  {activeMetricId === 'deliveries-stat-total'
+                    ? `${metrics.total.toLocaleString()} dispatches`
+                    : activeMetricId === 'deliveries-stat-revenue'
+                    ? `$${metrics.totalRevenue.toLocaleString()} realized`
+                    : activeMetricId === 'deliveries-stat-acceptance'
+                    ? `${metrics.acceptRate}% acceptance rate`
+                    : `${metrics.convRate}% converted (${metrics.converted})`}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Accepted Pings</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">{metrics.accepted} accepted</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Avg Payout</span>
+                  <span className="font-bold text-foreground">
+                    ${Math.round(metrics.totalRevenue / (metrics.accepted || 1))} / lead
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Protocol</span>
+                  <span className="font-bold text-foreground">HTTPS Postback</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Latency SLA</span>
+                  <span className="font-bold text-foreground">&lt; 200ms</span>
+                </div>
+              </div>
             </div>
           </div>
         </ExpandableModal>

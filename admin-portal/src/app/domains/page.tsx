@@ -37,6 +37,7 @@ import { Loader } from '@/components/ui/loader';
 import { AdminDomain, MOCK_DOMAINS } from '@/lib/data';
 import { supabase } from '@/lib/supabase';
 import { ExpandableStatusBadge, ExpandableModal } from '@/components/ui/expandable-card';
+import { motion } from 'motion/react';
 
 const radialChartConfig = {
   ssl: {
@@ -50,6 +51,7 @@ export default function DomainsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inspectingDomain, setInspectingDomain] = useState<AdminDomain | null>(null);
+  const [activeMetricId, setActiveMetricId] = useState<string | null>(null);
 
   // Domain removal modal state
   const [deletingDomain, setDeletingDomain] = useState<AdminDomain | null>(null);
@@ -219,103 +221,111 @@ export default function DomainsPage() {
         </div>
       </div>
 
-      {/* ROW 1: Summary Stat Cards */}
+      {/* ROW 1: Summary Stat Cards with Aceternity Expandable Interaction */}
       <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <SpotlightCard
-          id="stat-domains-total"
-          color="#2563eb"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Globe className="w-3.5 h-3.5" />
+        <motion.div layoutId="domains-stat-total" className="cursor-pointer" onClick={() => setActiveMetricId('domains-stat-total')}>
+          <SpotlightCard
+            id="stat-domains-total"
+            color="#2563eb"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Globe className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Connected Hostnames
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Connected Hostnames
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.total}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.total}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>{metrics.active} active edge routes</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>{metrics.active} active edge routes</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-ssl-status"
-          color="#10b981"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Lock className="w-3.5 h-3.5" />
+        <motion.div layoutId="domains-stat-ssl" className="cursor-pointer" onClick={() => setActiveMetricId('domains-stat-ssl')}>
+          <SpotlightCard
+            id="stat-ssl-status"
+            color="#10b981"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Lock className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                SSL / TLS Security
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              SSL / TLS Security
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.sslRate}%
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.sslRate}%
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>Automatic Renewal Active</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Automatic Renewal Active</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-dns-latency"
-          color="#8b5cf6"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Zap className="w-3.5 h-3.5" />
+        <motion.div layoutId="domains-stat-dns" className="cursor-pointer" onClick={() => setActiveMetricId('domains-stat-dns')}>
+          <SpotlightCard
+            id="stat-dns-latency"
+            color="#8b5cf6"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Zap className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Avg Edge Resolution
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Avg Edge Resolution
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              21 <span className="text-sm font-normal text-muted-foreground">ms</span>
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                21 <span className="text-sm font-normal text-muted-foreground">ms</span>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>Global Anycast CDN Active</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>Global Anycast CDN Active</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-brand-bindings"
-          color="#0ea5e9"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Building2 className="w-3.5 h-3.5" />
+        <motion.div layoutId="domains-stat-bindings" className="cursor-pointer" onClick={() => setActiveMetricId('domains-stat-bindings')}>
+          <SpotlightCard
+            id="stat-brand-bindings"
+            color="#0ea5e9"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Building2 className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Attached Funnels
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Attached Funnels
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.total}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.total}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>1-to-1 Brand Isolation</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>1-to-1 Brand Isolation</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
       </SpotlightCardGroup>
 
       {/* ROW 2: Edge Routing Latency Trend + SSL Health Radial Ring */}
@@ -477,8 +487,9 @@ export default function DomainsPage() {
                 </tr>
               ) : (
                 domains.map((dom) => (
-                  <tr
+                  <motion.tr
                     key={dom.id}
+                    layoutId={`domain-row-${dom.id}`}
                     onClick={() => setInspectingDomain(dom)}
                     className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors cursor-pointer group"
                     title="Click to inspect DNS & SSL configuration"
@@ -519,7 +530,7 @@ export default function DomainsPage() {
                       {new Date(dom.created_at).toLocaleDateString()}
                     </td>
 
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
                         <a
                           href={`https://${dom.domain}`}
@@ -539,7 +550,7 @@ export default function DomainsPage() {
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               )}
             </tbody>
@@ -640,60 +651,102 @@ export default function DomainsPage() {
         <ExpandableModal
           isOpen={Boolean(inspectingDomain)}
           onClose={() => setInspectingDomain(null)}
-          layoutId={`domain-inspect-${inspectingDomain.id}`}
-          maxWidth="max-w-xl"
+          layoutId={`domain-row-${inspectingDomain.id}`}
+          maxWidth="max-w-2xl sm:max-w-3xl"
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
                   <Globe className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold font-heading text-foreground">{inspectingDomain.domain}</h3>
-                  <span className="text-xs text-muted-foreground font-semibold">
-                    Assigned to {inspectingDomain.brand_name}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                      Hostname Route
+                    </span>
+                    <span className="text-xs text-muted-foreground font-semibold">
+                      Bound to {inspectingDomain.brand_name}
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-extrabold font-heading text-foreground mt-0.5">
+                    {inspectingDomain.domain}
+                  </h3>
                 </div>
               </div>
+
               <span
-                className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                className={`px-3 py-1 rounded-full text-xs font-bold ${
                   inspectingDomain.status === 'active'
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                     : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
                 }`}
               >
-                {inspectingDomain.status === 'active' ? 'Routing Active' : 'Pending DNS'}
+                {inspectingDomain.status === 'active' ? 'Edge Routing Active' : 'Pending DNS'}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-5 text-xs">
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">CNAME Routing Record</span>
-                <span className="font-mono text-xs font-bold text-foreground block mt-0.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-xs">
+              <div className="p-3.5 rounded-xl bg-secondary/40 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-bold uppercase tracking-wider">
+                  CNAME Routing Target
+                </span>
+                <span className="font-mono text-sm font-bold text-foreground block mt-1">
                   custom.leadflow.io
                 </span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Anycast Edge Network</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 block">
+                  Anycast Global Edge Network
+                </span>
               </div>
-              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">SSL Provisioning</span>
-                <span className="font-mono text-xs font-bold text-foreground block mt-0.5">
+
+              <div className="p-3.5 rounded-xl bg-secondary/40 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-bold uppercase tracking-wider">
+                  SSL / TLS Certificate
+                </span>
+                <span className="font-mono text-sm font-bold text-foreground block mt-1">
                   TLS 1.3 / Let&apos;s Encrypt
                 </span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Auto-renewing</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 block">
+                  Auto-provisioned &amp; renewed
+                </span>
               </div>
-              <div className="col-span-2 p-3 rounded-xl bg-secondary/30 border border-border">
-                <span className="text-[10px] text-muted-foreground block font-medium">DNS Propagation Status</span>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs text-foreground font-semibold">
-                    Global DNS resolution healthy across 24 edge points-of-presence.
-                  </span>
+            </div>
+
+            {/* DNS Records Table */}
+            <div className="p-3.5 rounded-xl bg-secondary/40 border border-border mb-4 text-xs">
+              <span className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground block mb-2">
+                DNS Configuration Specs
+              </span>
+              <div className="grid grid-cols-3 gap-2 p-2.5 rounded-lg bg-card border border-border/80 text-[11px]">
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Record Type</span>
+                  <span className="font-mono font-bold text-foreground">CNAME</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Host / Name</span>
+                  <span className="font-mono font-bold text-foreground">@ / *</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">TTL</span>
+                  <span className="font-mono font-bold text-foreground">300 (Auto)</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
+            <div className="flex items-center justify-between pt-4 border-t border-border">
+              <button
+                type="button"
+                onClick={() => {
+                  const toDel = inspectingDomain;
+                  setInspectingDomain(null);
+                  initiateRemoveDomain(toDel);
+                }}
+                className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Unlink Domain</span>
+              </button>
+
               <a
                 href={`https://${inspectingDomain.domain}`}
                 target="_blank"
@@ -703,6 +756,65 @@ export default function DomainsPage() {
                 <span>Visit Live Domain</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
+            </div>
+          </div>
+        </ExpandableModal>
+      )}
+
+      {/* Morphing Metric Card Modal */}
+      {activeMetricId && (
+        <ExpandableModal
+          isOpen={Boolean(activeMetricId)}
+          onClose={() => setActiveMetricId(null)}
+          layoutId={activeMetricId}
+          maxWidth="max-w-md"
+        >
+          <div className="p-6">
+            <h3 className="text-lg font-bold font-heading text-foreground mb-1">
+              {activeMetricId === 'domains-stat-total'
+                ? 'Connected Hostnames Telemetry'
+                : activeMetricId === 'domains-stat-ssl'
+                ? 'SSL / TLS Security Architecture'
+                : activeMetricId === 'domains-stat-dns'
+                ? 'Global Edge DNS Resolution'
+                : 'Brand Domain Isolation'}
+            </h3>
+            <p className="text-xs text-muted-foreground mb-5">
+              Edge routing and SSL certificate provisioning metrics
+            </p>
+
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-xl bg-secondary/50 border border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground font-semibold">Active Snapshot</span>
+                <span className="text-xl font-extrabold text-foreground font-heading">
+                  {activeMetricId === 'domains-stat-total'
+                    ? `${metrics.total} hostnames (${metrics.active} active)`
+                    : activeMetricId === 'domains-stat-ssl'
+                    ? `${metrics.sslRate}% SSL active`
+                    : activeMetricId === 'domains-stat-dns'
+                    ? '21ms avg edge resolution'
+                    : `${metrics.total} isolated brand routes`}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Edge Nodes</span>
+                  <span className="font-bold text-foreground">24 PoPs</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">TLS Protocol</span>
+                  <span className="font-bold text-foreground">TLS 1.3 Active</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">CNAME Proxy</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">custom.leadflow.io</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Propagation</span>
+                  <span className="font-bold text-foreground">&lt; 60s Global</span>
+                </div>
+              </div>
             </div>
           </div>
         </ExpandableModal>
