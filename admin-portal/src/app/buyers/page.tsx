@@ -35,6 +35,7 @@ import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminBuyer } from '@/lib/data';
+import { ExpandableStatusBadge, ExpandableModal } from '@/components/ui/expandable-card';
 
 const radialChartConfig = {
   active: {
@@ -49,6 +50,7 @@ export default function BuyersPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBuyer, setEditingBuyer] = useState<AdminBuyer | null>(null);
+  const [inspectingBuyer, setInspectingBuyer] = useState<AdminBuyer | null>(null);
 
   const fetchBuyers = async () => {
     setLoading(true);
@@ -482,28 +484,34 @@ export default function BuyersPage() {
                   const minS = buyer.min_score ?? buyer.min_accept_score ?? 70;
 
                   return (
-                    <tr key={buyer.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors">
-                      <td className="py-3.5 px-4">
-                        <button
-                          onClick={() => handleToggleActive(buyer.id, active)}
-                          className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all duration-200 ${
+                    <tr
+                      key={buyer.id}
+                      onClick={() => setInspectingBuyer(buyer)}
+                      className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors cursor-pointer group"
+                      title="Click to inspect buyer endpoint details"
+                    >
+                      <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                        <ExpandableStatusBadge
+                          id={`buyer-status-${buyer.id}`}
+                          status={active ? 'Active' : 'Paused'}
+                          variant={active ? 'success' : 'neutral'}
+                          contextText={
                             active
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                              : 'bg-secondary text-muted-foreground border border-border'
-                          }`}
-                        >
-                          <span className={`w-2 h-2 rounded-full ${active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-                          <span>{active ? 'Active' : 'Paused'}</span>
-                        </button>
+                              ? `Buyer endpoint is active and listening for real-time lead webhook dispatches.`
+                              : `Buyer is currently paused. Leads will cascade to backup buyer endpoints.`
+                          }
+                          details={[
+                            { label: 'Payout', value: `$${buyer.price_per_lead || 45} / lead` },
+                            { label: 'Min Score', value: `${minS}+` },
+                            { label: 'Model', value: buyer.pricing_model || 'flat' }
+                          ]}
+                        />
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <Link
-                          href={`/buyers/${buyer.id}`}
-                          className="font-bold text-foreground hover:text-blue-600 dark:hover:text-blue-400 font-heading text-sm transition-colors duration-200"
-                        >
+                        <span className="font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 font-heading text-sm transition-colors duration-200">
                           {buyer.name}
-                        </Link>
+                        </span>
                       </td>
 
                       <td className="py-3.5 px-4">
@@ -578,6 +586,88 @@ export default function BuyersPage() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveBuyer}
       />
+
+      {/* Morphing Buyer Inspector Modal using Aceternity layoutId */}
+      {inspectingBuyer && (
+        <ExpandableModal
+          isOpen={Boolean(inspectingBuyer)}
+          onClose={() => setInspectingBuyer(null)}
+          layoutId={`buyer-inspect-${inspectingBuyer.id}`}
+          maxWidth="max-w-xl"
+        >
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                  Buyer Integration
+                </span>
+                <h3 className="text-xl font-bold font-heading text-foreground mt-1">{inspectingBuyer.name}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const currentVal = inspectingBuyer.is_active ?? inspectingBuyer.active ?? true;
+                  handleToggleActive(inspectingBuyer.id, currentVal);
+                  setInspectingBuyer({ ...inspectingBuyer, is_active: !currentVal, active: !currentVal });
+                }}
+                className={`px-2.5 py-0.5 rounded-full text-xs font-bold cursor-pointer transition-colors ${
+                  inspectingBuyer.is_active ?? inspectingBuyer.active ?? true
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                    : 'bg-secondary text-muted-foreground border border-border'
+                }`}
+                title="Click to toggle status"
+              >
+                {inspectingBuyer.is_active ?? inspectingBuyer.active ?? true ? 'Active Receiving' : 'Paused'}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-5 text-xs">
+              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-medium">Lead Payout Rate</span>
+                <span className="text-lg font-extrabold text-foreground mt-0.5 block">
+                  ${inspectingBuyer.price_per_lead || 45}.00
+                </span>
+                <span className="text-[10px] text-muted-foreground uppercase">{inspectingBuyer.pricing_model || 'flat'} model</span>
+              </div>
+              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-medium">Quality Acceptance Filter</span>
+                <span className="text-lg font-extrabold text-blue-600 dark:text-blue-400 mt-0.5 block">
+                  {inspectingBuyer.min_score ?? inspectingBuyer.min_accept_score ?? 70}+ Score
+                </span>
+                <span className="text-[10px] text-muted-foreground">Scored by LeadScoreGuard</span>
+              </div>
+              <div className="col-span-2 p-3 rounded-xl bg-secondary/30 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-medium">Webhook Endpoint URL</span>
+                <span className="font-mono text-xs font-bold text-foreground truncate block mt-0.5">
+                  {inspectingBuyer.api_endpoint || 'https://api.buyer.com/v1/lead-postback'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
+              <button
+                onClick={() => {
+                  setEditingBuyer(inspectingBuyer);
+                  setInspectingBuyer(null);
+                  setIsModalOpen(true);
+                }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+                <span>Configure Endpoint</span>
+              </button>
+              <Link
+                href={`/buyers/${inspectingBuyer.id}`}
+                onClick={() => setInspectingBuyer(null)}
+                className="px-4 py-2 bg-secondary hover:bg-neutral-200 dark:hover:bg-neutral-800 text-foreground font-bold rounded-xl text-xs flex items-center gap-1.5 border border-border transition-colors"
+              >
+                <span>Analytics</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </ExpandableModal>
+      )}
     </AdminLayout>
   );
 }

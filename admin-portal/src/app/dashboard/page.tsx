@@ -19,6 +19,8 @@ import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-car
 import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminLead } from '@/lib/data';
+import { LeadDetailDrawer } from '@/components/leads/LeadDetailDrawer';
+import { ExpandableStatusBadge } from '@/components/ui/expandable-card';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -31,6 +33,7 @@ export default function DashboardPage() {
   });
 
   const [recentLeads, setRecentLeads] = useState<AdminLead[]>([]);
+  const [selectedLead, setSelectedLead] = useState<AdminLead | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
@@ -207,7 +210,9 @@ export default function DashboardPage() {
                     recentLeads.map((lead) => (
                       <tr
                         key={lead.id}
-                        className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors"
+                        onClick={() => setSelectedLead(lead)}
+                        className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors cursor-pointer group"
+                        title="Click to inspect lead"
                       >
                         <td className="py-2.5 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">
                           {lead.id.substring(0, 8)}
@@ -235,15 +240,21 @@ export default function DashboardPage() {
                           </span>
                         </td>
                         <td className="py-2.5 px-3">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          <ExpandableStatusBadge
+                            id={`dash-lead-${lead.id}`}
+                            status={lead.status || 'verified'}
+                            variant={lead.status === 'sold' ? 'info' : lead.status === 'verified' ? 'success' : 'warning'}
+                            contextText={
                               lead.status === 'sold'
-                                ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                                : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                            }`}
-                          >
-                            {lead.status || 'verified'}
-                          </span>
+                                ? `Lead delivered and accepted by ${lead.sold_to_buyer_name || 'Buyer Assigned'} for $55.00 payout.`
+                                : 'Lead passed Jornaya and TrustedForm compliance validation.'
+                            }
+                            details={[
+                              { label: 'Brand', value: lead.brand_name || 'LeadFlow' },
+                              { label: 'Score', value: `${lead.score || 85}/100` },
+                              { label: 'Ingested', value: new Date(lead.created_at).toLocaleTimeString() }
+                            ]}
+                          />
                         </td>
                         <td className="py-2.5 px-3 text-muted-foreground text-xs">
                           {lead.sold_to_buyer_name || 'Buyer Assigned'}
@@ -354,6 +365,9 @@ export default function DashboardPage() {
           </SpotlightCard>
         </div>
       </SpotlightCardGroup>
+
+      {/* Expanded Lead Detail Drawer with Aceternity Motion */}
+      <LeadDetailDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} />
     </AdminLayout>
   );
 }

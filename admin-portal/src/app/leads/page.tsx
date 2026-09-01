@@ -34,6 +34,8 @@ import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminLead } from '@/lib/data';
+import { ExpandableStatusBadge, ExpandableModal } from '@/components/ui/expandable-card';
+import { motion } from 'motion/react';
 
 const radialChartConfig = {
   sold: {
@@ -51,6 +53,7 @@ export default function LeadsPage() {
   const [brandFilter, setBrandFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [minScoreFilter, setMinScoreFilter] = useState<string>('0');
+  const [activeMetricId, setActiveMetricId] = useState<string | null>(null);
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -163,106 +166,114 @@ export default function LeadsPage() {
         </div>
       </div>
 
-      {/* ROW 1: Summary Stat Cards */}
+      {/* ROW 1: Summary Stat Cards with Aceternity Expandable Interaction */}
       <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <SpotlightCard
-          id="stat-total"
-          color="#2563eb"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Users className="w-3.5 h-3.5" />
+        <motion.div layoutId="leads-stat-total" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-total')}>
+          <SpotlightCard
+            id="stat-total"
+            color="#2563eb"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Users className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Total Ingested Leads
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Total Ingested Leads
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.total.toLocaleString()}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.total.toLocaleString()}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>↑ +12.4%</span>
-            <span className="text-muted-foreground font-normal text-[10px]">from last week</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>↑ +12.4%</span>
+              <span className="text-muted-foreground font-normal text-[10px]">from last week</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-revenue"
-          color="#10b981"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <DollarSign className="w-3.5 h-3.5" />
+        <motion.div layoutId="leads-stat-revenue" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-revenue')}>
+          <SpotlightCard
+            id="stat-revenue"
+            color="#10b981"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <DollarSign className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Est. Lead Revenue
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Est. Lead Revenue
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              ${metrics.estRevenue.toLocaleString()}
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                ${metrics.estRevenue.toLocaleString()}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>{metrics.soldRate}% Sold Ratio</span>
-            <span className="text-muted-foreground font-normal text-[10px]">({metrics.sold} leads)</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>{metrics.soldRate}% Sold Ratio</span>
+              <span className="text-muted-foreground font-normal text-[10px]">({metrics.sold} leads)</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-score"
-          color="#8b5cf6"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <Award className="w-3.5 h-3.5" />
+        <motion.div layoutId="leads-stat-score" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-score')}>
+          <SpotlightCard
+            id="stat-score"
+            color="#8b5cf6"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Award className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Avg Quality Score
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Avg Quality Score
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.avgScore} <span className="text-sm font-normal text-muted-foreground">/ 100</span>
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.avgScore} <span className="text-sm font-normal text-muted-foreground">/ 100</span>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>↑ +2.8 pts</span>
-            <span className="text-muted-foreground font-normal text-[10px]">scoring guardrails active</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>↑ +2.8 pts</span>
+              <span className="text-muted-foreground font-normal text-[10px]">scoring guardrails active</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
 
-        <SpotlightCard
-          id="stat-tcpa"
-          color="#0ea5e9"
-          tiltMax={6}
-          className="p-4 sm:p-5 flex flex-col justify-between"
-        >
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-              <ShieldCheck className="w-3.5 h-3.5" />
+        <motion.div layoutId="leads-stat-tcpa" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-tcpa')}>
+          <SpotlightCard
+            id="stat-tcpa"
+            color="#0ea5e9"
+            tiltMax={6}
+            className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                Verification Pass Rate
+              </span>
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Verification Pass Rate
-            </span>
-          </div>
-          <div className="my-1">
-            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-              {metrics.tcpaPassRate}%
+            <div className="my-1">
+              <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
+                {metrics.tcpaPassRate}%
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            <span>TrustedForm &amp; DNC Clean</span>
-          </div>
-        </SpotlightCard>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <span>TrustedForm &amp; DNC Clean</span>
+            </div>
+          </SpotlightCard>
+        </motion.div>
       </SpotlightCardGroup>
 
       {/* ROW 2: Lead Ingestion Volume Trend + Status Distribution Radial Ring */}
@@ -530,20 +541,34 @@ export default function LeadsPage() {
                         {lead.score || 'N/A'}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                      <ExpandableStatusBadge
+                        id={`lead-tbl-status-${lead.id}`}
+                        status={lead.status}
+                        variant={
                           lead.status === 'sold'
-                            ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                            ? 'info'
                             : lead.status === 'verified'
-                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            ? 'success'
                             : lead.status === 'duplicate'
-                            ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-                            : 'bg-secondary dark:bg-neutral-900 text-muted-foreground'
-                        }`}
-                      >
-                        {lead.status}
-                      </span>
+                            ? 'warning'
+                            : 'neutral'
+                        }
+                        contextText={
+                          lead.status === 'sold'
+                            ? `Lead monetized and delivered to ${lead.sold_to_buyer_name || 'Buyer Partner'} for $55.00 payout.`
+                            : lead.status === 'verified'
+                            ? 'TCPA compliant submission with verified Jornaya LeadID and TrustedForm claim token.'
+                            : lead.status === 'duplicate'
+                            ? 'Duplicate submission detected by phone/email hash within 30-day window.'
+                            : 'Pending compliance verification gate.'
+                        }
+                        details={[
+                          { label: 'Score', value: `${lead.score || 80}/100` },
+                          { label: 'Buyer', value: lead.sold_to_buyer_name || (lead.sold ? 'Buyer Assigned' : 'Unsold') },
+                          { label: 'Ingested', value: new Date(lead.created_at).toLocaleTimeString() }
+                        ]}
+                      />
                     </td>
                     <td className="py-3.5 px-4 text-muted-foreground font-mono text-[11px]">
                       {String(lead.subid_params?.utm_source || 'direct')}
@@ -584,6 +609,65 @@ export default function LeadsPage() {
 
       {/* Row Click Detail Drawer */}
       <LeadDetailDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} />
+
+      {/* Morphing Metric Card Modal */}
+      {activeMetricId && (
+        <ExpandableModal
+          isOpen={Boolean(activeMetricId)}
+          onClose={() => setActiveMetricId(null)}
+          layoutId={activeMetricId}
+          maxWidth="max-w-md"
+        >
+          <div className="p-6">
+            <h3 className="text-lg font-bold font-heading text-foreground mb-1">
+              {activeMetricId === 'leads-stat-total'
+                ? 'Total Ingested Leads Telemetry'
+                : activeMetricId === 'leads-stat-revenue'
+                ? 'Est. Lead Revenue Breakdown'
+                : activeMetricId === 'leads-stat-score'
+                ? 'Lead Quality Score Analysis'
+                : 'Verification & Compliance Rate'}
+            </h3>
+            <p className="text-xs text-muted-foreground mb-5">
+              Live multi-brand analytics and verification audit trail
+            </p>
+
+            <div className="space-y-3">
+              <div className="p-3.5 rounded-xl bg-secondary/50 border border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground font-semibold">Active Snapshot</span>
+                <span className="text-xl font-extrabold text-foreground font-heading">
+                  {activeMetricId === 'leads-stat-total'
+                    ? `${metrics.total.toLocaleString()} leads`
+                    : activeMetricId === 'leads-stat-revenue'
+                    ? `$${metrics.estRevenue.toLocaleString()}`
+                    : activeMetricId === 'leads-stat-score'
+                    ? `${metrics.avgScore} / 100`
+                    : `${metrics.tcpaPassRate}% clean`}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Sold Leads</span>
+                  <span className="font-bold text-foreground">{metrics.sold} leads</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Deduplication</span>
+                  <span className="font-bold text-foreground">{metrics.statusCounts?.duplicate || 0} duplicates</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Avg Score</span>
+                  <span className="font-bold text-foreground">{metrics.avgScore} pts</span>
+                </div>
+                <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Sold Ratio</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">{metrics.soldRate}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ExpandableModal>
+      )}
     </AdminLayout>
   );
 }

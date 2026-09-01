@@ -38,6 +38,7 @@ import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { Brand } from '@/types';
+import { ExpandableStatusBadge, ExpandableModal } from '@/components/ui/expandable-card';
 
 const radialChartConfig = {
   active: {
@@ -55,6 +56,7 @@ export default function BrandsPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [inspectingBrand, setInspectingBrand] = useState<Brand | null>(null);
 
   // Delete modal state
   const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
@@ -660,11 +662,16 @@ export default function BrandsPage() {
                     const totalQuestions = getQuestionCount(brand);
 
                     return (
-                      <tr key={brand.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors">
+                      <tr
+                        key={brand.id}
+                        onClick={() => setInspectingBrand(brand)}
+                        className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors cursor-pointer group"
+                        title="Click to inspect brand specs"
+                      >
                         <td className="py-3.5 px-4 font-bold text-foreground">
-                          <Link href={`/brands/${brand.id}/edit`} className="hover:text-blue-600 transition-colors font-heading text-sm">
+                          <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors font-heading text-sm">
                             {brand.name}
-                          </Link>
+                          </span>
                         </td>
                         <td className="py-3.5 px-4 font-mono text-muted-foreground">
                           <div>{brand.slug}</div>
@@ -683,20 +690,24 @@ export default function BrandsPage() {
                             <span>{primaryColor}</span>
                           </div>
                         </td>
-                        <td className="py-3.5 px-4">
-                          <button
-                            onClick={() => toggleBrandActive(brand.id, brand.is_active)}
-                            className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer ${
+                        <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                          <ExpandableStatusBadge
+                            id={`brand-status-${brand.id}`}
+                            status={brand.is_active ? 'Active' : 'Paused'}
+                            variant={brand.is_active ? 'success' : 'neutral'}
+                            contextText={
                               brand.is_active
-                                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                : 'bg-secondary text-muted-foreground border border-border'
-                            }`}
-                          >
-                            <span className={`w-1.5 h-1.5 rounded-full ${brand.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                            <span>{brand.is_active ? 'Active' : 'Paused'}</span>
-                          </button>
+                                ? `Brand funnel is live on ${brand.domain}, routing incoming leads to qualified buyers.`
+                                : `Brand funnel is currently paused and not accepting traffic.`
+                            }
+                            details={[
+                              { label: 'Slug', value: brand.slug },
+                              { label: 'Domain', value: brand.domain },
+                              { label: 'Vertical', value: brand.vertical?.replace(/_/g, ' ') || 'General' }
+                            ]}
+                          />
                         </td>
-                        <td className="py-3.5 px-4 text-right">
+                        <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-2">
                             <Link
                               href={`/brands/${brand.id}/edit`}
@@ -844,6 +855,99 @@ export default function BrandsPage() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Morphing Brand Inspector Modal using Aceternity layoutId */}
+      {inspectingBrand && (
+        <ExpandableModal
+          isOpen={Boolean(inspectingBrand)}
+          onClose={() => setInspectingBrand(null)}
+          layoutId={`brand-inspect-${inspectingBrand.id}`}
+          maxWidth="max-w-xl"
+        >
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-4 h-10 rounded-full shrink-0 shadow-xs"
+                  style={{ backgroundColor: inspectingBrand.theme_config?.primary_color || '#2563eb' }}
+                />
+                <div>
+                  <h3 className="text-xl font-bold font-heading text-foreground">{inspectingBrand.name}</h3>
+                  <span className="text-xs text-muted-foreground font-semibold">
+                    Vertical: {inspectingBrand.vertical?.replace(/_/g, ' ') || 'General'}
+                  </span>
+                </div>
+              </div>
+              <span
+                className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                  inspectingBrand.is_active
+                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                    : 'bg-secondary text-muted-foreground border border-border'
+                }`}
+              >
+                {inspectingBrand.is_active ? 'Active Funnel' : 'Paused'}
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 italic bg-secondary/50 p-3 rounded-xl border border-border mb-4">
+              &quot;{inspectingBrand.theme_config?.headline || 'High converting lead funnel'}&quot;
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 mb-5 text-xs">
+              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-medium">Domain Binding</span>
+                <span className="font-bold text-foreground font-mono truncate block mt-0.5">
+                  {inspectingBrand.domain}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-medium">Form Flow</span>
+                <span className="font-bold text-foreground block mt-0.5">
+                  {inspectingBrand.form_schema?.steps?.length || 1} Steps • {getQuestionCount(inspectingBrand)} Questions
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-medium">Theme Color</span>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span
+                    className="w-3.5 h-3.5 rounded-full border border-border"
+                    style={{ backgroundColor: inspectingBrand.theme_config?.primary_color || '#2563eb' }}
+                  />
+                  <span className="font-mono font-bold text-foreground">
+                    {inspectingBrand.theme_config?.primary_color || '#2563eb'}
+                  </span>
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-secondary/30 border border-border">
+                <span className="text-[10px] text-muted-foreground block font-medium">System Slug</span>
+                <span className="font-bold text-foreground font-mono block mt-0.5">
+                  {inspectingBrand.slug}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
+              <Link
+                href={`/brands/${inspectingBrand.id}/edit`}
+                onClick={() => setInspectingBrand(null)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+                <span>Edit Brand Funnel</span>
+              </Link>
+              <a
+                href={`http://${inspectingBrand.domain}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2 bg-secondary hover:bg-neutral-200 dark:hover:bg-neutral-800 text-foreground font-bold rounded-xl text-xs flex items-center gap-1.5 border border-border transition-colors"
+              >
+                <span>Visit Live Domain</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+        </ExpandableModal>
       )}
     </AdminLayout>
   );

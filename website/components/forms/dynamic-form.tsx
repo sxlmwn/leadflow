@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, type Variants } from 'motion/react';
-import { Check, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, Lock, ShieldCheck, X } from 'lucide-react';
+import { useOutsideClick } from '@/hooks/use-outside-click';
 import { Loader } from '@/components/ui/loader';
 import { ThemeConfig, FormSchema, FormStep, FormField, FormOption } from '@/types';
 import {
@@ -85,6 +86,17 @@ export default function DynamicForm({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedLeadId, setSubmittedLeadId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const securityRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(securityRef, () => setShowSecurityModal(false));
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowSecurityModal(false);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
 
   // Load TrustedForm script snippet on mount
   useEffect(() => {
@@ -557,6 +569,79 @@ export default function DynamicForm({
           </CardFooter>
         </form>
       </Card>
+
+      {/* Expandable TCPA Security Guarantee with Aceternity shared-element morphing */}
+      <div className="mt-3.5 flex justify-center">
+        <motion.button
+          type="button"
+          layoutId="funnel-security-pill"
+          onClick={() => setShowSecurityModal(true)}
+          className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-neutral-300 hover:text-white text-xs font-medium transition-all backdrop-blur-md cursor-pointer group shadow-2xs"
+        >
+          <Lock className="w-3.5 h-3.5 text-emerald-400" />
+          <span>256-Bit Encrypted &amp; TCPA Protected</span>
+          <span className="text-white/40 group-hover:text-white/80 ml-0.5">• View Details</span>
+        </motion.button>
+      </div>
+
+      {/* Morphing Security Inspector Modal */}
+      <AnimatePresence>
+        {showSecurityModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSecurityModal(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
+            />
+            <motion.div
+              layoutId="funnel-security-pill"
+              ref={securityRef}
+              className="relative z-10 w-full max-w-md bg-neutral-950 border border-neutral-800 text-white rounded-2xl p-6 shadow-2xl overflow-hidden my-auto"
+            >
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-neutral-800">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                  <h3 className="text-base font-bold text-white">Trust &amp; Compliance Guarantee</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowSecurityModal(false)}
+                  className="w-7 h-7 rounded-full bg-neutral-900 hover:bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3 text-xs text-neutral-300">
+                <div className="p-3 rounded-xl bg-neutral-900/60 border border-neutral-800/80">
+                  <span className="font-bold text-white block mb-0.5">🔒 End-to-End Encryption</span>
+                  <span>All submitted personal details are encrypted in transit via TLS 1.3 256-bit cryptography.</span>
+                </div>
+                <div className="p-3 rounded-xl bg-neutral-900/60 border border-neutral-800/80">
+                  <span className="font-bold text-white block mb-0.5">🛡️ TrustedForm &amp; Jornaya Certified</span>
+                  <span>TCPA independent proof-of-consent certificates are generated for consumer privacy protection.</span>
+                </div>
+                <div className="p-3 rounded-xl bg-neutral-900/60 border border-neutral-800/80">
+                  <span className="font-bold text-white block mb-0.5">🚫 Zero Unsolicited Spam</span>
+                  <span>Your information is strictly matched only with qualified, pre-vetted service specialists.</span>
+                </div>
+              </div>
+
+              <div className="mt-5 pt-3 border-t border-neutral-800 text-right">
+                <button
+                  type="button"
+                  onClick={() => setShowSecurityModal(false)}
+                  className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold transition-colors cursor-pointer border border-neutral-700"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
