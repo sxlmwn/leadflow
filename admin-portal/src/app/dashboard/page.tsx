@@ -16,6 +16,7 @@ import { WavyAreaChart } from '@/components/dashboard/WavyAreaChart';
 import { SessionsByDeviceCard } from '@/components/dashboard/SessionsByDeviceCard';
 import { CircularProgressRing } from '@/components/ui/circular-progress-ring';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
+import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminLead } from '@/lib/data';
 
@@ -192,7 +193,17 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border font-medium">
-                  {recentLeads.length > 0 ? (
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} className="py-8">
+                        <Loader
+                          size="sm"
+                          title="Streaming recent leads..."
+                          subtitle="Aggregating latest incoming submissions from active funnels"
+                        />
+                      </td>
+                    </tr>
+                  ) : recentLeads.length > 0 ? (
                     recentLeads.map((lead) => (
                       <tr
                         key={lead.id}

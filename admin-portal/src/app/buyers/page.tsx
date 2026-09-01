@@ -32,6 +32,7 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AddEditBuyerModal } from '@/components/buyers/AddEditBuyerModal';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
+import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminBuyer } from '@/lib/data';
 
@@ -459,94 +460,112 @@ export default function BuyersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border font-medium">
-              {buyers.map((buyer) => {
-                const active = buyer.is_active ?? buyer.active ?? true;
-                const minS = buyer.min_score ?? buyer.min_accept_score ?? 70;
+              {loading && buyers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12">
+                    <Loader
+                      size="md"
+                      title="Loading buyer endpoints..."
+                      subtitle="Fetching active webhook listeners, payout tiers, and min scoring criteria"
+                    />
+                  </td>
+                </tr>
+              ) : buyers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-muted-foreground text-xs">
+                    No buyers configured yet. Click &quot;+ New Buyer&quot; to add an endpoint.
+                  </td>
+                </tr>
+              ) : (
+                buyers.map((buyer) => {
+                  const active = buyer.is_active ?? buyer.active ?? true;
+                  const minS = buyer.min_score ?? buyer.min_accept_score ?? 70;
 
-                return (
-                  <tr key={buyer.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                    <td className="py-3.5 px-4">
-                      <button
-                        onClick={() => handleToggleActive(buyer.id, active)}
-                        className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all duration-200 ${
-                          active
-                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                            : 'bg-secondary text-muted-foreground border border-border'
-                        }`}
-                      >
-                        <span className={`w-2 h-2 rounded-full ${active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-                        <span>{active ? 'Active' : 'Paused'}</span>
-                      </button>
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <Link
-                        href={`/buyers/${buyer.id}`}
-                        className="font-bold text-foreground hover:text-blue-600 dark:hover:text-blue-400 font-heading text-sm transition-colors duration-200"
-                      >
-                        {buyer.name}
-                      </Link>
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-1.5 font-bold text-foreground">
-                        <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                        <span>${buyer.price_per_lead || 45}</span>
-                        <span className="text-[10px] font-semibold text-muted-foreground uppercase bg-secondary px-1.5 py-0.5 rounded border border-border">
-                          {buyer.pricing_model || 'flat'}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1 font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
-                        <Award className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                        <span>{minS}+ Score</span>
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <div className="flex flex-wrap gap-1">
-                        {(buyer.accepted_brands || []).map((brandName, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-700 dark:text-slate-300 bg-secondary px-2 py-0.5 rounded-md border border-border"
-                          >
-                            <Tag className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
-                            {brandName}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-
-                    <td className="py-3.5 px-4 font-mono text-[10px] text-muted-foreground max-w-[200px] truncate">
-                      {buyer.api_endpoint || 'https://api.buyer.com/v1/ping'}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                  return (
+                    <tr key={buyer.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="py-3.5 px-4">
                         <button
-                          onClick={() => {
-                            setEditingBuyer(buyer);
-                            setIsModalOpen(true);
-                          }}
-                          className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-secondary transition-colors cursor-pointer"
-                          title="Edit Buyer Specs"
+                          onClick={() => handleToggleActive(buyer.id, active)}
+                          className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all duration-200 ${
+                            active
+                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                              : 'bg-secondary text-muted-foreground border border-border'
+                          }`}
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <span className={`w-2 h-2 rounded-full ${active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                          <span>{active ? 'Active' : 'Paused'}</span>
                         </button>
+                      </td>
+
+                      <td className="py-3.5 px-4">
                         <Link
                           href={`/buyers/${buyer.id}`}
-                          className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-secondary transition-colors"
-                          title="View Performance Analytics"
+                          className="font-bold text-foreground hover:text-blue-600 dark:hover:text-blue-400 font-heading text-sm transition-colors duration-200"
                         >
-                          <ExternalLink className="w-4 h-4" />
+                          {buyer.name}
                         </Link>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-1.5 font-bold text-foreground">
+                          <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          <span>${buyer.price_per_lead || 45}</span>
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase bg-secondary px-1.5 py-0.5 rounded border border-border">
+                            {buyer.pricing_model || 'flat'}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <span className="inline-flex items-center gap-1 font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
+                          <Award className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                          <span>{minS}+ Score</span>
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <div className="flex flex-wrap gap-1">
+                          {(buyer.accepted_brands || []).map((brandName, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-700 dark:text-slate-300 bg-secondary px-2 py-0.5 rounded-md border border-border"
+                            >
+                              <Tag className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
+                              {brandName}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono text-[10px] text-muted-foreground max-w-[200px] truncate">
+                        {buyer.api_endpoint || 'https://api.buyer.com/v1/ping'}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingBuyer(buyer);
+                              setIsModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-secondary transition-colors cursor-pointer"
+                            title="Edit Buyer Specs"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <Link
+                            href={`/buyers/${buyer.id}`}
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-secondary transition-colors"
+                            title="View Performance Analytics"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

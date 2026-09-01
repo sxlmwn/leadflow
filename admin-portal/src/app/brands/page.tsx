@@ -35,6 +35,7 @@ import {
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
+import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { Brand } from '@/types';
 
@@ -512,112 +513,118 @@ export default function BrandsPage() {
 
       {/* Grid View */}
       {viewMode === 'grid' && (
-        <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
-          {brands.map((brand) => {
-            const primaryColor = brand.theme_config?.primary_color || '#2563eb';
-            const totalQuestions = getQuestionCount(brand);
-            const totalSteps = brand.form_schema?.steps?.length || 1;
+        loading && brands.length === 0 ? (
+          <div className="py-12 flex items-center justify-center">
+            <Loader
+              size="md"
+              title="Loading brand funnels..."
+              subtitle="Fetching multi-step questions, custom themes, and domain bindings"
+            />
+          </div>
+        ) : (
+          <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
+            {brands.map((brand) => {
+              const primaryColor = brand.theme_config?.primary_color || '#2563eb';
+              const totalQuestions = getQuestionCount(brand);
+              const totalSteps = brand.form_schema?.steps?.length || 1;
 
-            return (
-              <SpotlightCard
-                key={brand.id}
-                id={brand.id}
-                color={primaryColor}
-                tiltMax={6}
-                className="p-6 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-4 h-9 rounded-full shadow-2xs shrink-0"
-                        style={{ backgroundColor: primaryColor }}
-                        title={`Theme Color: ${primaryColor}`}
-                      />
-                      <div className="overflow-hidden">
-                        <h3 className="text-lg font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 font-heading truncate">
-                          {brand.name}
-                        </h3>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block truncate">
-                          {brand.vertical?.replace(/_/g, ' ') || 'General'}
+              return (
+                <SpotlightCard
+                  key={brand.id}
+                  id={brand.id}
+                  color={primaryColor}
+                  tiltMax={6}
+                  className="p-6 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-4 h-9 rounded-full shadow-2xs shrink-0"
+                          style={{ backgroundColor: primaryColor }}
+                          title={`Theme Color: ${primaryColor}`}
+                        />
+                        <div className="overflow-hidden">
+                          <h3 className="text-lg font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 font-heading truncate">
+                            {brand.name}
+                          </h3>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block truncate">
+                            {brand.vertical?.replace(/_/g, ' ') || 'General'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => toggleBrandActive(brand.id, brand.is_active)}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
+                          brand.is_active
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            : 'bg-secondary text-muted-foreground border border-border'
+                        }`}
+                      >
+                        <span className={`w-2 h-2 rounded-full ${brand.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                        <span>{brand.is_active ? 'Active' : 'Paused'}</span>
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 mb-4 italic bg-secondary/70 p-3 rounded-xl border border-border">
+                      &quot;{brand.theme_config?.headline || 'High converting lead funnel'}&quot;
+                    </p>
+
+                    <div className="space-y-2 text-xs mb-5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground flex items-center gap-1.5">
+                          <Globe className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                          Domain:
+                        </span>
+                        <span className="font-mono font-bold text-foreground truncate max-w-[170px]">
+                          {brand.domain}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground flex items-center gap-1.5">
+                          <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                          Form Structure:
+                        </span>
+                        <span className="font-bold text-foreground">
+                          {totalSteps} {totalSteps === 1 ? 'Step' : 'Steps'} • {totalQuestions} Questions
                         </span>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-border flex items-center justify-between gap-2">
+                    <Link
+                      href={`/brands/${brand.id}/edit`}
+                      className="flex-1 py-2 px-3 bg-secondary hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 text-foreground font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-border hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 transform-gpu shadow-2xs"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      <span>Edit Brand</span>
+                    </Link>
+
+                    <a
+                      href={`http://${brand.domain}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-2 rounded-xl bg-secondary hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-foreground border border-border transition-colors"
+                      title="Visit Live Funnel Domain"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
 
                     <button
-                      onClick={() => toggleBrandActive(brand.id, brand.is_active)}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
-                        brand.is_active
-                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          : 'bg-secondary text-muted-foreground border border-border'
-                      }`}
+                      onClick={() => initiateDelete(brand)}
+                      className="p-2 rounded-xl bg-secondary hover:bg-rose-50 dark:hover:bg-rose-950/40 text-muted-foreground hover:text-rose-600 border border-border transition-colors cursor-pointer"
+                      title="Delete Brand"
                     >
-                      <span
-                        className={`w-2 h-2 rounded-full ${
-                          brand.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'
-                        }`}
-                      />
-                      <span>{brand.is_active ? 'Active' : 'Paused'}</span>
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-
-                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 mb-4 italic bg-secondary/70 p-3 rounded-xl border border-border">
-                    &quot;{brand.theme_config?.headline || 'High converting lead funnel'}&quot;
-                  </p>
-
-                  <div className="space-y-2 text-xs mb-5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground flex items-center gap-1.5">
-                        <Globe className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                        Domain:
-                      </span>
-                      <span className="font-mono font-bold text-foreground truncate max-w-[170px]">
-                        {brand.domain}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground flex items-center gap-1.5">
-                        <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                        Form Structure:
-                      </span>
-                      <span className="font-bold text-foreground">
-                        {totalSteps} {totalSteps === 1 ? 'Step' : 'Steps'} • {totalQuestions} Questions
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-border flex items-center justify-between gap-2">
-                  <Link
-                    href={`/brands/${brand.id}/edit`}
-                    className="flex-1 py-2 px-3 bg-secondary hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 text-foreground font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-border hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 transform-gpu shadow-2xs"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                    <span>Edit Brand</span>
-                  </Link>
-
-                  <a
-                    href={`http://${brand.domain}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2 rounded-xl bg-secondary hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-foreground border border-border transition-colors"
-                    title="Visit Live Funnel Domain"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-
-                  <button
-                    onClick={() => initiateDelete(brand)}
-                    className="p-2 rounded-xl bg-secondary hover:bg-rose-50 dark:hover:bg-rose-950/40 text-muted-foreground hover:text-rose-600 border border-border transition-colors cursor-pointer"
-                    title="Delete Brand"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </SpotlightCard>
-            );
-          })}
-        </SpotlightCardGroup>
+                </SpotlightCard>
+              );
+            })}
+          </SpotlightCardGroup>
+        )
       )}
 
       {/* Table View */}
@@ -637,68 +644,80 @@ export default function BrandsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border font-medium">
-                {brands.map((brand) => {
-                  const primaryColor = brand.theme_config?.primary_color || '#2563eb';
-                  const totalQuestions = getQuestionCount(brand);
+                {loading && brands.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12">
+                      <Loader
+                        size="md"
+                        title="Loading brand funnels..."
+                        subtitle="Fetching multi-step questions, custom themes, and domain bindings"
+                      />
+                    </td>
+                  </tr>
+                ) : (
+                  brands.map((brand) => {
+                    const primaryColor = brand.theme_config?.primary_color || '#2563eb';
+                    const totalQuestions = getQuestionCount(brand);
 
-                  return (
-                    <tr key={brand.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-foreground">
-                        <Link href={`/brands/${brand.id}/edit`} className="hover:text-blue-600 transition-colors font-heading text-sm">
-                          {brand.name}
-                        </Link>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono text-muted-foreground">
-                        <div>{brand.slug}</div>
-                        <div className="text-[10px] text-foreground font-semibold">{brand.domain}</div>
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
-                        {brand.vertical?.replace(/_/g, ' ')}
-                      </td>
-                      <td className="py-3.5 px-4 font-bold text-foreground">{totalQuestions} fields</td>
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-2 font-mono text-[11px]">
-                          <span
-                            className="w-3.5 h-3.5 rounded-full border border-border inline-block shadow-2xs"
-                            style={{ backgroundColor: primaryColor }}
-                          />
-                          <span>{primaryColor}</span>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <button
-                          onClick={() => toggleBrandActive(brand.id, brand.is_active)}
-                          className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer ${
-                            brand.is_active
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                              : 'bg-secondary text-muted-foreground border border-border'
-                          }`}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${brand.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                          <span>{brand.is_active ? 'Active' : 'Paused'}</span>
-                        </button>
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            href={`/brands/${brand.id}/edit`}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 hover:bg-secondary transition-colors"
-                            title="Edit"
-                          >
-                            <Edit2 className="w-4 h-4" />
+                    return (
+                      <tr key={brand.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="py-3.5 px-4 font-bold text-foreground">
+                          <Link href={`/brands/${brand.id}/edit`} className="hover:text-blue-600 transition-colors font-heading text-sm">
+                            {brand.name}
                           </Link>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono text-muted-foreground">
+                          <div>{brand.slug}</div>
+                          <div className="text-[10px] text-foreground font-semibold">{brand.domain}</div>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                          {brand.vertical?.replace(/_/g, ' ')}
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-foreground">{totalQuestions} fields</td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2 font-mono text-[11px]">
+                            <span
+                              className="w-3.5 h-3.5 rounded-full border border-border inline-block shadow-2xs"
+                              style={{ backgroundColor: primaryColor }}
+                            />
+                            <span>{primaryColor}</span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4">
                           <button
-                            onClick={() => initiateDelete(brand)}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                            title="Delete"
+                            onClick={() => toggleBrandActive(brand.id, brand.is_active)}
+                            className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer ${
+                              brand.is_active
+                                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                : 'bg-secondary text-muted-foreground border border-border'
+                            }`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <span className={`w-1.5 h-1.5 rounded-full ${brand.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                            <span>{brand.is_active ? 'Active' : 'Paused'}</span>
                           </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Link
+                              href={`/brands/${brand.id}/edit`}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 hover:bg-secondary transition-colors"
+                              title="Edit"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Link>
+                            <button
+                              onClick={() => initiateDelete(brand)}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -724,9 +743,12 @@ export default function BrandsPage() {
             </div>
 
             {checkingRefs ? (
-              <div className="p-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-2 bg-secondary rounded-xl">
-                <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                <span>Checking historical lead &amp; click references...</span>
+              <div className="p-4 text-center bg-secondary rounded-xl">
+                <Loader
+                  size="sm"
+                  title="Checking references..."
+                  subtitle="Analyzing historical leads and click records"
+                />
               </div>
             ) : (
               <div className="p-3.5 bg-secondary/80 rounded-xl border border-border space-y-2 text-xs">
@@ -805,10 +827,14 @@ export default function BrandsPage() {
                     className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs transition-colors flex items-center justify-center gap-2"
                   >
                     {isDeleting ? (
-                      <>
-                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>{deletingProgress || 'Deleting...'}</span>
-                      </>
+                      <span className="flex items-center gap-2">
+                        <Loader
+                          size="sm"
+                          title={deletingProgress || "Deleting..."}
+                          subtitle=""
+                          className="p-0 gap-1.5 flex-row text-white dark:text-white [&_h1]:text-white [&_h1]:text-xs [&_div]:size-4"
+                        />
+                      </span>
                     ) : (
                       <span>Permanently Delete</span>
                     )}

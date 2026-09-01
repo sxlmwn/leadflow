@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'motion/react';
 import { Mail, Lock, Eye, EyeClosed, ArrowRight, Activity } from 'lucide-react';
+import { Loader } from '@/components/ui/loader';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from "@/lib/utils";
 
@@ -166,8 +167,13 @@ export function AdminSignInCard() {
                   <div className="relative overflow-hidden bg-blue-600 hover:bg-blue-700 text-white font-bold h-10 rounded-xl transition-colors duration-200 flex items-center justify-center shadow-md shadow-blue-500/25">
                     <AnimatePresence mode="wait">
                       {isLoading ? (
-                        <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                          <div className="w-4 h-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin" />
+                        <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center">
+                          <Loader
+                            size="sm"
+                            title="Authenticating..."
+                            subtitle=""
+                            className="p-0 gap-1.5 flex-row text-white dark:text-white [&_h1]:text-white [&_h1]:text-xs [&_div]:size-4 [&_span]:text-white"
+                          />
                         </motion.div>
                       ) : (
                         <motion.span key="text" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5 text-sm font-semibold">

@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { Check, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence, type Variants } from 'motion/react';
+import { Check, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Loader } from '@/components/ui/loader';
 import { ThemeConfig, FormSchema, FormStep, FormField, FormOption } from '@/types';
 import {
   Card,
@@ -537,10 +538,14 @@ export default function DynamicForm({
                 style={{ backgroundColor: primaryColor, boxShadow: `0 3px 18px ${primaryColor}70` }}
               >
                 {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    <span>Submitting...</span>
-                  </>
+                  <span className="flex items-center gap-2">
+                    <Loader
+                      size="sm"
+                      title="Submitting request..."
+                      subtitle=""
+                      className="p-0 gap-1.5 flex-row text-white dark:text-white [&_h1]:text-white [&_h1]:text-xs [&_div]:size-4 [&_span]:text-white"
+                    />
+                  </span>
                 ) : (
                   <>
                     <Check className="w-3.5 h-3.5 mr-1.5 stroke-[2.5]" />

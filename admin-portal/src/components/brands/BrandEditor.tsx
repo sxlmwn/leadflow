@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Brand, FormField, FormSchema, FormStep, ThemeConfig, LegalCopy, FormFieldType } from '@/types';
 import { DynamicFormPreview } from '@/components/forms/DynamicFormPreview';
+import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 
 function isProxyOrFragileImageUrl(url?: string): boolean {
@@ -569,7 +570,16 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
             onClick={() => handleSave(true)}
             className="flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer disabled:opacity-50"
           >
-            {saveSuccess ? (
+            {isSaving ? (
+              <span className="flex items-center gap-2">
+                <Loader
+                  size="sm"
+                  title="Publishing..."
+                  subtitle=""
+                  className="p-0 gap-1.5 flex-row text-white dark:text-white [&_h1]:text-white [&_h1]:text-xs [&_div]:size-4"
+                />
+              </span>
+            ) : saveSuccess ? (
               <>
                 <Check className="w-4 h-4" />
                 <span>Saved &amp; Published!</span>

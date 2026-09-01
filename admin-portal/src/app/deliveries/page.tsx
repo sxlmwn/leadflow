@@ -29,6 +29,7 @@ import {
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
+import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminDelivery } from '@/lib/data';
 
@@ -436,43 +437,61 @@ export default function DeliveriesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border font-medium">
-              {filteredDeliveries.map((del) => (
-                <tr key={del.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
-                    {del.lead_id.substring(0, 8)}
-                  </td>
-                  <td className="py-3.5 px-4 font-bold text-foreground">{del.buyer_name}</td>
-                  <td className="py-3.5 px-4 text-slate-800 dark:text-slate-200 font-semibold">{del.brand_name}</td>
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        del.accepted
-                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-                      }`}
-                    >
-                      {del.accepted ? 'Accepted' : 'Rejected'}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 font-bold text-foreground">
-                    ${del.price_paid || (del.accepted ? 65 : 0)}
-                  </td>
-                  <td className="py-3.5 px-4 font-mono text-muted-foreground">142ms</td>
-                  <td className="py-3.5 px-4">
-                    {del.converted ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
-                        <CheckCircle className="w-3 h-3" />
-                        Converted ($250)
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-muted-foreground">No Postback Yet</span>
-                    )}
-                  </td>
-                  <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
-                    {new Date(del.delivered_at).toLocaleString()}
+              {loading && deliveries.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12">
+                    <Loader
+                      size="md"
+                      title="Loading outbound deliveries..."
+                      subtitle="Fetching real-time buyer pings, postbacks, and response status logs"
+                    />
                   </td>
                 </tr>
-              ))}
+              ) : filteredDeliveries.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-muted-foreground text-xs">
+                    No outbound deliveries recorded matching selected filter.
+                  </td>
+                </tr>
+              ) : (
+                filteredDeliveries.map((del) => (
+                  <tr key={del.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
+                      {del.lead_id.substring(0, 8)}
+                    </td>
+                    <td className="py-3.5 px-4 font-bold text-foreground">{del.buyer_name}</td>
+                    <td className="py-3.5 px-4 text-slate-800 dark:text-slate-200 font-semibold">{del.brand_name}</td>
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          del.accepted
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                        }`}
+                      >
+                        {del.accepted ? 'Accepted' : 'Rejected'}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 font-bold text-foreground">
+                      ${del.price_paid || (del.accepted ? 65 : 0)}
+                    </td>
+                    <td className="py-3.5 px-4 font-mono text-muted-foreground">142ms</td>
+                    <td className="py-3.5 px-4">
+                      {del.converted ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                          <CheckCircle className="w-3 h-3" />
+                          Converted ($250)
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground">No Postback Yet</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
+                      {new Date(del.delivered_at).toLocaleString()}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

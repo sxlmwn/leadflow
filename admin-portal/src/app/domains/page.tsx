@@ -33,6 +33,7 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AddDomainModal } from '@/components/domains/AddDomainModal';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
+import { Loader } from '@/components/ui/loader';
 import { AdminDomain, MOCK_DOMAINS } from '@/lib/data';
 import { supabase } from '@/lib/supabase';
 
@@ -456,67 +457,85 @@ export default function DomainsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border font-medium">
-              {domains.map((dom) => (
-                <tr key={dom.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-foreground flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                    <span>{dom.domain}</span>
-                  </td>
-
-                  <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{dom.brand_name}</td>
-
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        dom.status === 'active'
-                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          : dom.status === 'pending'
-                          ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-                          : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          dom.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500 animate-ping'
-                        }`}
-                      />
-                      <span>{dom.status}</span>
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 px-4">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      SSL Active
-                    </span>
-                  </td>
-
-                  <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
-                    {new Date(dom.created_at).toLocaleDateString()}
-                  </td>
-
-                  <td className="py-3.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <a
-                        href={`https://${dom.domain}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 hover:bg-secondary transition-colors inline-flex items-center gap-1 font-semibold"
-                        title="Visit Live Domain"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                      <button
-                        onClick={() => initiateRemoveDomain(dom)}
-                        className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
-                        title="Remove Domain"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+              {loading && domains.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12">
+                    <Loader
+                      size="md"
+                      title="Loading custom domains..."
+                      subtitle="Fetching DNS propagation records and SSL certificate status"
+                    />
                   </td>
                 </tr>
-              ))}
+              ) : domains.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-muted-foreground text-xs">
+                    No custom domains connected. Click &quot;+ Connect Domain&quot; to link your first hostname.
+                  </td>
+                </tr>
+              ) : (
+                domains.map((dom) => (
+                  <tr key={dom.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-bold text-foreground flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                      <span>{dom.domain}</span>
+                    </td>
+
+                    <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{dom.brand_name}</td>
+
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          dom.status === 'active'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            : dom.status === 'pending'
+                            ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                            : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            dom.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500 animate-ping'
+                          }`}
+                        />
+                        <span>{dom.status}</span>
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-4">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        SSL Active
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
+                      {new Date(dom.created_at).toLocaleDateString()}
+                    </td>
+
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <a
+                          href={`https://${dom.domain}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 hover:bg-secondary transition-colors inline-flex items-center gap-1 font-semibold"
+                          title="Visit Live Domain"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                        <button
+                          onClick={() => initiateRemoveDomain(dom)}
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                          title="Remove Domain"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -558,9 +577,12 @@ export default function DomainsPage() {
             </p>
 
             {checkingRefs ? (
-              <div className="p-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-2 bg-secondary rounded-xl">
-                <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                <span>Checking historical leads and click records for this domain...</span>
+              <div className="p-4 text-center bg-secondary rounded-xl">
+                <Loader
+                  size="sm"
+                  title="Checking traffic references..."
+                  subtitle="Analyzing historical leads and click records for this domain"
+                />
               </div>
             ) : (
               <div className="p-3 bg-secondary rounded-xl border border-border text-xs text-muted-foreground flex items-center justify-between">
@@ -584,10 +606,14 @@ export default function DomainsPage() {
                 className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2"
               >
                 {isRemoving ? (
-                  <>
-                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Removing...</span>
-                  </>
+                  <span className="flex items-center gap-2">
+                    <Loader
+                      size="sm"
+                      title="Unlinking..."
+                      subtitle=""
+                      className="p-0 gap-1.5 flex-row text-white dark:text-white [&_h1]:text-white [&_h1]:text-xs [&_div]:size-4"
+                    />
+                  </span>
                 ) : (
                   <span>Unlink Domain</span>
                 )}

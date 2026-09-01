@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Globe, CheckCircle2, ArrowRight, Copy, Check, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Loader } from '@/components/ui/loader';
 
 interface AddDomainModalProps {
   isOpen: boolean;
@@ -212,8 +213,12 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
               >
                 {verifying ? (
                   <span className="flex items-center gap-2">
-                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Verifying DNS propagation via Vercel API...</span>
+                    <Loader
+                      size="sm"
+                      title="Verifying DNS..."
+                      subtitle=""
+                      className="p-0 gap-1.5 flex-row text-white dark:text-white [&_h1]:text-white [&_h1]:text-xs [&_div]:size-4"
+                    />
                   </span>
                 ) : (
                   <>

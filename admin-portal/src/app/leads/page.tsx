@@ -31,6 +31,7 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { LeadDetailDrawer } from '@/components/leads/LeadDetailDrawer';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
+import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminLead } from '@/lib/data';
 
@@ -483,81 +484,99 @@ export default function LeadsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border font-medium">
-              {filteredLeads.map((lead) => (
-                <tr
-                  key={lead.id}
-                  onClick={() => setSelectedLead(lead)}
-                  className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group"
-                >
-                  <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
-                    {lead.id.substring(0, 8)}
-                  </td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{lead.brand_name}</td>
-                  <td className="py-3.5 px-4">
-                    <div className="flex flex-col">
-                      <span className="text-slate-900 dark:text-slate-100 font-bold">{lead.full_name}</span>
-                      <span className="text-[10px] text-muted-foreground">{lead.email}</span>
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                        (lead.score || 0) >= 80
-                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          : (lead.score || 0) >= 50
-                          ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-                          : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-                      }`}
-                    >
-                      {lead.score || 'N/A'}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        lead.status === 'sold'
-                          ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                          : lead.status === 'verified'
-                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          : lead.status === 'duplicate'
-                          ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                      }`}
-                    >
-                      {lead.status}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 text-muted-foreground font-mono text-[11px]">
-                    {String(lead.subid_params?.utm_source || 'direct')}
-                  </td>
-                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-semibold">
-                    {lead.sold_to_buyer_name || (lead.sold ? 'Buyer Assigned' : 'Unsold')}
-                  </td>
-                  <td className="py-3.5 px-4">
-                    {lead.trustedform_cert_url ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
-                        <ShieldCheck className="w-3 h-3" />
-                        Verified
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-muted-foreground font-medium">Standard</span>
-                    )}
-                  </td>
-                  <td className="py-3.5 px-4">
-                    {lead.dnc_flagged ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-200 dark:border-rose-800">
-                        <ShieldAlert className="w-3 h-3" />
-                        Flagged
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Clear</span>
-                    )}
-                  </td>
-                  <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
-                    {new Date(lead.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {loading ? (
+                <tr>
+                  <td colSpan={10} className="py-12">
+                    <Loader
+                      size="md"
+                      title="Loading lead audit stream..."
+                      subtitle="Fetching verified submissions, scoring metrics, and routing audit logs"
+                    />
                   </td>
                 </tr>
-              ))}
+              ) : filteredLeads.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="py-8 text-center text-muted-foreground text-xs">
+                    No leads found matching current filter criteria.
+                  </td>
+                </tr>
+              ) : (
+                filteredLeads.map((lead) => (
+                  <tr
+                    key={lead.id}
+                    onClick={() => setSelectedLead(lead)}
+                    className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                  >
+                    <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
+                      {lead.id.substring(0, 8)}
+                    </td>
+                    <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{lead.brand_name}</td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex flex-col">
+                        <span className="text-slate-900 dark:text-slate-100 font-bold">{lead.full_name}</span>
+                        <span className="text-[10px] text-muted-foreground">{lead.email}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                          (lead.score || 0) >= 80
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            : (lead.score || 0) >= 50
+                            ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                            : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+                        }`}
+                      >
+                        {lead.score || 'N/A'}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          lead.status === 'sold'
+                            ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                            : lead.status === 'verified'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            : lead.status === 'duplicate'
+                            ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                        }`}
+                      >
+                        {lead.status}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-muted-foreground font-mono text-[11px]">
+                      {String(lead.subid_params?.utm_source || 'direct')}
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-semibold">
+                      {lead.sold_to_buyer_name || (lead.sold ? 'Buyer Assigned' : 'Unsold')}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      {lead.trustedform_cert_url ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                          <ShieldCheck className="w-3 h-3" />
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground font-medium">Standard</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      {lead.dnc_flagged ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-200 dark:border-rose-800">
+                          <ShieldAlert className="w-3 h-3" />
+                          Flagged
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Clear</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
+                      {new Date(lead.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

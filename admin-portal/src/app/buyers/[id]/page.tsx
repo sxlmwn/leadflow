@@ -13,6 +13,7 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { WavyAreaChart } from '@/components/dashboard/WavyAreaChart';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
+import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { AdminBuyer, AdminDelivery } from '@/lib/data';
 
@@ -88,6 +89,20 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     fetchBuyerDetail();
   }, [buyerId]);
+
+  if (loading) {
+    return (
+      <AdminLayout title="Buyer Analytics">
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <Loader
+            size="lg"
+            title="Loading buyer analytics..."
+            subtitle="Fetching webhook metrics, ping latencies, and delivery audit history"
+          />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   if (!buyer) return null;
 

@@ -4,6 +4,7 @@ import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { BrandEditor } from '@/components/brands/BrandEditor';
+import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
 import { Brand } from '@/types';
 
@@ -41,9 +42,12 @@ export default function BrandEditRoute({ params }: { params: Promise<{ id: strin
   if (loading) {
     return (
       <AdminLayout title="Brand Studio">
-        <div className="p-12 text-center text-muted-foreground font-medium flex items-center justify-center gap-2">
-          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <span>Loading brand configuration...</span>
+        <div className="min-h-[50vh] flex items-center justify-center">
+          <Loader
+            size="lg"
+            title="Loading brand configuration..."
+            subtitle="Fetching theme styling, questions schema, and webhook routing"
+          />
         </div>
       </AdminLayout>
     );
