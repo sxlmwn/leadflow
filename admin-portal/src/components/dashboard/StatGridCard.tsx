@@ -22,30 +22,34 @@ interface StatGridCardProps {
     soldPercent: number;
     estRevenue: number;
     activeBrands: number;
+    totalVisitors?: number;
+    dncFlaggedCount?: number;
   };
 }
 
 export const StatGridCard: React.FC<StatGridCardProps> = ({ stats }) => {
   const [activeModalId, setActiveModalId] = useState<string | null>(null);
 
+  const totalVisitors = stats.totalVisitors ?? (stats.totalLeadsToday > 0 ? stats.totalLeadsToday : 0);
+
   const items = [
     {
       id: 'stat-users',
-      label: 'Users',
-      value: stats.totalLeadsToday > 0 ? stats.totalLeadsToday.toLocaleString() : '284',
-      change: '+1.02%',
-      isPositive: true,
-      subtitle: 'from last week',
+      label: 'Ingested Leads',
+      value: stats.totalLeadsToday.toLocaleString(),
+      change: stats.totalLeadsToday > 0 ? 'Live database' : 'No records yet',
+      isPositive: stats.totalLeadsToday > 0,
+      subtitle: 'total leads',
       icon: Users,
-      color: '#2563eb', // Royal Blue
-      iconBg: 'bg-blue-50 dark:bg-blue-950/60',
-      iconColor: 'text-blue-600 dark:text-blue-400',
-      detailedTitle: 'Audience & Ingestion Velocity',
+      color: '#71717a',
+      iconBg: 'bg-secondary',
+      iconColor: 'text-foreground',
+      detailedTitle: 'Lead Ingestion Telemetry',
       deepDive: [
-        { label: 'Active Funnel Sessions', value: '1,420 users', change: '+14% today' },
-        { label: 'Form Step 1 Starts', value: '612 users', change: '84% start rate' },
-        { label: 'Verified Submissions', value: '284 leads', change: '100% clean' },
-        { label: 'Bot Traffic Deflected', value: '38 blocks', change: 'Cloudflare Turnstile' },
+        { label: 'Total Ingested Leads', value: `${stats.totalLeadsToday} leads`, change: 'Real database' },
+        { label: 'Total Visitor Clicks', value: `${totalVisitors} clicks`, change: 'Tracking logs' },
+        { label: 'Active Funnel Brands', value: `${stats.activeBrands} brands`, change: 'Live schema' },
+        { label: 'Flagged / Blocked', value: `${stats.dncFlaggedCount || 0} leads`, change: 'DNC Guard' },
       ],
       actionHref: '/leads',
       actionText: 'Inspect Live Leads',
@@ -53,20 +57,20 @@ export const StatGridCard: React.FC<StatGridCardProps> = ({ stats }) => {
     {
       id: 'stat-revenue',
       label: 'Revenue',
-      value: `$${stats.estRevenue ? stats.estRevenue.toLocaleString() : '3,194.24'}`,
-      change: '+2.75%',
-      isPositive: true,
-      subtitle: 'from last week',
+      value: `$${Number(stats.estRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      change: stats.estRevenue > 0 ? 'Gross realized' : '$0.00 realized',
+      isPositive: stats.estRevenue > 0,
+      subtitle: 'total sold',
       icon: DollarSign,
-      color: '#10b981', // Emerald Green
-      iconBg: 'bg-emerald-50 dark:bg-emerald-950/60',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
-      detailedTitle: 'Revenue & Buyer Realization',
+      color: '#71717a',
+      iconBg: 'bg-secondary',
+      iconColor: 'text-foreground',
+      detailedTitle: 'Revenue & Buyer Monetization',
       deepDive: [
-        { label: 'Gross Lead Revenue', value: `$${stats.estRevenue || 3194}`, change: 'Real-time sync' },
-        { label: 'Avg Revenue Per Lead (RPC)', value: '$55.00', change: '+8.2%' },
-        { label: 'Sold Conversion Ratio', value: `${stats.soldPercent || 78.4}%`, change: 'Tier 1 Buyers' },
-        { label: 'Cleared Buyer Payouts', value: '$2,840.00', change: 'Within Net-15' },
+        { label: 'Gross Sold Revenue', value: `$${Number(stats.estRevenue || 0).toFixed(2)}`, change: 'Buyer deliveries' },
+        { label: 'Sold Conversion Ratio', value: `${stats.soldPercent.toFixed(1)}%`, change: 'Sold rate' },
+        { label: 'Active Brands Monitored', value: `${stats.activeBrands}`, change: 'Funnels active' },
+        { label: 'Ingested Lead Volume', value: `${stats.totalLeadsToday}`, change: 'Submissions' },
       ],
       actionHref: '/deliveries',
       actionText: 'View Buyer Deliveries',
@@ -74,20 +78,20 @@ export const StatGridCard: React.FC<StatGridCardProps> = ({ stats }) => {
     {
       id: 'stat-conv-rate',
       label: 'Conv Rate',
-      value: `${stats.soldPercent ? stats.soldPercent : 2.85}%`,
-      change: '+3.44%',
-      isPositive: true,
-      subtitle: 'from last week',
+      value: `${stats.soldPercent.toFixed(1)}%`,
+      change: stats.soldPercent > 0 ? 'Conversion health' : '0.0% converted',
+      isPositive: stats.soldPercent > 0,
+      subtitle: 'sold / ingested',
       icon: TrendingUp,
-      color: '#8b5cf6', // Violet/Purple
-      iconBg: 'bg-purple-50 dark:bg-purple-950/60',
-      iconColor: 'text-purple-600 dark:text-purple-400',
+      color: '#71717a',
+      iconBg: 'bg-secondary',
+      iconColor: 'text-foreground',
       detailedTitle: 'Conversion Pipeline Health',
       deepDive: [
-        { label: 'Landing Page View-to-Start', value: '42.8%', change: '+3.1%' },
-        { label: 'Multi-Step Completion', value: '78.4%', change: 'Dynamic Form Engine' },
-        { label: 'Scoring Gate Pass Rate', value: '92.6%', change: 'LeadScoreGuard' },
-        { label: 'Instant Routing Speed', value: '184ms', change: 'Zero lag' },
+        { label: 'Buyer Sold Rate', value: `${stats.soldPercent.toFixed(1)}%`, change: 'Sold conversions' },
+        { label: 'Total Ingested Leads', value: `${stats.totalLeadsToday}`, change: 'Real database' },
+        { label: 'Active Brands', value: `${stats.activeBrands}`, change: 'Live funnels' },
+        { label: 'DNC Scrubbed / Filtered', value: `${stats.dncFlaggedCount || 0}`, change: 'Compliance check' },
       ],
       actionHref: '/leads',
       actionText: 'View Conversion Audits',
@@ -95,20 +99,20 @@ export const StatGridCard: React.FC<StatGridCardProps> = ({ stats }) => {
     {
       id: 'stat-active-brands',
       label: 'Active Brands',
-      value: `${stats.activeBrands ? stats.activeBrands : 3}`,
-      change: '+1.89%',
-      isPositive: true,
-      subtitle: 'from last week',
+      value: `${stats.activeBrands}`,
+      change: stats.activeBrands > 0 ? 'Active in system' : 'None active',
+      isPositive: stats.activeBrands > 0,
+      subtitle: 'live funnels',
       icon: Building2,
-      color: '#0ea5e9', // Sky Blue
-      iconBg: 'bg-sky-50 dark:bg-sky-950/60',
-      iconColor: 'text-sky-600 dark:text-sky-400',
+      color: '#71717a',
+      iconBg: 'bg-secondary',
+      iconColor: 'text-foreground',
       detailedTitle: 'Brand Network Infrastructure',
       deepDive: [
-        { label: 'Live Funnel Domains', value: `${stats.activeBrands || 3} brands`, change: '100% active' },
-        { label: 'Verified SSL Certificates', value: 'All valid', change: 'Automated LetsEncrypt' },
-        { label: 'Brand Webhook Endpoints', value: 'Operational', change: '200 OK' },
-        { label: 'Custom Domain Health', value: 'DNS Verified', change: 'Fast CNAME resolution' },
+        { label: 'Live Funnel Brands', value: `${stats.activeBrands} brands`, change: 'Real-time sync' },
+        { label: 'Total Submissions', value: `${stats.totalLeadsToday} leads`, change: 'All-time leads' },
+        { label: 'Visitor Sessions', value: `${totalVisitors} clicks`, change: 'Click tracker' },
+        { label: 'Gross Revenue', value: `$${Number(stats.estRevenue || 0).toFixed(2)}`, change: 'Payout sum' },
       ],
       actionHref: '/brands',
       actionText: 'Manage Brand Funnels',
@@ -233,7 +237,7 @@ export const StatGridCard: React.FC<StatGridCardProps> = ({ stats }) => {
               <Link
                 href={activeItem.actionHref}
                 onClick={() => setActiveModalId(null)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors shadow-xs"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 text-xs font-bold transition-colors shadow-xs"
               >
                 <span>{activeItem.actionText}</span>
                 <ExternalLink className="w-3.5 h-3.5" />

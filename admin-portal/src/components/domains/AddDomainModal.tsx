@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Globe, CheckCircle2, ArrowRight, Copy, Check, ShieldCheck, AlertCircle } from 'lucide-react';
 import { Loader } from '@/components/ui/loader';
 
@@ -17,6 +18,12 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
   onAddDomain,
   availableBrands
 }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const brandList = availableBrands || [];
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -25,7 +32,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
 
-  if (!isOpen) return null;
+  if (!mounted || !isOpen) return null;
 
   const handleCopy = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
@@ -48,14 +55,14 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
     setDomainInput('');
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 dark:bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Modal Header */}
         <div className="p-6 border-b border-border flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-foreground bg-secondary px-2 py-0.5 rounded-full border border-border">
                 Vercel Domain Manager
               </span>
               <span className="text-xs font-semibold text-muted-foreground">Step {step} of 3</span>
@@ -74,26 +81,26 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
 
         {/* Step Indicator Bar */}
         <div className="px-6 py-3 bg-secondary/60 border-b border-border flex items-center justify-between text-xs font-semibold text-muted-foreground">
-          <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`}>
-            <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">
+          <div className={`flex items-center gap-2 ${step >= 1 ? 'text-foreground font-bold' : ''}`}>
+            <span className="w-5 h-5 rounded-full bg-card border border-border text-foreground shadow-2xs flex items-center justify-center text-[10px] font-bold">
               1
             </span>
             <span>Domain Name</span>
           </div>
-          <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`}>
+          <div className={`flex items-center gap-2 ${step >= 2 ? 'text-foreground font-bold' : ''}`}>
             <span
-              className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                step >= 2 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-neutral-800 text-muted-foreground'
+              className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                step >= 2 ? 'bg-card border border-border text-foreground shadow-2xs' : 'bg-secondary border border-border/40 text-muted-foreground'
               }`}
             >
               2
             </span>
             <span>DNS Verification</span>
           </div>
-          <div className={`flex items-center gap-2 ${step >= 3 ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`}>
+          <div className={`flex items-center gap-2 ${step >= 3 ? 'text-foreground font-bold' : ''}`}>
             <span
-              className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                step >= 3 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-neutral-800 text-muted-foreground'
+              className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                step >= 3 ? 'bg-card border border-border text-foreground shadow-2xs' : 'bg-secondary border border-border/40 text-muted-foreground'
               }`}
             >
               3
@@ -117,7 +124,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                     value={domainInput}
                     onChange={(e) => setDomainInput(e.target.value)}
                     placeholder="e.g. quote.yourbrand.com"
-                    className="w-full pl-10 pr-4 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl font-mono text-sm outline-none text-foreground placeholder:text-muted-foreground"
+                    className="w-full pl-10 pr-4 py-2.5 bg-card border border-border focus:border-foreground rounded-xl font-mono text-sm outline-none text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-1">
@@ -135,7 +142,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                     const b = brandList.find((item) => item.id === e.target.value);
                     if (b) setSelectedBrand(b);
                   }}
-                  className="w-full p-2.5 bg-card border border-border rounded-xl font-semibold text-foreground outline-none focus:border-blue-500"
+                  className="w-full p-2.5 bg-card border border-border rounded-xl font-semibold text-foreground outline-none focus:border-foreground"
                 >
                   {brandList.map((brand) => (
                     <option key={brand.id} value={brand.id}>
@@ -149,7 +156,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                 type="button"
                 disabled={!domainInput.trim()}
                 onClick={() => setStep(2)}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs shadow-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer mt-4"
+                className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:opacity-50 font-bold rounded-xl text-xs shadow-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer mt-4"
               >
                 <span>Continue to DNS Configuration</span>
                 <ArrowRight className="w-4 h-4" />
@@ -170,7 +177,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                   <span>Record 1: CNAME</span>
                   <button
                     onClick={() => handleCopy('cname.vercel-dns.com', 'cname')}
-                    className="text-blue-600 dark:text-blue-400 flex items-center gap-1 font-sans text-xs hover:underline cursor-pointer"
+                    className="text-foreground flex items-center gap-1 font-sans text-xs hover:underline cursor-pointer"
                   >
                     {copiedType === 'cname' ? <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedType === 'cname' ? 'Copied' : 'Copy'}</span>
@@ -190,7 +197,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                   <span>Record 2: A Record (Apex)</span>
                   <button
                     onClick={() => handleCopy('76.76.21.21', 'arecord')}
-                    className="text-blue-600 dark:text-blue-400 flex items-center gap-1 font-sans text-xs hover:underline cursor-pointer"
+                    className="text-foreground flex items-center gap-1 font-sans text-xs hover:underline cursor-pointer"
                   >
                     {copiedType === 'arecord' ? <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedType === 'arecord' ? 'Copied' : 'Copy'}</span>
@@ -209,7 +216,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                 type="button"
                 disabled={verifying}
                 onClick={handleVerify}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer mt-4"
+                className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 font-bold rounded-xl text-xs shadow-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer mt-4"
               >
                 {verifying ? (
                   <span className="flex items-center gap-2">
@@ -253,7 +260,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
               <button
                 type="button"
                 onClick={handleFinish}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-xs transition-all duration-200 cursor-pointer mt-4"
+                className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 font-bold rounded-xl text-xs shadow-xs transition-all duration-200 cursor-pointer mt-4"
               >
                 Return to Domains Dashboard
               </button>
@@ -261,6 +268,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

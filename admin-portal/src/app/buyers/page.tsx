@@ -15,13 +15,6 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
   Label,
   PolarGrid,
   PolarRadiusAxis,
@@ -31,6 +24,7 @@ import {
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { AddEditBuyerModal } from '@/components/buyers/AddEditBuyerModal';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
+import { ChartSwitcher } from '@/components/ui/ChartSwitcher';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
@@ -96,23 +90,31 @@ export default function BuyersPage() {
     fetchBuyers();
   }, []);
 
-  // Computed buyer metrics
+  // Computed buyer metrics from 100% real Supabase records
   const metrics = useMemo(() => {
-    const total = buyers.length || 3;
-    const active = buyers.filter((b) => b.is_active ?? b.active ?? true).length || 3;
-    const activeRate = Math.round((active / (total || 1)) * 100);
-    const avgPayout = Math.round(
-      buyers.reduce((acc, b) => acc + (Number(b.price_per_lead) || 45), 0) / (total || 1)
-    ) || 55;
-    const avgMinScore = Math.round(
-      buyers.reduce((acc, b) => acc + (Number(b.min_score || b.min_accept_score) || 70), 0) / (total || 1)
-    ) || 72;
+    const total = buyers.length;
+    const active = buyers.filter((b) => b.is_active ?? b.active ?? true).length;
+    const activeRate = total > 0 ? Math.round((active / total) * 100) : 0;
+    const avgPayout = total > 0
+      ? Math.round(buyers.reduce((acc, b) => acc + (Number(b.price_per_lead) || 0), 0) / total)
+      : 0;
+    const avgMinScore = total > 0
+      ? Math.round(buyers.reduce((acc, b) => acc + (Number(b.min_score || b.min_accept_score) || 0), 0) / total)
+      : 0;
 
     const chartData = buyers.map((b) => ({
       name: b.name.length > 12 ? b.name.substring(0, 10) + '...' : b.name,
-      payout: Number(b.price_per_lead) || 45,
-      minScore: Number(b.min_score || b.min_accept_score) || 70,
+      payout: Number(b.price_per_lead) || 0,
+      minScore: Number(b.min_score || b.min_accept_score) || 0,
     }));
+
+    const funnelStages = [
+      { label: 'Total Buyers', value: total, color: '#18181b' },
+      { label: 'Active Endpoints', value: active, color: '#27272a' },
+      { label: 'Avg Payout ($)', value: avgPayout, color: '#3f3f46' },
+      { label: 'Min Score Gate', value: avgMinScore, color: '#52525b' },
+      { label: 'Active Routes', value: active, color: '#71717a' },
+    ];
 
     return {
       total,
@@ -120,7 +122,8 @@ export default function BuyersPage() {
       activeRate,
       avgPayout,
       avgMinScore,
-      chartData
+      chartData,
+      funnelStages,
     };
   }, [buyers]);
 
@@ -208,7 +211,7 @@ export default function BuyersPage() {
             onClick={fetchBuyers}
             className="flex items-center gap-2 px-3.5 py-2 bg-card hover:bg-secondary border border-border rounded-xl text-xs font-semibold text-foreground transition-all duration-200 cursor-pointer transform-gpu shadow-2xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-muted-foreground'}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-foreground' : 'text-muted-foreground'}`} />
             <span>Sync Buyers</span>
           </button>
           <button
@@ -216,7 +219,7 @@ export default function BuyersPage() {
               setEditingBuyer(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer transform-gpu"
+            className="flex items-center gap-2 px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-xl text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer transform-gpu"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Buyer Endpoint</span>
@@ -229,12 +232,12 @@ export default function BuyersPage() {
         <motion.div layoutId="buyers-stat-total" className="cursor-pointer" onClick={() => setActiveMetricId('buyers-stat-total')}>
           <SpotlightCard
             id="stat-buyers-total"
-            color="#2563eb"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <Zap className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -255,12 +258,12 @@ export default function BuyersPage() {
         <motion.div layoutId="buyers-stat-payout" className="cursor-pointer" onClick={() => setActiveMetricId('buyers-stat-payout')}>
           <SpotlightCard
             id="stat-avg-payout"
-            color="#10b981"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <DollarSign className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -281,12 +284,12 @@ export default function BuyersPage() {
         <motion.div layoutId="buyers-stat-min-score" className="cursor-pointer" onClick={() => setActiveMetricId('buyers-stat-min-score')}>
           <SpotlightCard
             id="stat-min-score"
-            color="#8b5cf6"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <Award className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -307,12 +310,12 @@ export default function BuyersPage() {
         <motion.div layoutId="buyers-stat-latency" className="cursor-pointer" onClick={() => setActiveMetricId('buyers-stat-latency')}>
           <SpotlightCard
             id="stat-delivery-latency"
-            color="#0ea5e9"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -335,62 +338,26 @@ export default function BuyersPage() {
       <SpotlightCardGroup className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Buyer Payout Comparison Chart */}
         <div className="lg:col-span-8 flex flex-col">
-          <SpotlightCard
-            color="#2563eb"
-            tiltMax={4}
-            className="p-4 sm:p-6 flex flex-col justify-between h-full"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
-                  Endpoint Payout &amp; Quality Thresholds
-                </h3>
-                <p className="text-[11px] text-muted-foreground font-medium">
-                  Price paid per accepted lead vs minimum scoring criteria
-                </p>
-              </div>
-              <div className="flex items-center gap-3 text-xs font-semibold">
-                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" /> Payout ($)
-                </span>
-                <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
-                  <span className="w-2 h-2 rounded-full bg-blue-600" /> Min Score
-                </span>
-              </div>
-            </div>
-
-            <div className="w-full h-[200px] my-1">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={metrics.chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e2e8f0" className="dark:stroke-slate-800/60" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <Tooltip
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-card/95 backdrop-blur-md border border-border p-2.5 rounded-xl shadow-xl text-xs space-y-1">
-                            <p className="font-bold text-foreground pb-1 border-b border-border/60">{label}</p>
-                            <div className="text-emerald-600 dark:text-emerald-400 font-medium">Payout: ${payload[0]?.value} / lead</div>
-                            <div className="text-blue-600 dark:text-blue-400 font-medium">Min Score: {payload[1]?.value}+ pts</div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Bar dataKey="payout" fill="#10b981" radius={[6, 6, 0, 0]} maxBarSize={38} />
-                  <Bar dataKey="minScore" fill="#2563eb" radius={[6, 6, 0, 0]} maxBarSize={38} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </SpotlightCard>
+          <ChartSwitcher
+            title="Endpoint Payout & Quality Thresholds"
+            subtitle="Price paid per accepted lead vs minimum scoring criteria"
+            data={metrics.chartData}
+            xAxisKey="name"
+            series={[
+              { key: 'payout', label: 'Payout ($)', color: '#18181b', prefix: '$', suffix: ' / lead' },
+              { key: 'minScore', label: 'Min Score', color: '#71717a', suffix: '+ pts' },
+            ]}
+            funnelStages={metrics.funnelStages}
+            defaultMode="bar"
+            height={200}
+            spotlightColor="#71717a"
+          />
         </div>
 
         {/* Buyer Connectivity Radial Ring */}
         <div className="lg:col-span-4 flex flex-col">
           <SpotlightCard
-            color="#10b981"
+            color="#71717a"
             tiltMax={4}
             className="p-4 sm:p-6 flex flex-col justify-between h-full"
           >
@@ -408,22 +375,40 @@ export default function BuyersPage() {
             <div className="my-auto py-1 flex items-center justify-center">
               <ChartContainer config={radialChartConfig} className="mx-auto aspect-square w-full max-h-[160px]">
                 <RadialBarChart
-                  data={[{ status: 'active', count: metrics.activeRate, fill: '#10b981' }]}
+                  data={[{ status: 'active', count: Math.min(100, Math.max(0, metrics.activeRate)) }]}
                   startAngle={0}
-                  endAngle={Math.round((metrics.activeRate / 100) * 360)}
+                  endAngle={Math.min(360, Math.max(0, Math.round((Math.min(100, metrics.activeRate) / 100) * 360)))}
                   outerRadius={75}
                   innerRadius={62}
                 >
-                  <PolarGrid gridType="circle" radialLines={false} stroke="none" className="first:fill-muted/40 last:fill-background" polarRadius={[75, 62]} />
-                  <RadialBar dataKey="count" background={{ fill: 'currentColor' }} className="[&_.recharts-radial-bar-background-sector]:fill-slate-100 dark:[&_.recharts-radial-bar-background-sector]:fill-slate-800/80" cornerRadius={10} />
+                  <PolarGrid gridType="circle" radialLines={false} stroke="none" className="first:fill-muted/20 last:fill-background" polarRadius={[75, 62]} />
+                  <RadialBar
+                    dataKey="count"
+                    background={{ fill: 'currentColor' }}
+                    className="fill-zinc-900 dark:fill-white [&_.recharts-radial-bar-background-sector]:fill-zinc-200/90 dark:[&_.recharts-radial-bar-background-sector]:fill-zinc-800/90"
+                    cornerRadius={10}
+                  />
                   <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
                     <Label
                       content={({ viewBox }) => {
                         if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                          const rateStr = `${metrics.activeRate}%`;
+                          const fontSize =
+                            rateStr.length > 5
+                              ? '18px'
+                              : rateStr.length > 4
+                              ? '22px'
+                              : '28px';
+
                           return (
                             <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                              <tspan x={viewBox.cx} y={(viewBox.cy || 0) - 4} className="fill-foreground text-2xl sm:text-3xl font-extrabold font-heading">
-                                {metrics.activeRate}%
+                              <tspan
+                                x={viewBox.cx}
+                                y={(viewBox.cy || 0) - 4}
+                                style={{ fontSize }}
+                                className="fill-foreground font-extrabold font-heading tracking-tight"
+                              >
+                                {rateStr}
                               </tspan>
                               <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 16} className="fill-muted-foreground text-[10px] font-bold uppercase tracking-wider">
                                 Live Active
@@ -447,7 +432,7 @@ export default function BuyersPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-foreground font-semibold">
-                  <DollarSign className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Top Model
+                  <DollarSign className="w-3.5 h-3.5 text-foreground" /> Top Model
                 </span>
                 <span className="font-bold text-foreground font-mono">Flat Rate ($55)</span>
               </div>
@@ -457,11 +442,11 @@ export default function BuyersPage() {
       </SpotlightCardGroup>
 
       {/* Main Buyer Endpoints Table */}
-      <SpotlightCard color="#2563eb" tiltMax={2} className="p-0 overflow-hidden">
+      <SpotlightCard color="#71717a" tiltMax={2} className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-100/90 dark:bg-neutral-900/60 text-[11px] font-bold text-slate-700 dark:text-neutral-300 uppercase tracking-wider">
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4">Buyer Endpoint</th>
                 <th className="py-3.5 px-4">Payout / Model</th>
@@ -520,7 +505,7 @@ export default function BuyersPage() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className="font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 font-heading text-sm transition-colors duration-200">
+                        <span className="font-bold text-foreground font-heading text-sm transition-colors duration-200">
                           {buyer.name}
                         </span>
                       </td>
@@ -536,8 +521,8 @@ export default function BuyersPage() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1 font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
-                          <Award className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                        <span className="inline-flex items-center gap-1 font-bold text-foreground bg-secondary px-2 py-0.5 rounded-md border border-border">
+                          <Award className="w-3.5 h-3.5 text-foreground" />
                           <span>{minS}+ Score</span>
                         </span>
                       </td>
@@ -547,16 +532,16 @@ export default function BuyersPage() {
                           {(buyer.accepted_brands || []).map((brandName, idx) => (
                             <span
                               key={idx}
-                              className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-700 dark:text-slate-300 bg-secondary px-2 py-0.5 rounded-md border border-border"
+                              className="inline-flex items-center gap-1 text-[10px] font-semibold text-foreground bg-secondary px-2 py-0.5 rounded-md border border-border"
                             >
-                              <Tag className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
+                              <Tag className="w-2.5 h-2.5 text-muted-foreground" />
                               {brandName}
                             </span>
                           ))}
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono text-[10px] text-muted-foreground max-w-[200px] truncate">
+                      <td className="py-3.5 px-4 font-mono text-xs font-semibold text-slate-700 dark:text-neutral-300 max-w-[200px] truncate">
                         {buyer.api_endpoint || 'https://api.buyer.com/v1/ping'}
                       </td>
 
@@ -567,14 +552,14 @@ export default function BuyersPage() {
                               setEditingBuyer(buyer);
                               setIsModalOpen(true);
                             }}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-secondary transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors cursor-pointer"
                             title="Edit Buyer Specs"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <Link
                             href={`/buyers/${buyer.id}`}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-secondary transition-colors"
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                             title="View Performance Analytics"
                           >
                             <ExternalLink className="w-4 h-4" />
@@ -610,7 +595,7 @@ export default function BuyersPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-foreground bg-secondary px-2.5 py-0.5 rounded-full border border-border">
                     Buyer Partner Integration
                   </span>
                   <span className="text-xs text-muted-foreground font-semibold">
@@ -629,14 +614,13 @@ export default function BuyersPage() {
                   handleToggleActive(inspectingBuyer.id, currentVal);
                   setInspectingBuyer({ ...inspectingBuyer, is_active: !currentVal, active: !currentVal });
                 }}
-                className={`px-3 py-1 rounded-full text-xs font-bold cursor-pointer transition-colors ${
-                  inspectingBuyer.is_active ?? inspectingBuyer.active ?? true
-                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                    : 'bg-secondary text-muted-foreground border border-border'
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors bg-secondary hover:bg-secondary/80 border border-border"
                 title="Click to toggle status"
               >
-                {inspectingBuyer.is_active ?? inspectingBuyer.active ?? true ? 'Active Receiving' : 'Paused'}
+                <span className={`w-1.5 h-1.5 rounded-full ${(inspectingBuyer.is_active ?? inspectingBuyer.active ?? true) ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
+                <span className={(inspectingBuyer.is_active ?? inspectingBuyer.active ?? true) ? 'text-foreground font-semibold' : 'text-muted-foreground'}>
+                  {(inspectingBuyer.is_active ?? inspectingBuyer.active ?? true) ? 'Active Receiving' : 'Paused'}
+                </span>
               </button>
             </div>
 
@@ -657,7 +641,7 @@ export default function BuyersPage() {
                 <span className="text-[10px] text-muted-foreground block font-bold uppercase tracking-wider">
                   Quality Acceptance Filter
                 </span>
-                <span className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1 block">
+                <span className="text-2xl font-extrabold text-foreground mt-1 block">
                   {inspectingBuyer.min_score ?? inspectingBuyer.min_accept_score ?? 70}+ Score
                 </span>
                 <span className="text-[10px] text-muted-foreground">
@@ -692,7 +676,7 @@ export default function BuyersPage() {
                     key={idx}
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground bg-card px-2.5 py-1 rounded-lg border border-border shadow-2xs"
                   >
-                    <Tag className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                    <Tag className="w-3 h-3 text-foreground" />
                     {brandName}
                   </span>
                 ))}
@@ -716,7 +700,7 @@ export default function BuyersPage() {
                   setEditingBuyer(b);
                   setIsModalOpen(true);
                 }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
               >
                 <Edit2 className="w-3.5 h-3.5" />
                 <span>Configure Endpoint</span>

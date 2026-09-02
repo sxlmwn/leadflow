@@ -523,9 +523,9 @@ export default function DynamicForm({
                 type="button"
                 variant="outline"
                 onClick={handlePrev}
-                className="h-9 sm:h-10 px-4 rounded-xl border border-white/20 bg-white/10 text-white text-xs sm:text-sm font-semibold hover:bg-white/20 hover:text-white transition-all cursor-pointer shadow-xs backdrop-blur-sm active:scale-95"
+                className="min-h-[44px] h-11 px-4 rounded-xl border border-white/20 bg-white/10 text-white text-xs sm:text-sm font-semibold hover:bg-white/20 hover:text-white transition-all cursor-pointer shadow-xs backdrop-blur-sm active:scale-95"
               >
-                <ChevronLeft className="w-3.5 h-3.5 mr-1" />
+                <ChevronLeft className="w-4 h-4 mr-1" />
                 Back
               </Button>
             ) : (
@@ -536,17 +536,17 @@ export default function DynamicForm({
               <Button
                 type="button"
                 onClick={handleNext}
-                className="h-9 sm:h-10 px-5 rounded-xl text-white text-xs sm:text-sm font-black shadow-md hover:opacity-95 ml-auto transition-all cursor-pointer active:scale-95"
+                className="min-h-[44px] h-11 px-5 rounded-xl text-white text-xs sm:text-sm font-black shadow-md hover:opacity-95 ml-auto transition-all cursor-pointer active:scale-95"
                 style={{ backgroundColor: primaryColor, boxShadow: `0 3px 18px ${primaryColor}70` }}
               >
                 <span>Continue</span>
-                <ChevronRight className="w-3.5 h-3.5 ml-1" />
+                <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             ) : (
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-9 sm:h-10 px-6 rounded-xl text-white text-xs sm:text-sm font-black shadow-md hover:opacity-95 ml-auto transition-all disabled:opacity-50 cursor-pointer active:scale-95"
+                className="min-h-[44px] h-11 px-6 rounded-xl text-white text-xs sm:text-sm font-black shadow-md hover:opacity-95 ml-auto transition-all disabled:opacity-50 cursor-pointer active:scale-95"
                 style={{ backgroundColor: primaryColor, boxShadow: `0 3px 18px ${primaryColor}70` }}
               >
                 {isSubmitting ? (
@@ -560,7 +560,7 @@ export default function DynamicForm({
                   </span>
                 ) : (
                   <>
-                    <Check className="w-3.5 h-3.5 mr-1.5 stroke-[2.5]" />
+                    <Check className="w-4 h-4 mr-1.5 stroke-[2.5]" />
                     <span>Submit Request</span>
                   </>
                 )}

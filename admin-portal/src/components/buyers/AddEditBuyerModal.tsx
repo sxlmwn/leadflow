@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Save, Check } from 'lucide-react';
 import { AdminBuyer } from '@/lib/data';
 
@@ -19,6 +20,12 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
   onClose,
   onSave
 }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [name, setName] = useState('');
   const [apiEndpoint, setApiEndpoint] = useState('');
   const [pricePerLead, setPricePerLead] = useState(45);
@@ -47,7 +54,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
     }
   }, [buyer, isOpen, availableBrands]);
 
-  if (!isOpen) return null;
+  if (!mounted || !isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,8 +81,8 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 dark:bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Modal Header */}
         <div className="p-6 border-b border-border flex items-center justify-between">
@@ -105,7 +112,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Apex Home Services LLC"
-              className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-semibold text-foreground placeholder:text-muted-foreground"
+              className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-foreground rounded-xl outline-none font-semibold text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
@@ -117,7 +124,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
               value={apiEndpoint}
               onChange={(e) => setApiEndpoint(e.target.value)}
               placeholder="https://api.buyer.com/v1/leads"
-              className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-mono text-foreground placeholder:text-muted-foreground"
+              className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-foreground rounded-xl outline-none font-mono text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
@@ -130,7 +137,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
                 required
                 value={pricePerLead}
                 onChange={(e) => setPricePerLead(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-bold text-foreground"
+                className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-foreground rounded-xl outline-none font-bold text-foreground"
               />
             </div>
             <div>
@@ -138,7 +145,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
               <select
                 value={pricingModel}
                 onChange={(e) => setPricingModel(e.target.value as 'flat' | 'tiered' | 'auction')}
-                className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl font-semibold text-foreground outline-none focus:border-blue-500"
+                className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl font-semibold text-foreground outline-none focus:border-foreground"
               >
                 <option value="flat">Flat Payout</option>
                 <option value="tiered">Tiered Quality</option>
@@ -157,7 +164,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
               max="100"
               value={minScore}
               onChange={(e) => setMinScore(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl font-bold text-foreground outline-none focus:border-blue-500"
+              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl font-bold text-foreground outline-none focus:border-foreground"
             />
           </div>
 
@@ -174,11 +181,11 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
                       onClick={() => toggleBrandChip(bName)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
                         selected
-                          ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 shadow-2xs'
+                          ? 'bg-zinc-100 dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-foreground shadow-2xs'
                           : 'bg-secondary border-border text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      {selected && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+                      {selected && <Check className="w-3.5 h-3.5 text-foreground" />}
                       <span>{bName}</span>
                     </button>
                   );
@@ -195,7 +202,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
+                className="w-4 h-4 accent-foreground rounded cursor-pointer"
               />
               <span className="text-xs font-bold text-foreground">
                 Active &amp; Ready to Accept Delivery Ping
@@ -213,7 +220,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs shadow-blue-500/20 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 font-bold shadow-xs transition-all duration-200 flex items-center gap-2 cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>Save Buyer</span>
@@ -221,6 +228,7 @@ export const AddEditBuyerModal: React.FC<AddEditBuyerModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

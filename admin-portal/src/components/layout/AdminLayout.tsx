@@ -42,13 +42,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground font-sans relative selection:bg-blue-500 selection:text-white transition-colors duration-200">
+    <div className="h-screen w-screen flex flex-row bg-background text-foreground font-sans relative selection:bg-foreground selection:text-background transition-colors duration-200 overflow-hidden">
       {/* Background ambient lighting */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[100vw] h-[50vh] bg-blue-500/[0.02] dark:hidden blur-[120px] rounded-full" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[100vw] h-[50vh] bg-foreground/[0.01] dark:hidden blur-[120px] rounded-full" />
       </div>
 
-      {/* Collapsible Left Sidebar */}
+      {/* Collapsible Left Sidebar - Locked to Viewport Height */}
       <Sidebar
         collapsed={collapsed}
         onToggleCollapse={() => setCollapsed(!collapsed)}
@@ -56,8 +56,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         onToggleDarkMode={toggleDarkMode}
       />
 
-      {/* Main Content Workspace */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen overflow-x-hidden relative z-10">
+      {/* Main Content Workspace - Only this container scrolls */}
+      <div id="admin-main-scroll" className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto overflow-x-hidden admin-main-scroll">
         <TopBar
           title={title}
           onSearchChange={onSearchChange}

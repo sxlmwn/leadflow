@@ -33,21 +33,21 @@ export const DonutRingWidget: React.FC<DonutRingWidgetProps> = ({
       name: 'Direct Funnel Leads',
       percent: '55%',
       leads: `${Math.round(soldCount * 0.55)} leads`,
-      color: 'bg-blue-600',
+      color: 'bg-zinc-900 dark:bg-zinc-100',
       icon: Home,
     },
     {
       name: 'Partner Network',
       percent: '30%',
       leads: `${Math.round(soldCount * 0.30)} leads`,
-      color: 'bg-teal-500',
+      color: 'bg-zinc-600 dark:bg-zinc-400',
       icon: Stethoscope,
     },
     {
       name: 'Organic / Referral',
       percent: '15%',
       leads: `${Math.round(soldCount * 0.15)} leads`,
-      color: 'bg-sky-500',
+      color: 'bg-zinc-400 dark:bg-zinc-600',
       icon: HeartPulse,
     },
   ];
@@ -77,8 +77,8 @@ export const DonutRingWidget: React.FC<DonutRingWidgetProps> = ({
           strokeWidth={11}
           label={label}
           displayValue={`${Math.round(percentage)}%`}
-          subtitle={`${soldCount} sold`}
-          color={['#2563eb', '#60a5fa']}
+          subtitle={`${soldCount} / ${totalLeads} sold`}
+          color={['#18181b', '#71717a']}
           showShadow={true}
         />
       </div>

@@ -19,13 +19,6 @@ import {
   Tag
 } from 'lucide-react';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
   Label,
   PolarGrid,
   PolarRadiusAxis,
@@ -34,6 +27,7 @@ import {
 } from 'recharts';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
+import { ChartSwitcher } from '@/components/ui/ChartSwitcher';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
@@ -44,7 +38,7 @@ import { motion } from 'motion/react';
 const radialChartConfig = {
   active: {
     label: "Active Brands",
-    color: "#2563eb",
+    color: "#71717a",
   },
 } satisfies ChartConfig;
 
@@ -104,27 +98,35 @@ export default function BrandsPage() {
     }
   };
 
-  // Computed brand analytics
+  // Computed brand analytics from real schema records
   const metrics = useMemo(() => {
-    const total = brands.length || 4;
-    const active = brands.filter((b) => b.is_active).length || 4;
-    const totalSteps = brands.reduce((acc, b) => acc + (b.form_schema?.steps?.length || 1), 0) || 6;
-    const totalQuestions = brands.reduce((acc, b) => acc + getQuestionCount(b), 0) || 22;
-    const activeRate = Math.round((active / (total || 1)) * 100);
+    const total = brands.length;
+    const active = brands.filter((b) => b.is_active).length;
+    const totalSteps = brands.reduce((acc, b) => acc + (b.form_schema?.steps?.length || 0), 0);
+    const totalQuestions = brands.reduce((acc, b) => acc + getQuestionCount(b), 0);
+    const activeRate = total > 0 ? Math.round((active / total) * 100) : 0;
 
     // Unique verticals
     const verticals: { [key: string]: number } = {};
-    brands.forEach(b => {
+    brands.forEach((b) => {
       const v = b.vertical || 'General';
       verticals[v] = (verticals[v] || 0) + 1;
     });
 
     // Chart data for brand comparison
-    const comparisonData = brands.map(b => ({
+    const comparisonData = brands.map((b) => ({
       name: b.name.length > 12 ? b.name.substring(0, 10) + '...' : b.name,
-      questions: getQuestionCount(b) || 4,
-      steps: b.form_schema?.steps?.length || 1,
+      questions: getQuestionCount(b),
+      steps: b.form_schema?.steps?.length || 0,
     }));
+
+    const funnelStages = [
+      { label: 'Total Brands', value: total, color: '#18181b' },
+      { label: 'Active Funnels', value: active, color: '#27272a' },
+      { label: 'Configured Steps', value: totalSteps, color: '#3f3f46' },
+      { label: 'Question Fields', value: totalQuestions, color: '#52525b' },
+      { label: 'Live Endpoints', value: active, color: '#71717a' },
+    ];
 
     return {
       total,
@@ -133,7 +135,8 @@ export default function BrandsPage() {
       totalSteps,
       totalQuestions,
       verticals,
-      comparisonData
+      comparisonData,
+      funnelStages,
     };
   }, [brands]);
 
@@ -277,13 +280,13 @@ export default function BrandsPage() {
             onClick={fetchBrands}
             className="flex items-center gap-2 px-3.5 py-2 bg-card hover:bg-secondary border border-border rounded-xl text-xs font-semibold text-foreground transition-all duration-200 cursor-pointer transform-gpu shadow-2xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-muted-foreground'}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-foreground' : 'text-muted-foreground'}`} />
             <span className="hidden sm:inline">Sync Brands</span>
           </button>
 
           <Link
             href="/brands/new"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer transform-gpu"
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-xl text-xs font-bold shadow-xs transition-all duration-200 cursor-pointer transform-gpu"
           >
             <Plus className="w-4 h-4" />
             <span>+ New Brand</span>
@@ -296,12 +299,12 @@ export default function BrandsPage() {
         <motion.div layoutId="brands-stat-total" className="cursor-pointer" onClick={() => setActiveMetricId('brands-stat-total')}>
           <SpotlightCard
             id="stat-total-brands"
-            color="#2563eb"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <Building2 className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -322,12 +325,12 @@ export default function BrandsPage() {
         <motion.div layoutId="brands-stat-questions" className="cursor-pointer" onClick={() => setActiveMetricId('brands-stat-questions')}>
           <SpotlightCard
             id="stat-questions"
-            color="#10b981"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <FileQuestion className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -348,12 +351,12 @@ export default function BrandsPage() {
         <motion.div layoutId="brands-stat-domains" className="cursor-pointer" onClick={() => setActiveMetricId('brands-stat-domains')}>
           <SpotlightCard
             id="stat-domains"
-            color="#8b5cf6"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <Globe className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -374,12 +377,12 @@ export default function BrandsPage() {
         <motion.div layoutId="brands-stat-verticals" className="cursor-pointer" onClick={() => setActiveMetricId('brands-stat-verticals')}>
           <SpotlightCard
             id="stat-verticals"
-            color="#0ea5e9"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <Layers className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -402,62 +405,26 @@ export default function BrandsPage() {
       <SpotlightCardGroup className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Brand Comparison Bar Chart */}
         <div className="lg:col-span-8 flex flex-col">
-          <SpotlightCard
-            color="#2563eb"
-            tiltMax={4}
-            className="p-4 sm:p-6 flex flex-col justify-between h-full"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
-                  Funnel Form Field &amp; Step Complexity
-                </h3>
-                <p className="text-[11px] text-muted-foreground font-medium">
-                  Configured question volume and step layout across active brands
-                </p>
-              </div>
-              <div className="flex items-center gap-3 text-xs font-semibold">
-                <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
-                  <span className="w-2 h-2 rounded-full bg-blue-600" /> Fields
-                </span>
-                <span className="flex items-center gap-1.5 text-sky-500">
-                  <span className="w-2 h-2 rounded-full bg-sky-500" /> Steps
-                </span>
-              </div>
-            </div>
-
-            <div className="w-full h-[200px] my-1">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={metrics.comparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e2e8f0" className="dark:stroke-slate-800/60" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <Tooltip
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-card/95 backdrop-blur-md border border-border p-2.5 rounded-xl shadow-xl text-xs space-y-1">
-                            <p className="font-bold text-foreground pb-1 border-b border-border/60">{label}</p>
-                            <div className="text-blue-600 dark:text-blue-400 font-medium">Fields: {payload[0]?.value} questions</div>
-                            <div className="text-sky-500 font-medium">Steps: {payload[1]?.value} multi-steps</div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Bar dataKey="questions" fill="#2563eb" radius={[6, 6, 0, 0]} maxBarSize={38} />
-                  <Bar dataKey="steps" fill="#38bdf8" radius={[6, 6, 0, 0]} maxBarSize={38} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </SpotlightCard>
+          <ChartSwitcher
+            title="Funnel Form Field & Step Complexity"
+            subtitle="Configured question volume and step layout across active brands"
+            data={metrics.comparisonData}
+            xAxisKey="name"
+            series={[
+              { key: 'questions', label: 'Fields', color: '#18181b', suffix: ' questions' },
+              { key: 'steps', label: 'Steps', color: '#71717a', suffix: ' steps' },
+            ]}
+            funnelStages={metrics.funnelStages}
+            defaultMode="bar"
+            height={200}
+            spotlightColor="#71717a"
+          />
         </div>
 
         {/* Brand Status & Vertical Breakdown Card */}
         <div className="lg:col-span-4 flex flex-col">
           <SpotlightCard
-            color="#10b981"
+            color="#71717a"
             tiltMax={4}
             className="p-4 sm:p-6 flex flex-col justify-between h-full"
           >
@@ -475,22 +442,40 @@ export default function BrandsPage() {
             <div className="my-auto py-1 flex items-center justify-center">
               <ChartContainer config={radialChartConfig} className="mx-auto aspect-square w-full max-h-[160px]">
                 <RadialBarChart
-                  data={[{ status: 'active', count: metrics.activeRate, fill: '#10b981' }]}
+                  data={[{ status: 'active', count: Math.min(100, Math.max(0, metrics.activeRate)) }]}
                   startAngle={0}
-                  endAngle={Math.round((metrics.activeRate / 100) * 360)}
+                  endAngle={Math.min(360, Math.max(0, Math.round((Math.min(100, metrics.activeRate) / 100) * 360)))}
                   outerRadius={75}
                   innerRadius={62}
                 >
-                  <PolarGrid gridType="circle" radialLines={false} stroke="none" className="first:fill-muted/40 last:fill-background" polarRadius={[75, 62]} />
-                  <RadialBar dataKey="count" background={{ fill: 'currentColor' }} className="[&_.recharts-radial-bar-background-sector]:fill-slate-100 dark:[&_.recharts-radial-bar-background-sector]:fill-slate-800/80" cornerRadius={10} />
+                  <PolarGrid gridType="circle" radialLines={false} stroke="none" className="first:fill-muted/20 last:fill-background" polarRadius={[75, 62]} />
+                  <RadialBar
+                    dataKey="count"
+                    background={{ fill: 'currentColor' }}
+                    className="fill-zinc-900 dark:fill-white [&_.recharts-radial-bar-background-sector]:fill-zinc-200/90 dark:[&_.recharts-radial-bar-background-sector]:fill-zinc-800/90"
+                    cornerRadius={10}
+                  />
                   <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
                     <Label
                       content={({ viewBox }) => {
                         if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                          const rateStr = `${metrics.activeRate}%`;
+                          const fontSize =
+                            rateStr.length > 5
+                              ? '18px'
+                              : rateStr.length > 4
+                              ? '22px'
+                              : '28px';
+
                           return (
                             <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                              <tspan x={viewBox.cx} y={(viewBox.cy || 0) - 4} className="fill-foreground text-2xl sm:text-3xl font-extrabold font-heading">
-                                {metrics.activeRate}%
+                              <tspan
+                                x={viewBox.cx}
+                                y={(viewBox.cy || 0) - 4}
+                                style={{ fontSize }}
+                                className="fill-foreground font-extrabold font-heading tracking-tight"
+                              >
+                                {rateStr}
                               </tspan>
                               <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 16} className="fill-muted-foreground text-[10px] font-bold uppercase tracking-wider">
                                 Live Ratio
@@ -514,7 +499,7 @@ export default function BrandsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-foreground font-semibold">
-                  <Tag className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Top Vertical
+                  <Tag className="w-3.5 h-3.5 text-foreground" /> Top Vertical
                 </span>
                 <span className="font-bold text-foreground">Sports &amp; Home</span>
               </div>
@@ -536,7 +521,7 @@ export default function BrandsPage() {
         ) : (
           <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
             {brands.map((brand) => {
-              const primaryColor = brand.theme_config?.primary_color || '#2563eb';
+              const primaryColor = brand.theme_config?.primary_color || '#18181b';
               const totalQuestions = getQuestionCount(brand);
               const totalSteps = brand.form_schema?.steps?.length || 1;
 
@@ -562,7 +547,7 @@ export default function BrandsPage() {
                             title={`Theme Color: ${primaryColor}`}
                           />
                           <div className="overflow-hidden">
-                            <h3 className="text-lg font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 font-heading truncate">
+                            <h3 className="text-lg font-bold text-foreground transition-colors duration-200 font-heading truncate">
                               {brand.name}
                             </h3>
                             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block truncate">
@@ -576,14 +561,12 @@ export default function BrandsPage() {
                             e.stopPropagation();
                             toggleBrandActive(brand.id, brand.is_active);
                           }}
-                          className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
-                            brand.is_active
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                              : 'bg-secondary text-muted-foreground border border-border'
-                          }`}
+                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer shrink-0 bg-secondary/80 hover:bg-secondary border border-border"
                         >
-                          <span className={`w-2 h-2 rounded-full ${brand.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-                          <span>{brand.is_active ? 'Active' : 'Paused'}</span>
+                          <span className={`w-1.5 h-1.5 rounded-full ${brand.is_active ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
+                          <span className={brand.is_active ? 'text-foreground font-semibold' : 'text-muted-foreground'}>
+                            {brand.is_active ? 'Active' : 'Paused'}
+                          </span>
                         </button>
                       </div>
 
@@ -594,7 +577,7 @@ export default function BrandsPage() {
                       <div className="space-y-2 text-xs mb-5">
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground flex items-center gap-1.5">
-                            <Globe className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                            <Globe className="w-3.5 h-3.5 text-foreground" />
                             Domain:
                           </span>
                           <span className="font-mono font-bold text-foreground truncate max-w-[170px]">
@@ -603,7 +586,7 @@ export default function BrandsPage() {
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground flex items-center gap-1.5">
-                            <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                            <Layers className="w-3.5 h-3.5 text-foreground" />
                             Form Structure:
                           </span>
                           <span className="font-bold text-foreground">
@@ -617,7 +600,7 @@ export default function BrandsPage() {
                       <Link
                         href={`/brands/${brand.id}/edit`}
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-1 py-2 px-3 bg-secondary hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 text-foreground font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-border hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 transform-gpu shadow-2xs"
+                        className="flex-1 py-2 px-3 bg-secondary hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-foreground text-foreground font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-border transition-all duration-200 transform-gpu shadow-2xs"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                         <span>Edit Brand</span>
@@ -655,11 +638,11 @@ export default function BrandsPage() {
 
       {/* Table View */}
       {viewMode === 'table' && (
-        <SpotlightCard color="#2563eb" tiltMax={2} className="p-0 overflow-hidden">
+        <SpotlightCard color="#71717a" tiltMax={2} className="p-0 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                <tr className="border-b border-border bg-slate-100/90 dark:bg-neutral-900/60 text-[11px] font-bold text-slate-700 dark:text-neutral-300 uppercase tracking-wider">
                   <th className="py-3.5 px-4">Brand</th>
                   <th className="py-3.5 px-4">Slug / Domain</th>
                   <th className="py-3.5 px-4">Vertical</th>
@@ -682,7 +665,7 @@ export default function BrandsPage() {
                   </tr>
                 ) : (
                   brands.map((brand) => {
-                    const primaryColor = brand.theme_config?.primary_color || '#2563eb';
+                    const primaryColor = brand.theme_config?.primary_color || '#18181b';
                     const totalQuestions = getQuestionCount(brand);
 
                     return (
@@ -694,15 +677,15 @@ export default function BrandsPage() {
                         title="Click to inspect brand specs"
                       >
                         <td className="py-3.5 px-4 font-bold text-foreground">
-                          <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors font-heading text-sm">
+                          <span className="transition-colors font-heading text-sm">
                             {brand.name}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 font-mono text-muted-foreground">
+                        <td className="py-3.5 px-4 font-mono text-slate-700 dark:text-neutral-300 text-xs font-semibold">
                           <div>{brand.slug}</div>
-                          <div className="text-[10px] text-foreground font-semibold">{brand.domain}</div>
+                          <div className="text-[11px] text-foreground font-bold">{brand.domain}</div>
                         </td>
-                        <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300">
+                        <td className="py-3.5 px-4 text-foreground font-semibold">
                           {brand.vertical?.replace(/_/g, ' ')}
                         </td>
                         <td className="py-3.5 px-4 font-bold text-foreground">{totalQuestions} fields</td>
@@ -736,7 +719,7 @@ export default function BrandsPage() {
                           <div className="flex items-center justify-end gap-2">
                             <Link
                               href={`/brands/${brand.id}/edit`}
-                              className="p-1.5 rounded-lg text-muted-foreground hover:text-blue-600 hover:bg-secondary transition-colors"
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                               title="Edit"
                             >
                               <Edit2 className="w-4 h-4" />
@@ -895,11 +878,11 @@ export default function BrandsPage() {
               <div className="flex items-center gap-3">
                 <div
                   className="w-4 h-10 rounded-full shrink-0 shadow-xs"
-                  style={{ backgroundColor: inspectingBrand.theme_config?.primary_color || '#2563eb' }}
+                  style={{ backgroundColor: inspectingBrand.theme_config?.primary_color || '#18181b' }}
                 />
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                    <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded-full border border-border">
                       Brand Funnel
                     </span>
                     <span className="text-xs text-muted-foreground font-semibold">
@@ -918,14 +901,13 @@ export default function BrandsPage() {
                   toggleBrandActive(inspectingBrand.id, inspectingBrand.is_active);
                   setInspectingBrand({ ...inspectingBrand, is_active: !inspectingBrand.is_active });
                 }}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
-                  inspectingBrand.is_active
-                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                    : 'bg-secondary text-muted-foreground border border-border'
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer bg-secondary hover:bg-secondary/80 border border-border"
                 title="Click to toggle active status"
               >
-                {inspectingBrand.is_active ? 'Active Funnel' : 'Paused'}
+                <span className={`w-1.5 h-1.5 rounded-full ${inspectingBrand.is_active ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
+                <span className={inspectingBrand.is_active ? 'text-foreground font-semibold' : 'text-muted-foreground'}>
+                  {inspectingBrand.is_active ? 'Active Funnel' : 'Paused'}
+                </span>
               </button>
             </div>
 
@@ -953,10 +935,10 @@ export default function BrandsPage() {
                 <div className="flex items-center gap-2 mt-1">
                   <span
                     className="w-4 h-4 rounded-full border border-border shadow-2xs shrink-0"
-                    style={{ backgroundColor: inspectingBrand.theme_config?.primary_color || '#2563eb' }}
+                    style={{ backgroundColor: inspectingBrand.theme_config?.primary_color || '#71717a' }}
                   />
                   <span className="font-mono font-bold text-foreground">
-                    {inspectingBrand.theme_config?.primary_color || '#2563eb'}
+                    {inspectingBrand.theme_config?.primary_color || '#71717a'}
                   </span>
                   <span className="text-muted-foreground font-sans text-[11px]">• Primary Brand Tint</span>
                 </div>
@@ -972,7 +954,7 @@ export default function BrandsPage() {
                 <span className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground">
                   Form Schema ({inspectingBrand.form_schema?.steps?.length || 1} Steps • {getQuestionCount(inspectingBrand)} Questions)
                 </span>
-                <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">LeadFlow Dynamic Engine</span>
+                <span className="text-[10px] font-semibold text-muted-foreground">LeadFlow Dynamic Engine</span>
               </div>
 
               <div className="space-y-2">
@@ -1025,7 +1007,7 @@ export default function BrandsPage() {
                 <Link
                   href={`/brands/${inspectingBrand.id}/edit`}
                   onClick={() => setInspectingBrand(null)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-xs"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                   <span>Edit Brand &amp; Form</span>

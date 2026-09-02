@@ -26,9 +26,9 @@ export const StatCard: React.FC<StatCardProps> = ({
   isPositive = true,
   icon: Icon,
   subtitle = 'from last week',
-  iconBgColor = 'bg-blue-50 dark:bg-blue-950/60',
-  iconColor = 'text-blue-600 dark:text-blue-400',
-  color = '#2563eb',
+  iconBgColor = 'bg-secondary',
+  iconColor = 'text-foreground',
+  color = '#71717a',
 }) => {
   return (
     <SpotlightCard
@@ -51,7 +51,7 @@ export const StatCard: React.FC<StatCardProps> = ({
 
       {/* Middle: Large Bold Number */}
       <div className="my-1">
-        <div className="text-2xl sm:text-[26px] font-extrabold text-foreground tracking-tight font-heading group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+        <div className="text-2xl sm:text-[26px] font-extrabold text-foreground tracking-tight font-heading transition-colors duration-200">
           {value}
         </div>
       </div>

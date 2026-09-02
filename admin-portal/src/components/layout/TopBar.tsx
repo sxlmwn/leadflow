@@ -17,58 +17,60 @@ export const TopBar: React.FC<TopBarProps> = ({
   onToggleDarkMode
 }) => {
   return (
-    <header className="h-16 bg-card border-b border-border px-6 flex items-center justify-between sticky top-0 z-20 transition-colors duration-200">
+    <header className="h-16 bg-card border-b border-border px-3.5 sm:px-6 flex items-center justify-between sticky top-0 z-20 transition-colors duration-200 gap-2 sm:gap-4">
       {/* Title / Search */}
-      <div className="flex items-center gap-6 flex-1 max-w-xl">
-        <h1 className="text-xl font-bold text-foreground tracking-tight font-heading hidden sm:block shrink-0">
+      <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0 max-w-xl">
+        <h1 className="text-lg sm:text-xl font-bold text-foreground tracking-tight font-heading hidden sm:block shrink-0 truncate">
           {title}
         </h1>
 
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative flex-1 min-w-0 max-w-md">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
             type="text"
-            placeholder="Search leads, brands, buyers, domains..."
+            placeholder="Search leads, brands, buyers..."
             onChange={(e) => onSearchChange?.(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-secondary focus:bg-card border border-border focus:border-blue-500 rounded-xl text-xs text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:ring-2 focus:ring-blue-500/20"
+            className="w-full pl-8 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-secondary focus:bg-card border border-border focus:border-foreground rounded-xl text-xs text-foreground outline-none transition-all duration-200 placeholder:text-muted-foreground focus:ring-2 focus:ring-foreground/20 min-h-[38px]"
           />
         </div>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {/* Dark Mode Quick Toggle */}
         {onToggleDarkMode && (
           <button
             onClick={onToggleDarkMode}
-            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary border border-border transition-colors cursor-pointer"
+            className="min-w-[40px] min-h-[40px] p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary border border-border transition-colors cursor-pointer flex items-center justify-center"
             title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            aria-label="Toggle theme"
           >
             {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
           </button>
         )}
 
         {/* Status Indicator */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 rounded-full border border-emerald-200 dark:border-emerald-800 text-xs font-semibold">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>System Healthy</span>
+        <div className="hidden xl:flex items-center gap-2 text-xs font-medium text-muted-foreground px-2.5 py-1 bg-secondary/80 border border-border rounded-full">
+          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span className="text-foreground font-semibold">System Operational</span>
         </div>
 
         {/* Notification Bell */}
         <button
-          className="relative p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary border border-border transition-colors cursor-pointer"
+          className="min-w-[40px] min-h-[40px] relative p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary border border-border transition-colors cursor-pointer flex items-center justify-center"
           title="Notifications"
+          aria-label="Notifications"
         >
           <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-card"></span>
+          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-card"></span>
         </button>
 
         {/* User Pill */}
-        <div className="flex items-center gap-3 pl-3 border-l border-border">
-          <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
+        <div className="flex items-center gap-2.5 pl-2 sm:pl-3 border-l border-border">
+          <div className="w-8 h-8 rounded-full bg-secondary border border-border text-foreground font-bold flex items-center justify-center text-xs shadow-xs shrink-0">
             AD
           </div>
-          <div className="hidden md:flex flex-col text-left">
+          <div className="hidden lg:flex flex-col text-left">
             <span className="text-xs font-bold text-foreground leading-tight">Admin User</span>
             <span className="text-[10px] font-medium text-muted-foreground">Super Admin</span>
           </div>

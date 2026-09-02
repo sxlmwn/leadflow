@@ -61,7 +61,7 @@ export default function BrandEditPage({ params }: { params: Promise<{ id: string
           <p className="text-xs text-muted-foreground">The requested brand ID or slug could not be located.</p>
           <Link
             href="/brands"
-            className="inline-block px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-semibold"
+            className="inline-block px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-xl text-xs font-semibold transition-colors"
           >
             Back to Brands List
           </Link>

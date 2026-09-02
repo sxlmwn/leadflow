@@ -21,6 +21,7 @@ export interface AdminLead {
   sold_to_buyer_id?: string;
   sold_to_buyer_name?: string;
   sold_at?: string;
+  price_sold?: number;
   created_at: string;
   updated_at?: string;
   click_id?: string;

@@ -14,7 +14,10 @@ import { SpotlightCard } from '@/components/ui/spotlight-card';
 
 interface SessionsByDeviceCardProps {
   title?: string;
-  totalVisitors?: number | string;
+  totalVisitors?: number;
+  desktopCount?: number;
+  mobileCount?: number;
+  tabletCount?: number;
   breakdowns?: Array<{
     device: string;
     percentage: number;
@@ -30,44 +33,71 @@ const chartConfig = {
   },
   desktop: {
     label: "Desktop",
-    color: "#2563eb",
+    color: "#18181b",
   },
 } satisfies ChartConfig;
 
 export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
   title = "Sessions by device",
-  totalVisitors = "10,739",
-  breakdowns = [
+  totalVisitors = 0,
+  desktopCount = 0,
+  mobileCount = 0,
+  tabletCount = 0,
+  breakdowns: customBreakdowns,
+}) => {
+  const tot = totalVisitors || 0;
+  const dCount = desktopCount || 0;
+  const mCount = mobileCount || 0;
+  const tCount = tabletCount || 0;
+
+  const dPct = tot > 0 ? Math.round((dCount / tot) * 1000) / 10 : 0;
+  const mPct = tot > 0 ? Math.round((mCount / tot) * 1000) / 10 : 0;
+  const tPct = tot > 0 ? Math.round((tCount / tot) * 1000) / 10 : 0;
+
+  const breakdowns = customBreakdowns ?? [
     {
       device: 'Desktop',
-      percentage: 78.5,
-      count: '8,430',
+      percentage: dPct,
+      count: dCount.toLocaleString(),
       icon: Laptop,
-      color: 'text-blue-600 dark:text-blue-400',
+      color: 'text-foreground',
     },
     {
       device: 'Mobile',
-      percentage: 19.7,
-      count: '2,115',
+      percentage: mPct,
+      count: mCount.toLocaleString(),
       icon: Smartphone,
-      color: 'text-sky-500 dark:text-sky-400',
+      color: 'text-zinc-600 dark:text-zinc-400',
     },
     {
       device: 'Tablet',
-      percentage: 1.8,
-      count: '194',
+      percentage: tPct,
+      count: tCount.toLocaleString(),
       icon: Tablet,
-      color: 'text-blue-400 dark:text-blue-300',
+      color: 'text-zinc-400 dark:text-zinc-500',
     },
-  ]
-}) => {
-  const chartData = [
-    { device: 'desktop', visitors: 10739, fill: '#2563eb' },
   ];
+
+  const [isDark, setIsDark] = React.useState(false);
+  React.useEffect(() => {
+    const checkDark = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkDark();
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const chartData = [
+    { device: 'visitors', visitors: tot > 0 ? tot : 1, fill: isDark ? '#ffffff' : '#18181b' },
+  ];
+
+  const endAngle = tot > 0 ? 282 : 0;
 
   return (
     <SpotlightCard
-      color="#0ea5e9"
+      color="#71717a"
       tiltMax={5}
       className="p-4 sm:p-6 flex flex-col justify-between h-full group"
     >
@@ -99,7 +129,7 @@ export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
           <RadialBarChart
             data={chartData}
             startAngle={0}
-            endAngle={282}
+            endAngle={endAngle}
             outerRadius={88}
             innerRadius={74}
           >
@@ -107,19 +137,31 @@ export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
               gridType="circle"
               radialLines={false}
               stroke="none"
-              className="first:fill-muted/40 last:fill-background"
+              className="first:fill-muted/20 last:fill-background"
               polarRadius={[88, 74]}
             />
             <RadialBar
               dataKey="visitors"
-              background={{ fill: 'currentColor' }}
-              className="[&_.recharts-radial-bar-background-sector]:fill-slate-100 dark:[&_.recharts-radial-bar-background-sector]:fill-slate-800/80"
+              background={{ fill: isDark ? '#27272a' : '#e2e8f0' }}
+              className="fill-zinc-900 dark:fill-white [&_.recharts-radial-bar-background-sector]:fill-zinc-200/90 dark:[&_.recharts-radial-bar-background-sector]:fill-zinc-800/90"
               cornerRadius={10}
             />
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
               <Label
                 content={({ viewBox }) => {
                   if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                    const numStr =
+                      typeof totalVisitors === 'number'
+                        ? totalVisitors.toLocaleString()
+                        : String(totalVisitors);
+
+                    const fontSize =
+                      numStr.length > 7
+                        ? '18px'
+                        : numStr.length > 5
+                        ? '22px'
+                        : '28px';
+
                     return (
                       <text
                         x={viewBox.cx}
@@ -129,19 +171,18 @@ export const SessionsByDeviceCard: React.FC<SessionsByDeviceCardProps> = ({
                       >
                         <tspan
                           x={viewBox.cx}
-                          y={(viewBox.cy || 0) - 6}
-                          className="fill-foreground text-3xl sm:text-[34px] font-extrabold font-heading tracking-tight"
+                          y={(viewBox.cy || 0) - 5}
+                          style={{ fontSize }}
+                          className="fill-foreground font-extrabold font-heading tracking-tight"
                         >
-                          {typeof totalVisitors === 'number'
-                            ? totalVisitors.toLocaleString()
-                            : totalVisitors}
+                          {numStr}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 18}
                           className="fill-muted-foreground text-xs font-semibold"
                         >
-                          Total visitor
+                          Total visitors
                         </tspan>
                       </text>
                     );

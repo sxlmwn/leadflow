@@ -28,7 +28,7 @@ interface ThemeEditorProps {
 
 export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
   const [primaryColor, setPrimaryColor] = useState(
-    brand.theme_config?.primary_color || '#2563eb'
+    brand.theme_config?.primary_color || '#18181b'
   );
   const [fontStyle, setFontStyle] = useState(
     brand.theme_config?.font_style || 'Inter, sans-serif'
@@ -87,7 +87,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
             </div>
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 font-semibold rounded-xl text-xs shadow-xs transition-all duration-200 cursor-pointer"
             >
               {savedSuccess ? (
                 <>
@@ -105,7 +105,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
 
           <div>
             <label className="block text-xs font-bold text-foreground mb-2 flex items-center gap-2">
-              <Palette className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <Palette className="w-4 h-4 text-foreground" />
               <span>Primary Accent Color</span>
             </label>
             <div className="flex items-center gap-3">
@@ -119,10 +119,10 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
                 type="text"
                 value={primaryColor}
                 onChange={(e) => setPrimaryColor(e.target.value)}
-                className="px-3 py-2 bg-card border border-border rounded-xl text-xs font-mono font-bold text-foreground outline-none focus:border-blue-500"
+                className="px-3 py-2 bg-card border border-border rounded-xl text-xs font-mono font-bold text-foreground outline-none focus:border-foreground"
               />
               <div className="flex items-center gap-1.5 ml-2">
-                {['#2563eb', '#0d9488', '#0284c7', '#16a34a', '#e11d48'].map((c) => (
+                {['#18181b', '#3f3f46', '#71717a', '#a1a1aa', '#d4d4d8'].map((c) => (
                   <button
                     key={c}
                     onClick={() => setPrimaryColor(c)}
@@ -136,13 +136,13 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
 
           <div>
             <label className="block text-xs font-bold text-foreground mb-2 flex items-center gap-2">
-              <Type className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <Type className="w-4 h-4 text-foreground" />
               <span>Font Family</span>
             </label>
             <select
               value={fontStyle}
               onChange={(e) => setFontStyle(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-blue-500 cursor-pointer"
+              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-foreground cursor-pointer"
             >
               <option value="Inter, sans-serif">Inter (Modern Clean Sans)</option>
               <option value="Outfit, sans-serif">Outfit (Display Heading Sans)</option>
@@ -158,20 +158,20 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
               type="text"
               value={headline}
               onChange={(e) => setHeadline(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-blue-500"
+              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-foreground"
             />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-foreground mb-1.5 flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <ImageIcon className="w-4 h-4 text-foreground" />
               <span>Logo Asset URL</span>
             </label>
             <input
               type="text"
               value={logoUrl}
               onChange={(e) => setLogoUrl(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-medium text-foreground outline-none focus:border-blue-500"
+              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-medium text-foreground outline-none focus:border-foreground"
             />
             {isProxyOrFragileImageUrl(logoUrl) && (
               <div className="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-[11px] flex items-start gap-2">
@@ -188,7 +188,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
 
           <div>
             <label className="block text-xs font-bold text-foreground mb-1.5 flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <ImageIcon className="w-4 h-4 text-foreground" />
               <span>Background Image URL (Optional)</span>
             </label>
             <input
@@ -196,7 +196,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
               value={backgroundImageUrl}
               onChange={(e) => setBackgroundImageUrl(e.target.value)}
               placeholder="https://images.unsplash.com/..."
-              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-medium text-foreground outline-none focus:border-blue-500"
+              className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-medium text-foreground outline-none focus:border-foreground"
             />
             {isProxyOrFragileImageUrl(backgroundImageUrl) && (
               <div className="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-[11px] flex items-start gap-2">
@@ -214,7 +214,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
 
         <div className="admin-card p-6 space-y-4 transform-gpu">
           <h3 className="text-sm font-bold text-foreground font-heading flex items-center gap-2 border-b border-border pb-3">
-            <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <Shield className="w-4 h-4 text-foreground" />
             <span>Legal Copy &amp; TCPA Compliance</span>
           </h3>
 
@@ -226,7 +226,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
               rows={2}
               value={tcpaText}
               onChange={(e) => setTcpaText(e.target.value)}
-              className="w-full px-3.5 py-2 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-blue-500"
+              className="w-full px-3.5 py-2 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-foreground"
             />
           </div>
 
@@ -238,7 +238,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
               rows={2}
               value={disclaimer}
               onChange={(e) => setDisclaimer(e.target.value)}
-              className="w-full px-3.5 py-2 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-blue-500"
+              className="w-full px-3.5 py-2 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-foreground"
             />
           </div>
 
@@ -251,7 +251,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
                 type="text"
                 value={privacyUrl}
                 onChange={(e) => setPrivacyUrl(e.target.value)}
-                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-foreground"
               />
             </div>
             <div>
@@ -262,7 +262,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
                 type="text"
                 value={termsUrl}
                 onChange={(e) => setTermsUrl(e.target.value)}
-                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-foreground"
               />
             </div>
           </div>
@@ -270,10 +270,10 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
       </div>
 
       <div className="lg:col-span-5">
-        <div className="sticky top-24 admin-card p-6 border-2 border-blue-100 dark:border-blue-900 bg-card">
+        <div className="sticky top-24 admin-card p-6 border border-border bg-card">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
             <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <Eye className="w-4 h-4 text-foreground" />
               <h4 className="text-sm font-bold text-foreground font-heading">Landing Hero Preview</h4>
             </div>
             <span className="text-[10px] font-bold uppercase text-muted-foreground">
@@ -303,7 +303,7 @@ export const ThemeEditor: React.FC<ThemeEditorProps> = ({ brand, onSave }) => {
                   </div>
                   <span className="font-bold text-sm tracking-tight">{brand.name}</span>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-800/60">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-foreground bg-secondary px-2 py-0.5 rounded-full border border-border">
                   Live Preview
                 </span>
               </div>

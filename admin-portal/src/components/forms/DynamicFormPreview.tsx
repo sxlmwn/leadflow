@@ -20,7 +20,7 @@ export const DynamicFormPreview: React.FC<DynamicFormPreviewProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const primaryColor = themeConfig?.primary_color || '#2563eb';
+  const primaryColor = themeConfig?.primary_color || '#18181b';
   const fontFamily = themeConfig?.font_style || 'Inter, sans-serif';
 
   if (!steps.length || !steps[0]?.fields?.length) {
@@ -202,7 +202,7 @@ export const DynamicFormPreview: React.FC<DynamicFormPreviewProps> = ({
                     key={opt.value}
                     className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
                       formData[field.name] === opt.value
-                        ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 font-semibold text-foreground'
+                        ? 'border-foreground bg-secondary font-semibold text-foreground'
                         : 'border-border bg-card hover:bg-secondary/60 text-slate-700 dark:text-slate-300'
                     }`}
                   >
@@ -212,7 +212,7 @@ export const DynamicFormPreview: React.FC<DynamicFormPreviewProps> = ({
                       value={opt.value}
                       checked={formData[field.name] === opt.value}
                       onChange={(e) => handleInputChange(field.name, e.target.value)}
-                      className="w-3.5 h-3.5 text-blue-600"
+                      className="w-3.5 h-3.5 accent-foreground"
                     />
                     <span>{opt.label}</span>
                   </label>
@@ -224,7 +224,7 @@ export const DynamicFormPreview: React.FC<DynamicFormPreviewProps> = ({
                   type="checkbox"
                   checked={Boolean(formData[field.name])}
                   onChange={(e) => handleInputChange(field.name, e.target.checked)}
-                  className="w-3.5 h-3.5 mt-0.5 rounded text-blue-600"
+                  className="w-3.5 h-3.5 mt-0.5 rounded accent-foreground"
                 />
                 <span className="text-foreground font-medium">{field.label}</span>
               </label>

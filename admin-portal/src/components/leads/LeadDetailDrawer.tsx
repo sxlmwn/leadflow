@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   User,
@@ -41,6 +42,11 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
   const panelRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [showRawJson, setShowRawJson] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -62,7 +68,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
 
   useOutsideClick(panelRef, onClose);
 
-  if (!lead) return null;
+  if (!mounted || !lead) return null;
 
   const scoreBreakdown = lead.score_breakdown || {
     total_score: lead.score || 85,
@@ -84,17 +90,17 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
 
   const layoutId = `${layoutIdPrefix}-${lead.id}`;
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        {/* Backdrop Blur Overlay */}
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        {/* Backdrop Blur Overlay covering 100% of entire viewport including sidebar */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/75 backdrop-blur-xs cursor-pointer"
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm cursor-pointer z-0"
         />
 
         {/* Morphing Expanded Lead Card Container */}
@@ -108,18 +114,18 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between sticky top-0 bg-card/95 backdrop-blur-md z-10">
             <div>
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                <span className="text-xs font-mono font-bold text-foreground bg-secondary px-2.5 py-0.5 rounded-full border border-border">
                   Lead #{lead.id.substring(0, 8)}
                 </span>
                 <span
-                  className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                  className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${
                     lead.status === 'sold'
-                      ? 'bg-blue-600 text-white shadow-xs shadow-blue-500/20'
+                      ? 'bg-card text-foreground border-border shadow-xs'
                       : lead.status === 'verified'
-                      ? 'bg-emerald-600 text-white'
+                      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/25'
                       : lead.status === 'duplicate'
-                      ? 'bg-amber-600 text-white'
-                      : 'bg-secondary text-muted-foreground'
+                      ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/25'
+                      : 'bg-secondary text-muted-foreground border-border'
                   }`}
                 >
                   {lead.status}
@@ -155,9 +161,9 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           {/* Body Sections */}
           <div className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
             {/* 1. Contact Information Card */}
-            <SpotlightCard color="#2563eb" tiltMax={3} className="p-5">
+            <SpotlightCard color="#71717a" tiltMax={3} className="p-5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3.5 flex items-center gap-2">
-                <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <User className="w-4 h-4 text-foreground" />
                 <span>Contact Information</span>
               </h3>
 
@@ -194,10 +200,10 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
             </SpotlightCard>
 
             {/* 2. Verification & Compliance Audit Breakdown */}
-            <SpotlightCard color="#10b981" tiltMax={3} className="p-5">
+            <SpotlightCard color="#71717a" tiltMax={3} className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <ShieldCheck className="w-4 h-4 text-foreground" />
                   <span>Verification &amp; Compliance Audit</span>
                 </h3>
                 <div className="flex items-center gap-2.5">
@@ -205,12 +211,12 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                     value={lead.score || 85}
                     size={46}
                     displayValue={String(lead.score || 85)}
-                    color={(lead.score || 85) >= 80 ? '#059669' : (lead.score || 85) >= 50 ? '#2563eb' : '#dc2626'}
+                    color={(lead.score || 85) >= 80 ? '#059669' : (lead.score || 85) >= 50 ? '#71717a' : '#dc2626'}
                     showShadow={true}
                   />
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                      Quality Score
+                       Quality Score
                     </span>
                     <span className="text-xs font-extrabold text-foreground">
                       {lead.score || 85}/100
@@ -234,7 +240,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                       href={lead.trustedform_cert_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 hover:underline"
+                      className="text-xs text-foreground font-semibold flex items-center gap-1 hover:underline"
                     >
                       <span>View Cert</span>
                       <ExternalLink className="w-3 h-3" />
@@ -271,15 +277,15 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                 </div>
 
                 {/* Score breakdown factors */}
-                <div className="p-3 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/60 space-y-2">
-                  <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 block">Score Factor Weights:</span>
+                <div className="p-3 rounded-xl bg-secondary border border-border space-y-2">
+                  <span className="text-[11px] font-bold text-foreground block">Score Factor Weights:</span>
                   <div className="grid grid-cols-2 gap-2">
                     {Object.entries(scoreBreakdown.factors || {}).map(([key, f], idx) => {
                       const factor = f as { points: number; description: string };
                       return (
                         <div key={idx} className="flex items-center justify-between text-[11px]">
                           <span className="text-foreground capitalize">{key.replace(/_/g, ' ')}</span>
-                          <span className="font-mono font-bold text-blue-600 dark:text-blue-400">+{factor.points} pts</span>
+                          <span className="font-mono font-bold text-foreground">+{factor.points} pts</span>
                         </div>
                       );
                     })}
@@ -289,9 +295,9 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
             </SpotlightCard>
 
             {/* 3. SubID & Marketing Tracking Parameters */}
-            <SpotlightCard color="#8b5cf6" tiltMax={3} className="p-5">
+            <SpotlightCard color="#71717a" tiltMax={3} className="p-5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                <Tag className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <Tag className="w-4 h-4 text-foreground" />
                 <span>Traffic Source &amp; SubID Parameters</span>
               </h3>
 
@@ -324,9 +330,9 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
             </SpotlightCard>
 
             {/* 4. Form Answers */}
-            <SpotlightCard color="#6366f1" tiltMax={3} className="p-5">
+            <SpotlightCard color="#71717a" tiltMax={3} className="p-5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <FileText className="w-4 h-4 text-foreground" />
                 <span>Form Answers ({lead.brand_name})</span>
               </h3>
               <div className="bg-secondary p-3 rounded-xl border border-border space-y-2 text-xs">
@@ -347,9 +353,9 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
             </SpotlightCard>
 
             {/* 5. Delivery History to Buyers */}
-            <SpotlightCard color="#0ea5e9" tiltMax={3} className="p-5">
+            <SpotlightCard color="#71717a" tiltMax={3} className="p-5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                <Send className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <Send className="w-4 h-4 text-foreground" />
                 <span>Buyer Delivery &amp; Realization</span>
               </h3>
               {deliveries.length > 0 ? (
@@ -390,8 +396,9 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                     </span>
                   </div>
                   {lead.sold && (
-                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-                      Sold ($55.00)
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span>Sold ($55.00)</span>
                     </span>
                   )}
                 </div>
@@ -404,7 +411,7 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
                 onClick={() => setShowRawJson(!showRawJson)}
                 className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer py-1"
               >
-                <Code2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <Code2 className="w-3.5 h-3.5 text-foreground" />
                 <span>{showRawJson ? 'Hide Raw JSON' : 'Inspect Raw Ingested JSON'}</span>
               </button>
 
@@ -417,7 +424,8 @@ export const LeadDetailDrawer: React.FC<LeadDetailDrawerProps> = ({
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

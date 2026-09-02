@@ -28,12 +28,12 @@ export interface SpotlightItem {
 }
 
 const DEFAULT_ITEMS: SpotlightItem[] = [
-  { icon: Zap, title: "Instant", description: "Sub-100ms latency on every request, globally distributed across every region.", color: "#f59e0b" },
-  { icon: Lock, title: "Secure", description: "Zero-trust by default. SOC 2 certified with end-to-end encryption throughout.", color: "#60a5fa" },
-  { icon: Globe, title: "Global", description: "Edge-deployed to 300+ locations. Your users always hit a nearby server.", color: "#34d399" },
-  { icon: Code, title: "Developer first", description: "Type-safe SDKs in five languages, a complete REST API, and honest docs.", color: "#a78bfa" },
-  { icon: Cpu, title: "Scalable", description: "From side project to Series B without touching your infrastructure config.", color: "#38bdf8" },
-  { icon: Cloud, title: "Serverless", description: "No servers to provision, patch, or babysit. Just deploy and move on.", color: "#f472b6" },
+  { icon: Zap, title: "Instant", description: "Sub-100ms latency on every request, globally distributed across every region.", color: "#71717a" },
+  { icon: Lock, title: "Secure", description: "Zero-trust by default. SOC 2 certified with end-to-end encryption throughout.", color: "#a1a1aa" },
+  { icon: Globe, title: "Global", description: "Edge-deployed to 300+ locations. Your users always hit a nearby server.", color: "#52525b" },
+  { icon: Code, title: "Developer first", description: "Type-safe SDKs in five languages, a complete REST API, and honest docs.", color: "#71717a" },
+  { icon: Cpu, title: "Scalable", description: "From side project to Series B without touching your infrastructure config.", color: "#a1a1aa" },
+  { icon: Cloud, title: "Serverless", description: "No servers to provision, patch, or babysit. Just deploy and move on.", color: "#52525b" },
 ];
 
 interface CardProps {
@@ -119,10 +119,10 @@ export default function SpotlightCards({ items = DEFAULT_ITEMS, eyebrow = "Featu
   const [hoveredTitle, setHoveredTitle] = useState<string | null>(null);
 
   return (
-    <div className={cn("relative w-full overflow-hidden rounded-2xl px-8 pt-9 pb-10", "bg-white dark:bg-[#06060f]", className)}>
+    <div className={cn("relative w-full overflow-hidden rounded-2xl px-8 pt-9 pb-10", "bg-white dark:bg-[#0a0a0a]", className)}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 dark:hidden" style={{ backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.055) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
       <div className="relative mb-8 flex flex-col gap-1.5">
-        <p className="font-semibold text-[10px] text-indigo-600 uppercase tracking-[0.22em] dark:text-indigo-400/80">{eyebrow}</p>
+        <p className="font-semibold text-[10px] text-zinc-600 uppercase tracking-[0.22em] dark:text-zinc-400">{eyebrow}</p>
         <h2 className="font-semibold text-[22px] text-zinc-900 tracking-tight dark:text-white">{heading}</h2>
       </div>
       <div className="relative grid grid-cols-2 gap-3 sm:grid-cols-3">

@@ -33,7 +33,7 @@ export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
   label,
   displayValue,
   subtitle,
-  color = '#2563eb',
+  color = '#18181b',
   className = '',
   startAngle = 0,
 }) => {
@@ -52,7 +52,22 @@ export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
   const sweepAngle = (clampedPercentage / 100) * 360;
   const calculatedEndAngle = startAngle + sweepAngle;
 
-  const resolvedColor = Array.isArray(color) ? color[0] : color;
+  const [isDark, setIsDark] = React.useState(false);
+  React.useEffect(() => {
+    const checkDark = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkDark();
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const rawColor = Array.isArray(color) ? color[0] : color;
+  const isDefaultDark = !rawColor || rawColor === '#18181b' || rawColor === '#71717a';
+  const resolvedColor = isDark
+    ? (isDefaultDark ? '#ffffff' : rawColor)
+    : (isDefaultDark ? '#18181b' : rawColor);
 
   const chartData = [
     {
@@ -70,7 +85,7 @@ export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
   } satisfies ChartConfig;
 
   const outerRadius = isLarge ? 86 : 24;
-  const innerRadius = isLarge ? 72 : 18;
+  const innerRadius = isLarge ? 70 : 17;
 
   return (
     <div
@@ -92,13 +107,13 @@ export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
             gridType="circle"
             radialLines={false}
             stroke="none"
-            className="first:fill-muted/40 last:fill-background"
+            className="first:fill-muted/20 last:fill-background"
             polarRadius={[outerRadius, innerRadius]}
           />
           <RadialBar
             dataKey="value"
-            background={{ fill: 'currentColor' }}
-            className="[&_.recharts-radial-bar-background-sector]:fill-slate-100 dark:[&_.recharts-radial-bar-background-sector]:fill-slate-800/80"
+            background={{ fill: isDark ? '#27272a' : '#e2e8f0' }}
+            className="fill-zinc-900 dark:fill-white [&_.recharts-radial-bar-background-sector]:fill-zinc-200/90 dark:[&_.recharts-radial-bar-background-sector]:fill-zinc-800/90"
             cornerRadius={isLarge ? 10 : 6}
           />
           <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
@@ -108,7 +123,19 @@ export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
                   const cx = viewBox.cx || pixelSize / 2;
                   const cy = viewBox.cy || pixelSize / 2;
 
+                  const valText =
+                    displayValue !== undefined
+                      ? String(displayValue)
+                      : `${Math.round(value)}%`;
+
                   if (isLarge) {
+                    const fontSize =
+                      valText.length > 6
+                        ? '18px'
+                        : valText.length > 4
+                        ? '22px'
+                        : '28px';
+
                     return (
                       <text
                         x={cx}
@@ -119,16 +146,15 @@ export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
                         <tspan
                           x={cx}
                           y={label ? cy - 4 : cy}
-                          className="fill-foreground text-3xl sm:text-4xl font-extrabold font-heading tracking-tight"
+                          style={{ fontSize }}
+                          className="fill-foreground font-extrabold font-heading tracking-tight"
                         >
-                          {displayValue !== undefined
-                            ? displayValue
-                            : `${Math.round(value)}%`}
+                          {valText}
                         </tspan>
                         {label && (
                           <tspan
                             x={cx}
-                            y={cy + 22}
+                            y={cy + 20}
                             className="fill-muted-foreground text-xs font-semibold"
                           >
                             {label}
@@ -137,8 +163,8 @@ export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
                         {subtitle && (
                           <tspan
                             x={cx}
-                            y={cy + 36}
-                            className="fill-blue-600 dark:fill-blue-400 text-[10px] font-bold"
+                            y={cy + 34}
+                            className="fill-muted-foreground text-[10px] font-bold"
                           >
                             {subtitle}
                           </tspan>
@@ -148,6 +174,8 @@ export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
                   }
 
                   // Compact / Mini indicator
+                  const miniFontSize = valText.length > 4 ? '9px' : '11px';
+
                   return (
                     <text
                       x={cx}
@@ -158,11 +186,10 @@ export const CircularProgressRing: React.FC<CircularProgressRingProps> = ({
                       <tspan
                         x={cx}
                         y={cy}
-                        className="fill-foreground text-[11px] font-bold font-heading"
+                        style={{ fontSize: miniFontSize }}
+                        className="fill-foreground font-bold font-heading"
                       >
-                        {displayValue !== undefined
-                          ? displayValue
-                          : `${Math.round(value)}%`}
+                        {valText}
                       </tspan>
                     </text>
                   );

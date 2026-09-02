@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { CircularProgressRing, CircularProgressRingProps } from '@/components/ui/circular-progress-ring';
+import { CircularProgressRing } from '@/components/ui/circular-progress-ring';
 
 export interface GlowProgressRingProps {
   percentage: number;
@@ -22,7 +22,7 @@ export const GlowProgressRing: React.FC<GlowProgressRingProps> = ({
   label,
   valueText,
   subtitle,
-  gradientColors = ['#2563eb', '#60a5fa'],
+  gradientColors = ['#18181b', '#71717a'],
   showCenterText = true,
 }) => {
   return (

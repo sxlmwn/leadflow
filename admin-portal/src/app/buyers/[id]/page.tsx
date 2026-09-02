@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, use } from 'react';
+import React, { useEffect, useState, useCallback, use } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -34,7 +34,7 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
     conversionRate: 14.8
   });
 
-  const fetchBuyerDetail = async () => {
+  const fetchBuyerDetail = useCallback(async () => {
     setLoading(true);
     try {
       // Fetch Buyer info
@@ -84,11 +84,11 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
     } finally {
       setLoading(false);
     }
-  };
+  }, [buyerId]);
 
   useEffect(() => {
     fetchBuyerDetail();
-  }, [buyerId]);
+  }, [fetchBuyerDetail]);
 
   if (loading) {
     return (
@@ -122,8 +122,9 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
               <h2 className="text-2xl font-extrabold text-foreground tracking-tight font-heading">
                 {buyer.name}
               </h2>
-              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                Live Endpoint
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="text-foreground">Live Endpoint</span>
               </span>
             </div>
             <p className="text-xs text-muted-foreground font-mono font-medium mt-0.5">
@@ -142,7 +143,7 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
           change="+2.1%"
           isPositive={true}
           icon={CheckCircle}
-          color="#10b981"
+          color="#71717a"
           subtitle="successful API ping responses"
         />
         <StatCard
@@ -154,7 +155,7 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
           icon={Clock}
           iconBgColor="bg-teal-50 dark:bg-teal-950/50"
           iconColor="text-teal-600 dark:text-teal-400"
-          color="#0d9488"
+          color="#71717a"
           subtitle="webhook roundtrip latency"
         />
         <StatCard
@@ -164,7 +165,7 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
           change="+18.4%"
           isPositive={true}
           icon={Send}
-          color="#2563eb"
+          color="#71717a"
           subtitle="accepted leads delivered"
         />
         <StatCard
@@ -176,7 +177,7 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
           icon={TrendingUp}
           iconBgColor="bg-emerald-50 dark:bg-emerald-950/50"
           iconColor="text-emerald-600 dark:text-emerald-400"
-          color="#059669"
+          color="#71717a"
           subtitle="downstream conversion postbacks"
         />
       </SpotlightCardGroup>
@@ -189,14 +190,14 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
       />
 
       {/* Buyer Delivery History Table */}
-      <SpotlightCard color="#2563eb" tiltMax={2} className="p-6">
+      <SpotlightCard color="#71717a" tiltMax={2} className="p-6">
         <h3 className="text-base font-bold text-foreground font-heading mb-4">
           Buyer Delivery &amp; Postback Audit Log
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-100/90 dark:bg-neutral-900/60 text-[11px] font-bold text-slate-700 dark:text-neutral-300 uppercase tracking-wider">
                 <th className="py-3 px-3">Delivery ID</th>
                 <th className="py-3 px-3">Lead ID</th>
                 <th className="py-3 px-3">Outcome</th>
@@ -209,35 +210,33 @@ export default function BuyerDetailPage({ params }: { params: Promise<{ id: stri
             <tbody className="divide-y divide-border font-medium">
               {deliveries.map((del) => (
                 <tr key={del.id} className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 transition-colors">
-                  <td className="py-3 px-3 font-mono text-muted-foreground">{del.id.substring(0, 8)}</td>
-                  <td className="py-3 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">
+                  <td className="py-3 px-3 font-mono text-slate-700 dark:text-neutral-300 font-semibold">{del.id.substring(0, 8)}</td>
+                  <td className="py-3 px-3 font-mono font-bold text-foreground">
                     {del.lead_id.substring(0, 8)}
                   </td>
                   <td className="py-3 px-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        del.accepted
-                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-                      }`}
-                    >
-                      {del.accepted ? 'Accepted' : 'Rejected'}
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold">
+                      <span className={`w-1.5 h-1.5 rounded-full ${del.accepted ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                      <span className={del.accepted ? 'text-foreground' : 'text-rose-500'}>
+                        {del.accepted ? 'Accepted' : 'Rejected'}
+                      </span>
                     </span>
                   </td>
                   <td className="py-3 px-3 font-bold text-foreground">
                     ${del.price_paid || (del.accepted ? buyer.price_per_lead || 65 : 0)}
                   </td>
-                  <td className="py-3 px-3 font-mono text-muted-foreground">142 ms</td>
+                  <td className="py-3 px-3 font-mono text-slate-700 dark:text-neutral-300 font-semibold">142 ms</td>
                   <td className="py-3 px-3">
                     {del.converted ? (
-                      <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                         Converted ($250)
                       </span>
                     ) : (
-                      <span className="text-[10px] text-muted-foreground">Pending</span>
+                      <span className="text-xs text-muted-foreground font-medium">Pending</span>
                     )}
                   </td>
-                  <td className="py-3 px-3 text-muted-foreground text-[11px]">
+                  <td className="py-3 px-3 text-slate-700 dark:text-neutral-300 text-xs font-semibold">
                     {new Date(del.delivered_at).toLocaleString()}
                   </td>
                 </tr>

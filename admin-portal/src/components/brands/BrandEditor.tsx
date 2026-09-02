@@ -17,9 +17,7 @@ import {
   ArrowDown,
   Eye,
   Code2,
-  CheckCircle2,
   AlertCircle,
-  AlertTriangle,
   Globe,
   Sparkles,
   ChevronDown,
@@ -30,20 +28,6 @@ import { Brand, FormField, FormSchema, FormStep, ThemeConfig, LegalCopy, FormFie
 import { DynamicFormPreview } from '@/components/forms/DynamicFormPreview';
 import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
-
-function isProxyOrFragileImageUrl(url?: string): boolean {
-  if (!url || typeof url !== 'string') return false;
-  const lower = url.toLowerCase().trim();
-  return (
-    lower.includes('external-content.duckduckgo.com') ||
-    lower.includes('duckduckgo.com/iu') ||
-    lower.includes('google.com/imgres') ||
-    lower.includes('encrypted-tbn') ||
-    lower.includes('tse1.mm.bing.net') ||
-    lower.includes('bing.com/th') ||
-    lower.includes('images.search.yahoo.com')
-  );
-}
 
 interface BrandEditorProps {
   initialBrand?: Brand | null;
@@ -62,10 +46,10 @@ const DEFAULT_VERTICALS = [
   { value: 'custom', label: 'Custom Vertical' },
 ];
 
-const PRESET_COLORS = ['#2563eb', '#0d9488', '#16a34a', '#0284c7', '#d97706', '#dc2626', '#4f46e5', '#8b5cf6', '#ec4899'];
+const PRESET_COLORS = ['#18181b', '#27272a', '#3f3f46', '#52525b', '#71717a', '#a1a1aa', '#d4d4d8', '#e4e4e7', '#f4f4f5'];
 
 function parseColorAndOpacity(colorStr: string): { hex: string; opacity: number } {
-  if (!colorStr) return { hex: '#2563eb', opacity: 100 };
+  if (!colorStr) return { hex: '#18181b', opacity: 100 };
   const str = colorStr.trim();
   
   if (str.startsWith('#') && str.length === 9) {
@@ -92,32 +76,18 @@ function parseColorAndOpacity(colorStr: string): { hex: string; opacity: number 
     const r = parseInt(rgbaMatch[1], 10).toString(16).padStart(2, '0');
     const g = parseInt(rgbaMatch[2], 10).toString(16).padStart(2, '0');
     const b = parseInt(rgbaMatch[3], 10).toString(16).padStart(2, '0');
-    const hex = `#${r}${g}${b}`;
-    const a = rgbaMatch[4] !== undefined ? parseFloat(rgbaMatch[4]) : 1;
-    const opacity = Math.round(a * 100);
-    return { hex, opacity: isNaN(opacity) ? 100 : opacity };
+    const alpha = rgbaMatch[4] !== undefined ? Math.round(parseFloat(rgbaMatch[4]) * 100) : 100;
+    return { hex: `#${r}${g}${b}`, opacity: alpha };
   }
 
-  return { hex: str.startsWith('#') ? str.slice(0, 7) : '#2563eb', opacity: 100 };
+  return { hex: '#18181b', opacity: 100 };
 }
 
 function combineColorAndOpacity(hex: string, opacity: number): string {
-  let cleanHex = hex.trim();
-  if (!cleanHex.startsWith('#')) {
-    cleanHex = `#${cleanHex}`;
-  }
-  if (cleanHex.length > 7) {
-    cleanHex = cleanHex.slice(0, 7);
-  }
-  if (cleanHex.length < 7) {
-    return cleanHex;
-  }
-  if (opacity >= 100) {
-    return cleanHex;
-  }
-  const alphaVal = Math.round((Math.max(0, Math.min(100, opacity)) / 100) * 255);
+  if (opacity >= 100) return hex;
+  const alphaVal = Math.round((opacity / 100) * 255);
   const alphaHex = alphaVal.toString(16).padStart(2, '0');
-  return `${cleanHex}${alphaHex}`;
+  return `${hex}${alphaHex}`;
 }
 
 const DEFAULT_FONTS = [
@@ -154,8 +124,8 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
   // Theme Config State
   const [themeConfig, setThemeConfig] = useState<ThemeConfig>(
     initialBrand?.theme_config || {
-      primary_color: '#2563eb',
-      secondary_color: '#3b82f6',
+      primary_color: '#18181b',
+      secondary_color: '#71717a',
       bg_color: '#ffffff',
       logo_url: '',
       font_style: 'Inter, sans-serif',
@@ -568,7 +538,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
             type="button"
             disabled={isSaving}
             onClick={() => handleSave(true)}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 text-xs font-bold shadow-xs transition-all duration-200 cursor-pointer disabled:opacity-50"
           >
             {isSaving ? (
               <span className="flex items-center gap-2">
@@ -610,11 +580,11 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
       )}
 
       {/* Navigation Wizard Tabs */}
-      <div className="flex items-center gap-1.5 bg-secondary p-1 rounded-2xl border border-border overflow-x-auto">
+      <div className="flex items-center gap-1.5 bg-secondary/80 p-1 rounded-2xl border border-border overflow-x-auto">
         <button
           onClick={() => setActiveTab('basic')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-            activeTab === 'basic' ? 'bg-blue-600 text-white shadow-xs' : 'text-muted-foreground hover:text-foreground'
+            activeTab === 'basic' ? 'bg-card text-foreground shadow-xs border border-border' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <Building2 className="w-4 h-4" />
@@ -624,7 +594,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
         <button
           onClick={() => setActiveTab('theme')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-            activeTab === 'theme' ? 'bg-blue-600 text-white shadow-xs' : 'text-muted-foreground hover:text-foreground'
+            activeTab === 'theme' ? 'bg-card text-foreground shadow-xs border border-border' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <Palette className="w-4 h-4" />
@@ -634,7 +604,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
         <button
           onClick={() => setActiveTab('form')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-            activeTab === 'form' ? 'bg-blue-600 text-white shadow-xs' : 'text-muted-foreground hover:text-foreground'
+            activeTab === 'form' ? 'bg-card text-foreground shadow-xs border border-border' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <Layers className="w-4 h-4" />
@@ -644,7 +614,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
         <button
           onClick={() => setActiveTab('legal')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-            activeTab === 'legal' ? 'bg-blue-600 text-white shadow-xs' : 'text-muted-foreground hover:text-foreground'
+            activeTab === 'legal' ? 'bg-card text-foreground shadow-xs border border-border' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <Shield className="w-4 h-4" />
@@ -670,7 +640,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                     value={name}
                     onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="e.g. SolarPro"
-                    className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-semibold text-foreground"
+                    className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-foreground rounded-xl outline-none font-semibold text-foreground"
                   />
                   <p className="text-[11px] text-muted-foreground mt-1">Visible in header and email footers</p>
                 </div>
@@ -690,11 +660,11 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                       }}
                       placeholder="e.g. solarpro"
                       className={`w-full px-3.5 py-2.5 bg-card border rounded-xl outline-none font-mono text-xs font-semibold ${
-                        slugError ? 'border-rose-400 text-rose-600' : 'border-border focus:border-blue-500 text-foreground'
+                        slugError ? 'border-rose-400 text-rose-600' : 'border-border focus:border-foreground text-foreground'
                       }`}
                     />
                     {slugChecking && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-blue-600 font-bold">
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-foreground font-bold">
                         Checking...
                       </span>
                     )}
@@ -716,7 +686,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                       value={domain}
                       onChange={(e) => setDomain(e.target.value)}
                       placeholder="e.g. quote.solarpro.com"
-                      className="w-full pl-9 pr-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-mono text-xs text-foreground"
+                      className="w-full pl-9 pr-3.5 py-2.5 bg-card border border-border focus:border-foreground rounded-xl outline-none font-mono text-xs text-foreground"
                     />
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-1">Production apex domain or subdomain</p>
@@ -727,7 +697,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   <select
                     value={vertical}
                     onChange={(e) => setVertical(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl font-semibold text-foreground outline-none focus:border-blue-500"
+                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl font-semibold text-foreground outline-none focus:border-foreground"
                   >
                     {DEFAULT_VERTICALS.map((v) => (
                       <option key={v.value} value={v.value}>
@@ -744,7 +714,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                     value={subVertical}
                     onChange={(e) => setSubVertical(e.target.value)}
                     placeholder="e.g. windows, asthma, pain_relief"
-                    className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-blue-500 rounded-xl outline-none font-medium text-foreground"
+                    className="w-full px-3.5 py-2.5 bg-card border border-border focus:border-foreground rounded-xl outline-none font-medium text-foreground"
                   />
                 </div>
 
@@ -755,7 +725,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                       type="checkbox"
                       checked={isActive}
                       onChange={(e) => setIsActive(e.target.checked)}
-                      className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
+                      className="w-4 h-4 accent-foreground rounded cursor-pointer"
                     />
                     <span className="text-xs font-semibold text-foreground">
                       {isActive ? (
@@ -774,7 +744,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
           <div className="lg:col-span-4 space-y-6">
             <div className="admin-card p-6 space-y-4">
               <h4 className="text-sm font-bold text-foreground font-heading flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <Sparkles className="w-4 h-4 text-foreground" />
                 <span>How LeadFlow Routes Traffic</span>
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -803,11 +773,11 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-bold text-foreground flex items-center gap-2">
-                      <Palette className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <Palette className="w-4 h-4 text-foreground" />
                       <span>Primary Accent Color *</span>
                     </label>
                     <span className="text-[11px] font-mono font-bold text-muted-foreground">
-                      {themeConfig.primary_color || '#2563eb'}
+                      {themeConfig.primary_color || '#18181b'}
                     </span>
                   </div>
 
@@ -816,9 +786,9 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                     <div className="relative group">
                       <input
                         type="color"
-                        value={parseColorAndOpacity(themeConfig.primary_color || '#2563eb').hex}
+                        value={parseColorAndOpacity(themeConfig.primary_color || '#18181b').hex}
                         onChange={(e) => {
-                          const { opacity } = parseColorAndOpacity(themeConfig.primary_color || '#2563eb');
+                          const { opacity } = parseColorAndOpacity(themeConfig.primary_color || '#18181b');
                           const newCombined = combineColorAndOpacity(e.target.value, opacity);
                           setThemeConfig({ ...themeConfig, primary_color: newCombined });
                         }}
@@ -830,27 +800,27 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                     <div className="relative min-w-[110px] max-w-[140px]">
                       <input
                         type="text"
-                        value={themeConfig.primary_color || '#2563eb'}
+                        value={themeConfig.primary_color || '#18181b'}
                         onChange={(e) => setThemeConfig({ ...themeConfig, primary_color: e.target.value })}
-                        placeholder="#2563eb"
-                        className="w-full px-3 py-2 bg-card border border-border rounded-xl text-xs font-mono font-bold text-foreground outline-none focus:border-blue-500 shadow-2xs"
+                        placeholder="#18181b"
+                        className="w-full px-3 py-2 bg-card border border-border rounded-xl text-xs font-mono font-bold text-foreground outline-none focus:border-foreground shadow-2xs"
                       />
                     </div>
 
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {PRESET_COLORS.map((c) => {
-                        const isSelected = parseColorAndOpacity(themeConfig.primary_color || '#2563eb').hex.toLowerCase() === c.toLowerCase();
+                        const isSelected = parseColorAndOpacity(themeConfig.primary_color || '#18181b').hex.toLowerCase() === c.toLowerCase();
                         return (
                           <button
                             key={c}
                             type="button"
                             onClick={() => {
-                              const { opacity } = parseColorAndOpacity(themeConfig.primary_color || '#2563eb');
+                              const { opacity } = parseColorAndOpacity(themeConfig.primary_color || '#18181b');
                               const newCombined = combineColorAndOpacity(c, opacity);
                               setThemeConfig({ ...themeConfig, primary_color: newCombined });
                             }}
                             className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 cursor-pointer shadow-2xs ${
-                              isSelected ? 'ring-2 ring-blue-500 ring-offset-2 border-white' : 'border-border'
+                              isSelected ? 'ring-2 ring-foreground ring-offset-2 border-white' : 'border-border'
                             }`}
                             style={{ backgroundColor: c }}
                             title={`Preset: ${c}`}
@@ -865,11 +835,11 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                 <div className="p-3.5 bg-secondary/70 rounded-xl border border-border space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-foreground flex items-center gap-1.5 text-[11px]">
-                      <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      <Sparkles className="w-3.5 h-3.5 text-foreground" />
                       <span>Glass Accent Opacity / Alpha</span>
                     </span>
-                    <span className="font-mono font-bold text-blue-600 dark:text-blue-400 bg-card px-2 py-0.5 rounded-md border border-border text-[11px]">
-                      {parseColorAndOpacity(themeConfig.primary_color || '#2563eb').opacity}%
+                    <span className="font-mono font-bold text-foreground bg-card px-2 py-0.5 rounded-md border border-border text-[11px]">
+                      {parseColorAndOpacity(themeConfig.primary_color || '#18181b').opacity}%
                     </span>
                   </div>
 
@@ -879,13 +849,13 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                       min="10"
                       max="100"
                       step="5"
-                      value={parseColorAndOpacity(themeConfig.primary_color || '#2563eb').opacity}
+                      value={parseColorAndOpacity(themeConfig.primary_color || '#18181b').opacity}
                       onChange={(e) => {
-                        const { hex } = parseColorAndOpacity(themeConfig.primary_color || '#2563eb');
+                        const { hex } = parseColorAndOpacity(themeConfig.primary_color || '#18181b');
                         const newCombined = combineColorAndOpacity(hex, parseInt(e.target.value, 10));
                         setThemeConfig({ ...themeConfig, primary_color: newCombined });
                       }}
-                      className="w-full accent-blue-600 cursor-pointer h-2 bg-muted rounded-lg"
+                      className="w-full accent-foreground cursor-pointer h-2 bg-muted rounded-lg"
                     />
 
                     {/* Visual Checkered Swatch Preview */}
@@ -900,119 +870,77 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                     >
                       <div
                         className="w-full h-full"
-                        style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
+                        style={{ backgroundColor: themeConfig.primary_color || '#18181b' }}
                       />
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-1.5 pt-0.5">
-                    {[
-                      { label: '100% Solid', val: 100 },
-                      { label: '85% Glass', val: 85 },
-                      { label: '70% Tint', val: 70 },
-                      { label: '50% Muted', val: 50 },
-                    ].map((preset) => (
-                      <button
-                        key={preset.val}
-                        type="button"
-                        onClick={() => {
-                          const { hex } = parseColorAndOpacity(themeConfig.primary_color || '#2563eb');
-                          const newCombined = combineColorAndOpacity(hex, preset.val);
-                          setThemeConfig({ ...themeConfig, primary_color: newCombined });
-                        }}
-                        className="px-2 py-0.5 bg-card hover:bg-muted rounded-lg text-[10px] font-semibold text-muted-foreground hover:text-foreground border border-border cursor-pointer transition-colors"
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1.5">Typography Font Family</label>
-                <select
-                  value={themeConfig.font_style || 'Inter, sans-serif'}
-                  onChange={(e) => setThemeConfig({ ...themeConfig, font_style: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-blue-500 cursor-pointer"
-                >
-                  {DEFAULT_FONTS.map((f) => (
-                    <option key={f.value} value={f.value}>
-                      {f.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1.5">Typography Font Family</label>
+                  <select
+                    value={themeConfig.font_style || 'Inter, sans-serif'}
+                    onChange={(e) => setThemeConfig({ ...themeConfig, font_style: e.target.value })}
+                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-foreground cursor-pointer"
+                  >
+                    {DEFAULT_FONTS.map((f) => (
+                      <option key={f.value} value={f.value}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1.5">Hero Headline Text *</label>
-                <textarea
-                  rows={2}
-                  required
-                  value={themeConfig.headline || ''}
-                  onChange={(e) => setThemeConfig({ ...themeConfig, headline: e.target.value })}
-                  placeholder="e.g. Find Top-Rated Window Replacement Experts Near You"
-                  className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-blue-500"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1.5">Hero Headline Text *</label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={themeConfig.headline || ''}
+                    onChange={(e) => setThemeConfig({ ...themeConfig, headline: e.target.value })}
+                    placeholder="e.g. Find Top-Rated Specialists Near You"
+                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-foreground"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1.5">Logo Image Asset URL</label>
-                <input
-                  type="text"
-                  value={themeConfig.logo_url || ''}
-                  onChange={(e) => setThemeConfig({ ...themeConfig, logo_url: e.target.value })}
-                  placeholder="https://... or /brands/logo.svg"
-                  className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-blue-500"
-                />
-                <p className="text-[11px] text-muted-foreground mt-1">SVG or high-res PNG image link for the landing header</p>
-                {isProxyOrFragileImageUrl(themeConfig.logo_url) && (
-                  <div className="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-[11px] flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
-                    <div>
-                      <p className="font-bold">Search Engine Proxy URL Detected</p>
-                      <p className="mt-0.5 text-amber-900/90 dark:text-amber-200/90 leading-normal">
-                        Search proxy URLs (such as DuckDuckGo or Google image search links) are temporary and can expire. We recommend using a permanent direct URL (e.g. from Supabase Storage or an asset link ending in .png, .svg, .jpg).
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1.5 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-foreground" />
+                    <span>Brand Logo URL (Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={themeConfig.logo_url || ''}
+                    onChange={(e) => setThemeConfig({ ...themeConfig, logo_url: e.target.value })}
+                    placeholder="https://... logo.png or svg"
+                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-foreground"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1.5 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  <span>Background Image URL (Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={themeConfig.background_image_url || ''}
-                  onChange={(e) => setThemeConfig({ ...themeConfig, background_image_url: e.target.value })}
-                  placeholder="https://images.unsplash.com/... (full bleed hero background)"
-                  className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-blue-500"
-                />
-                <p className="text-[11px] text-muted-foreground mt-1">Optional hero background image with dark overlay</p>
-                {isProxyOrFragileImageUrl(themeConfig.background_image_url) && (
-                  <div className="mt-2 p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-300 text-[11px] flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
-                    <div>
-                      <p className="font-bold">Search Engine Proxy URL Detected</p>
-                      <p className="mt-0.5 text-amber-900/90 dark:text-amber-200/90 leading-normal">
-                        Search proxy URLs can expire over time. We recommend using a permanent direct image URL or Unsplash CDN link.
-                      </p>
-                    </div>
-                  </div>
-                )}
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1.5 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-foreground" />
+                    <span>Background Image URL (Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={themeConfig.background_image_url || ''}
+                    onChange={(e) => setThemeConfig({ ...themeConfig, background_image_url: e.target.value })}
+                    placeholder="https://images.unsplash.com/... (full bleed hero background)"
+                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-foreground"
+                  />
+                  <p className="text-[11px] text-muted-foreground mt-1">Optional hero background image with dark overlay</p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Live Landing Hero Preview Panel */}
           <div className="lg:col-span-6">
-            <div className="sticky top-24 admin-card p-6 border-2 border-blue-100 dark:border-blue-900 bg-card">
+            <div className="sticky top-24 admin-card p-6 border border-border bg-card">
               <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <Eye className="w-4 h-4 text-foreground" />
                   <h4 className="text-sm font-bold text-foreground font-heading">Real-Time Hero Banner Preview</h4>
                 </div>
                 <span className="text-[10px] font-bold uppercase text-muted-foreground">
@@ -1049,14 +977,14 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                       ) : (
                         <div
                           className="w-8 h-8 aspect-square rounded-xl flex items-center justify-center font-bold text-xs shadow-2xs text-white shrink-0"
-                          style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
+                          style={{ backgroundColor: themeConfig.primary_color || '#71717a' }}
                         >
                           {name ? name.slice(0, 2).toUpperCase() : 'LF'}
                         </div>
                       )}
                       <span className="font-bold text-sm tracking-tight">{name || 'Brand Name'}</span>
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-800/60">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-foreground bg-secondary px-2 py-0.5 rounded-full border border-border">
                       Live Preview
                     </span>
                   </div>
@@ -1064,7 +992,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   <div className="space-y-3 mb-6 text-center">
                     <span
                       className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-white shadow-xs"
-                      style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
+                      style={{ backgroundColor: themeConfig.primary_color || '#71717a' }}
                     >
                       {vertical.replace('_', ' ')}
                     </span>
@@ -1079,7 +1007,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   <button
                     type="button"
                     className="w-full py-3 px-4 rounded-xl font-bold text-xs shadow-md transition-all duration-200 cursor-pointer hover:opacity-90"
-                    style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
+                    style={{ backgroundColor: themeConfig.primary_color || '#71717a' }}
                   >
                     Start Assessment →
                   </button>
@@ -1108,7 +1036,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                     onClick={openRawJsonEditor}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-secondary hover:bg-slate-200 dark:hover:bg-neutral-800 text-foreground text-xs font-semibold transition-colors cursor-pointer"
                   >
-                    <Code2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    <Code2 className="w-3.5 h-3.5 text-foreground" />
                     <span>Edit Raw JSON</span>
                   </button>
                 </div>
@@ -1123,7 +1051,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   <button
                     type="button"
                     onClick={addStep}
-                    className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                    className="flex items-center gap-1 text-xs font-bold text-foreground hover:underline cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add Step</span>
@@ -1138,8 +1066,8 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                       onClick={() => setActiveStepIndex(idx)}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
                         activeStepIndex === idx
-                          ? 'bg-blue-600 text-white shadow-xs'
-                          : 'bg-secondary text-muted-foreground hover:text-foreground border border-border'
+                          ? 'bg-card text-foreground shadow-xs border border-border'
+                          : 'bg-secondary/80 text-muted-foreground hover:text-foreground border border-border/60'
                       }`}
                     >
                       Step {idx + 1}: {st.title || 'Untitled'}
@@ -1161,7 +1089,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                         value={currentStep.title || ''}
                         onChange={(e) => updateStepTitle(activeStepIndex, e.target.value)}
                         placeholder="e.g. Project Details"
-                        className="w-full px-3 py-2 bg-card border border-border rounded-xl text-xs font-bold text-foreground outline-none focus:border-blue-500"
+                        className="w-full px-3 py-2 bg-card border border-border rounded-xl text-xs font-bold text-foreground outline-none focus:border-foreground"
                       />
                     </div>
                     {formSchema.steps.length > 1 && (
@@ -1195,9 +1123,9 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                           key={t.type}
                           type="button"
                           onClick={() => addFieldToCurrentStep(t.type as FormFieldType)}
-                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-card hover:bg-blue-50 dark:hover:bg-blue-950/60 border border-border hover:border-blue-300 text-xs font-semibold text-foreground hover:text-blue-600 transition-all cursor-pointer shadow-2xs"
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-card hover:bg-secondary border border-border text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs"
                         >
-                          <Plus className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                          <Plus className="w-3 h-3 text-foreground" />
                           <span>{t.label}</span>
                         </button>
                       ))}
@@ -1231,7 +1159,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                                 <span className="text-xs font-bold text-foreground truncate max-w-[200px]">
                                   {field.label || 'Untitled Question'}
                                 </span>
-                                <span className="text-[10px] font-bold uppercase text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
+                                <span className="text-[10px] font-bold uppercase text-foreground bg-secondary px-2 py-0.5 rounded-md border border-border">
                                   {field.type}
                                 </span>
                                 {field.required && (
@@ -1288,7 +1216,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                                       type="text"
                                       value={field.label}
                                       onChange={(e) => updateFieldInCurrentStep(fIdx, { label: e.target.value })}
-                                      className="w-full px-3 py-1.5 bg-secondary/50 border border-border rounded-xl outline-none focus:border-blue-500 font-semibold text-foreground"
+                                      className="w-full px-3 py-1.5 bg-secondary/50 border border-border rounded-xl outline-none focus:border-foreground font-semibold text-foreground"
                                     />
                                   </div>
 
@@ -1300,7 +1228,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                                       type="text"
                                       value={field.name}
                                       onChange={(e) => updateFieldInCurrentStep(fIdx, { name: slugify(e.target.value).replace(/-/g, '_') })}
-                                      className="w-full px-3 py-1.5 bg-secondary/50 border border-border rounded-xl outline-none focus:border-blue-500 font-mono text-foreground"
+                                      className="w-full px-3 py-1.5 bg-secondary/50 border border-border rounded-xl outline-none focus:border-foreground font-mono text-foreground"
                                     />
                                   </div>
 
@@ -1311,7 +1239,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                                     <select
                                       value={field.type}
                                       onChange={(e) => updateFieldInCurrentStep(fIdx, { type: e.target.value as FormFieldType })}
-                                      className="w-full px-3 py-1.5 bg-secondary/50 border border-border rounded-xl outline-none focus:border-blue-500 font-semibold text-foreground"
+                                      className="w-full px-3 py-1.5 bg-secondary/50 border border-border rounded-xl outline-none focus:border-foreground font-semibold text-foreground"
                                     >
                                       <option value="text">Text</option>
                                       <option value="email">Email</option>
@@ -1334,7 +1262,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                                       value={field.placeholder || ''}
                                       onChange={(e) => updateFieldInCurrentStep(fIdx, { placeholder: e.target.value })}
                                       placeholder="e.g. Enter details..."
-                                      className="w-full px-3 py-1.5 bg-secondary/50 border border-border rounded-xl outline-none focus:border-blue-500 text-foreground"
+                                      className="w-full px-3 py-1.5 bg-secondary/50 border border-border rounded-xl outline-none focus:border-foreground text-foreground"
                                     />
                                   </div>
 
@@ -1344,7 +1272,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                                         type="checkbox"
                                         checked={Boolean(field.required)}
                                         onChange={(e) => updateFieldInCurrentStep(fIdx, { required: e.target.checked })}
-                                        className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
+                                        className="w-4 h-4 accent-foreground rounded cursor-pointer"
                                       />
                                       <span className="text-xs font-semibold text-foreground">
                                         Required Question (Cannot proceed if empty)
@@ -1363,7 +1291,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                                       <button
                                         type="button"
                                         onClick={() => addOptionToField(fIdx)}
-                                        className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer flex items-center gap-1"
+                                        className="text-[11px] font-bold text-foreground hover:underline cursor-pointer flex items-center gap-1"
                                       >
                                         <Plus className="w-3 h-3" />
                                         <span>Add Option</span>
@@ -1412,17 +1340,16 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
           {/* Right Column: Live Interactive Dynamic Form Preview */}
           <div className="xl:col-span-5">
             <div className="sticky top-24 space-y-4">
-              <div className="admin-card p-5 border-2 border-blue-100 dark:border-blue-900 bg-card">
+              <div className="admin-card p-5 border border-border bg-card">
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
                   <div className="flex items-center gap-2">
-                    <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <Eye className="w-4 h-4 text-foreground" />
                     <h4 className="text-sm font-bold text-foreground font-heading">
                       Live DynamicForm Component Preview
                     </h4>
                   </div>
                   <span
-                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full text-white shadow-2xs"
-                    style={{ backgroundColor: themeConfig.primary_color || '#2563eb' }}
+                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full text-foreground bg-secondary border border-border shadow-2xs"
                   >
                     Interactive
                   </span>
@@ -1458,7 +1385,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   value={legalCopy.tcpa_text || ''}
                   onChange={(e) => setLegalCopy({ ...legalCopy, tcpa_text: e.target.value })}
                   placeholder="I agree to receive automated calls, texts, and emails..."
-                  className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-blue-500"
+                  className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-foreground"
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">
                   Shown directly below the submit button for TCPA &amp; FCC compliance
@@ -1474,7 +1401,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                   value={legalCopy.disclaimer || ''}
                   onChange={(e) => setLegalCopy({ ...legalCopy, disclaimer: e.target.value })}
                   placeholder="Participation in this matching service is voluntary..."
-                  className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-blue-500"
+                  className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-foreground"
                 />
               </div>
 
@@ -1486,7 +1413,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                     value={legalCopy.privacy_url || ''}
                     onChange={(e) => setLegalCopy({ ...legalCopy, privacy_url: e.target.value })}
                     placeholder="https://example.com/privacy"
-                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-blue-500"
+                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-foreground"
                   />
                 </div>
 
@@ -1497,7 +1424,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                     value={legalCopy.terms_url || ''}
                     onChange={(e) => setLegalCopy({ ...legalCopy, terms_url: e.target.value })}
                     placeholder="https://example.com/terms"
-                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-blue-500"
+                    className="w-full px-3.5 py-2.5 bg-card border border-border rounded-xl text-xs font-mono text-foreground outline-none focus:border-foreground"
                   />
                 </div>
               </div>
@@ -1534,7 +1461,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
                 rows={16}
                 value={rawJsonText}
                 onChange={(e) => setRawJsonText(e.target.value)}
-                className="w-full p-4 bg-slate-950 text-emerald-400 font-mono text-xs rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full p-4 bg-slate-950 text-emerald-400 font-mono text-xs rounded-xl outline-none focus:ring-2 focus:ring-foreground/20"
               />
             </div>
 
@@ -1549,7 +1476,7 @@ export const BrandEditor: React.FC<BrandEditorProps> = ({
               <button
                 type="button"
                 onClick={applyRawJson}
-                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 text-xs font-bold shadow-xs cursor-pointer"
               >
                 Apply Schema to Builder
               </button>

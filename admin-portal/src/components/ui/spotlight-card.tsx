@@ -57,7 +57,7 @@ export const SpotlightCard: React.FC<SpotlightCardProps> = ({
   children,
   className = '',
   id,
-  color = '#2563eb',
+  color = '#71717a',
   tiltMax = 6,
   enableTilt = true,
   enableGlow = true,

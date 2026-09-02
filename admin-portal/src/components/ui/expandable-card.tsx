@@ -6,6 +6,8 @@ import { useOutsideClick } from "@/hooks/use-outside-click";
 import { X, Maximize2, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { createPortal } from "react-dom";
+
 interface ExpandableModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -24,6 +26,11 @@ export const ExpandableModal: React.FC<ExpandableModalProps> = ({
   maxWidth = "max-w-2xl",
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -45,18 +52,20 @@ export const ExpandableModal: React.FC<ExpandableModalProps> = ({
 
   useOutsideClick(ref, onClose);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-          {/* Backdrop Blur Overlay */}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          {/* Backdrop Blur Overlay covering 100% of entire viewport and sidebar */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/70 backdrop-blur-xs cursor-pointer"
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm cursor-pointer z-0"
           />
 
           {/* Morphing Expanded Content Container */}
@@ -65,7 +74,7 @@ export const ExpandableModal: React.FC<ExpandableModalProps> = ({
             ref={ref}
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
             className={cn(
-              "relative w-full z-10 bg-card border border-border text-card-foreground rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col",
+              "relative w-full z-10 bg-card border border-border text-card-foreground rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col my-auto",
               maxWidth,
               className
             )}
@@ -81,7 +90,8 @@ export const ExpandableModal: React.FC<ExpandableModalProps> = ({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 
@@ -108,7 +118,7 @@ export const ExpandableMetricCard: React.FC<ExpandableMetricCardProps> = ({
   trendPositive = true,
   subtitle,
   icon,
-  iconBgColor = "bg-blue-500/10 text-blue-500",
+  iconBgColor = "bg-secondary text-foreground",
   detailedStats,
   actionLabel,
   onAction,
@@ -232,7 +242,7 @@ export const ExpandableMetricCard: React.FC<ExpandableMetricCardProps> = ({
                   setIsOpen(false);
                   if (onAction) onAction();
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors shadow-xs"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 text-xs font-bold transition-colors shadow-xs"
               >
                 <span>{actionLabel}</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -265,12 +275,12 @@ export const ExpandableStatusBadge: React.FC<ExpandableStatusBadgeProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const layoutId = `badge-${id}`;
 
-  const variantStyles = {
-    success: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:border-emerald-500/40",
-    warning: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 hover:border-amber-500/40",
-    danger: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 hover:border-rose-500/40",
-    info: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 hover:border-blue-500/40",
-    neutral: "bg-secondary text-muted-foreground border-border hover:border-neutral-600",
+  const dotColors = {
+    success: "bg-emerald-500",
+    warning: "bg-amber-500",
+    danger: "bg-rose-500",
+    info: "bg-zinc-400",
+    neutral: "bg-zinc-400",
   };
 
   return (
@@ -282,13 +292,12 @@ export const ExpandableStatusBadge: React.FC<ExpandableStatusBadgeProps> = ({
           setIsOpen(!isOpen);
         }}
         className={cn(
-          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all duration-150 cursor-pointer select-none",
-          variantStyles[variant],
+          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-secondary/80 hover:bg-secondary border border-border text-foreground transition-all duration-150 cursor-pointer select-none",
           className
         )}
         title="Click for status details"
       >
-        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+        <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotColors[variant])} />
         <span>{status}</span>
       </motion.button>
 

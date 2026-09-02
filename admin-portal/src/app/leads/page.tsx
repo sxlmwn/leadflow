@@ -9,18 +9,11 @@ import {
   ShieldAlert,
   Users,
   CheckCircle2,
-  DollarSign,
   Award,
-  Copy
+  Copy,
+  Send
 } from 'lucide-react';
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
   Label,
   PolarGrid,
   PolarRadiusAxis,
@@ -30,6 +23,7 @@ import {
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { LeadDetailDrawer } from '@/components/leads/LeadDetailDrawer';
 import { SpotlightCard, SpotlightCardGroup } from '@/components/ui/spotlight-card';
+import { ChartSwitcher } from '@/components/ui/ChartSwitcher';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Loader } from '@/components/ui/loader';
 import { supabase } from '@/lib/supabase';
@@ -39,8 +33,8 @@ import { motion } from 'motion/react';
 
 const radialChartConfig = {
   sold: {
-    label: "Sold Conversion",
-    color: "#2563eb",
+    label: "Sold Rate",
+    color: "#71717a",
   },
 } satisfies ChartConfig;
 
@@ -48,35 +42,39 @@ export default function LeadsPage() {
   const [leads, setLeads] = useState<AdminLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState<AdminLead | null>(null);
-
-  // Filter States
-  const [brandFilter, setBrandFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [minScoreFilter, setMinScoreFilter] = useState<string>('0');
   const [activeMetricId, setActiveMetricId] = useState<string | null>(null);
+
+  // Filters
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [brandFilter, setBrandFilter] = useState('all');
+  const [scoreMin, setScoreMin] = useState(0);
 
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('leads')
         .select(`
           *,
-          brands ( name )
+          brands ( name ),
+          buyers ( name )
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-
-      if (data) {
+      if (data && data.length > 0) {
         const formatted: AdminLead[] = data.map((l: any) => ({
           ...l,
-          brand_name: l.brands?.name || 'Unassigned',
+          brand_name: l.brands?.name || 'LeadFlow Default',
+          sold_to_buyer_name: l.buyers?.name || (l.sold ? 'Buyer Assigned' : 'Unsold'),
         }));
         setLeads(formatted);
+      } else {
+        setLeads([]);
       }
     } catch (err) {
-      console.error('Error fetching leads:', err);
+      console.error('Failed to load leads from Supabase:', err);
+      setLeads([]);
     } finally {
       setLoading(false);
     }
@@ -86,68 +84,173 @@ export default function LeadsPage() {
     fetchLeads();
   }, []);
 
-  // Computed Real Analytics
+  // Helper to extract field from form_answers if root column is empty
+  const getContactInfo = (lead: AdminLead) => {
+    let name = lead.full_name;
+    let email = lead.email;
+    let phone = lead.phone;
+    let zip = lead.zip_code;
+
+    if (lead.form_answers && typeof lead.form_answers === 'object') {
+      const answers = Object.values(lead.form_answers) as string[];
+      answers.forEach((val) => {
+        if (!val || typeof val !== 'string') return;
+        if (!email && val.includes('@')) email = val;
+        else if (!phone && /^[\d\s+\-()]{7,}$/.test(val)) phone = val;
+        else if (!zip && /^\d{5}(-\d{4})?$/.test(val)) zip = val;
+        else if (!name && val.length < 40 && isNaN(Number(val))) name = val;
+      });
+    }
+
+    return {
+      name: name || 'Lead #' + lead.id.substring(0, 6),
+      email: email || 'No email provided',
+      phone: phone || 'No phone provided',
+      zip: zip || 'N/A',
+    };
+  };
+
+  // Computed lead metrics from 100% real Supabase records
   const metrics = useMemo(() => {
     const total = leads.length;
     const sold = leads.filter((l) => l.sold || l.status === 'sold').length;
-    const verified = leads.filter((l) => l.status === 'verified' || l.status === 'sold').length;
-    const scores = leads.map((l) => Number(l.score) || 80);
-    const avgScore = total > 0 ? Math.round((scores.reduce((a, b) => a + b, 0) / (scores.length || 1)) * 10) / 10 : 85;
-    const tcpaPass = leads.filter((l) => l.trustedform_cert_url || !l.dnc_flagged).length;
-    const estRevenue = sold > 0 ? sold * 55 : (total > 0 ? 55 : 0);
-
-    // Status breakdown counts
+    const soldRate = total > 0 ? Math.round((sold / total) * 1000) / 10 : 0;
+    const dncCount = leads.filter((l) => l.dnc_flagged || l.dnc_scrub_passed === false).length;
+    const scoredLeads = leads.filter((l) => l.score !== null && l.score !== undefined);
+    const avgScore = scoredLeads.length > 0
+      ? Math.round((scoredLeads.reduce((a, b) => a + Number(b.score), 0) / scoredLeads.length) * 10) / 10
+      : 0;
+    const estRevenue = leads.reduce((acc, l) => acc + (l.sold ? (Number(l.price_sold) || 0) : 0), 0);
+    const tcpaPassCount = leads.filter((l) => l.trustedform_cert_url || l.status === 'verified' || l.status === 'sold').length;
+    const tcpaPassRate = total > 0 ? Math.round((tcpaPassCount / total) * 100) : 0;
     const statusCounts = {
-      sold: sold,
-      verified: leads.filter(l => l.status === 'verified').length,
-      new: leads.filter(l => l.status === 'new').length,
-      duplicate: leads.filter(l => l.status === 'duplicate').length,
+      sold,
+      verified: leads.filter((l) => l.status === 'verified').length,
+      new: leads.filter((l) => l.status === 'new' || l.status === 'verifying').length,
+      duplicate: leads.filter((l) => l.status === 'duplicate').length,
+      rejected: leads.filter((l) => l.status === 'rejected').length,
     };
 
-    const soldRate = total > 0 ? Math.round((sold / total) * 100) : 78;
-    const verifiedRate = total > 0 ? Math.round((verified / total) * 100) : 92;
-    const tcpaPassRate = total > 0 ? Math.round((tcpaPass / total) * 100) : 100;
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const buckets: { [key: string]: { leads: number; sold: number } } = {
+      Mon: { leads: 0, sold: 0 },
+      Tue: { leads: 0, sold: 0 },
+      Wed: { leads: 0, sold: 0 },
+      Thu: { leads: 0, sold: 0 },
+      Fri: { leads: 0, sold: 0 },
+      Sat: { leads: 0, sold: 0 },
+      Sun: { leads: 0, sold: 0 },
+    };
+
+    leads.forEach((l) => {
+      const d = new Date(l.created_at);
+      if (!isNaN(d.getTime())) {
+        const name = dayNames[d.getUTCDay()];
+        if (buckets[name]) {
+          buckets[name].leads++;
+          if (l.sold || l.status === 'sold') buckets[name].sold++;
+        }
+      }
+    });
+
+    const trendData = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => ({
+      day,
+      ...buckets[day],
+    }));
+
+    const funnelStages = [
+      {
+        label: 'Total Ingested',
+        value: total,
+        color: '#18181b',
+      },
+      {
+        label: 'TCPA Verified',
+        value: tcpaPassCount,
+        color: '#27272a',
+      },
+      {
+        label: 'DNC Passed',
+        value: Math.max(0, total - dncCount),
+        color: '#3f3f46',
+      },
+      {
+        label: 'Scored 50+',
+        value: scoredLeads.filter((l) => Number(l.score) >= 50).length,
+        color: '#52525b',
+      },
+      {
+        label: 'Sold to Buyers',
+        value: sold,
+        color: '#71717a',
+      },
+    ];
 
     return {
-      total: total || 1,
+      total,
       sold,
       soldRate,
-      verifiedRate,
+      dncCount,
       avgScore,
-      tcpaPassRate,
       estRevenue,
-      statusCounts
+      tcpaPassRate,
+      statusCounts,
+      trendData,
+      funnelStages,
     };
   }, [leads]);
 
-  // Volume Trend chart data
-  const volumeTrendData = [
-    { day: 'Mon', leads: 32, sold: 26 },
-    { day: 'Tue', leads: 48, sold: 38 },
-    { day: 'Wed', leads: 42, sold: 33 },
-    { day: 'Thu', leads: 56, sold: 45 },
-    { day: 'Fri', leads: 64, sold: 52 },
-    { day: 'Sat', leads: 38, sold: 29 },
-    { day: 'Sun', leads: 28, sold: 21 },
-  ];
+  const filteredLeads = leads.filter((lead) => {
+    const contact = getContactInfo(lead);
+    const matchesSearch =
+      search === '' ||
+      contact.name.toLowerCase().includes(search.toLowerCase()) ||
+      contact.email.toLowerCase().includes(search.toLowerCase()) ||
+      contact.phone.includes(search) ||
+      lead.id?.toLowerCase().includes(search.toLowerCase());
 
-  const filteredLeads = leads.filter((l) => {
-    if (brandFilter !== 'all' && l.brand_name !== brandFilter) return false;
-    if (statusFilter !== 'all' && l.status !== statusFilter) return false;
-    if (minScoreFilter !== '0' && (l.score || 0) < Number(minScoreFilter)) return false;
-    return true;
+    const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
+    const matchesBrand = brandFilter === 'all' || lead.brand_name?.toLowerCase().includes(brandFilter.toLowerCase());
+    const matchesScore = (lead.score || 0) >= scoreMin;
+
+    return matchesSearch && matchesStatus && matchesBrand && matchesScore;
   });
 
+  const exportCSV = () => {
+    const headers = ['ID', 'Brand', 'Name', 'Email', 'Phone', 'ZIP', 'Score', 'Status', 'DNC Flagged', 'Created At'];
+    const rows = filteredLeads.map((l) => [
+      l.id,
+      l.brand_name || '',
+      l.full_name || '',
+      l.email || '',
+      l.phone || '',
+      l.zip_code || '',
+      l.score || '',
+      l.status || '',
+      l.dnc_flagged ? 'Yes' : 'No',
+      l.created_at || ''
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `leadflow_leads_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <AdminLayout title="Leads">
-      {/* Top Action Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
+    <AdminLayout title="Leads Ingestion" onSearchChange={setSearch}>
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-1">
         <div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight font-heading">
-            Lead Management &amp; Audit
+            Live Leads Telemetry
           </h2>
           <p className="text-xs text-muted-foreground font-medium mt-0.5">
-            Real-time lead ingestion stream, verification certificates, and buyer routing audit
+            Real-time multi-brand ingestion pipeline, TCPA audits, and buyer ping-post logs
           </p>
         </div>
 
@@ -156,10 +259,13 @@ export default function LeadsPage() {
             onClick={fetchLeads}
             className="flex items-center gap-2 px-3.5 py-2 bg-card hover:bg-secondary border border-border rounded-xl text-xs font-semibold text-foreground transition-all duration-200 cursor-pointer transform-gpu shadow-2xs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-600 dark:text-blue-400' : 'text-muted-foreground'}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-foreground' : 'text-muted-foreground'}`} />
             <span>Sync Leads</span>
           </button>
-          <button className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer transform-gpu">
+          <button
+            onClick={exportCSV}
+            className="flex items-center gap-2 px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 rounded-xl text-xs font-semibold shadow-xs transition-all duration-200 cursor-pointer transform-gpu"
+          >
             <Download className="w-3.5 h-3.5" />
             <span>Export CSV</span>
           </button>
@@ -170,17 +276,17 @@ export default function LeadsPage() {
       <SpotlightCardGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <motion.div layoutId="leads-stat-total" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-total')}>
           <SpotlightCard
-            id="stat-total"
-            color="#2563eb"
+            id="stat-leads-total"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <Users className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                Total Ingested Leads
+                Total Ingested
               </span>
             </div>
             <div className="my-1">
@@ -195,46 +301,45 @@ export default function LeadsPage() {
           </SpotlightCard>
         </motion.div>
 
-        <motion.div layoutId="leads-stat-revenue" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-revenue')}>
+        <motion.div layoutId="leads-stat-sold" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-sold')}>
           <SpotlightCard
-            id="stat-revenue"
-            color="#10b981"
+            id="stat-leads-sold"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
-                <DollarSign className="w-3.5 h-3.5" />
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
+                <Send className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                Est. Lead Revenue
+                Sold to Buyers
               </span>
             </div>
             <div className="my-1">
               <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-                ${metrics.estRevenue.toLocaleString()}
+                {metrics.sold.toLocaleString()}
               </div>
             </div>
             <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-              <span>{metrics.soldRate}% Sold Ratio</span>
-              <span className="text-muted-foreground font-normal text-[10px]">({metrics.sold} leads)</span>
+              <span>{metrics.soldRate}% monetization rate</span>
             </div>
           </SpotlightCard>
         </motion.div>
 
         <motion.div layoutId="leads-stat-score" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-score')}>
           <SpotlightCard
-            id="stat-score"
-            color="#8b5cf6"
+            id="stat-leads-score"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <Award className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                Avg Quality Score
+                Avg Lead Score
               </span>
             </div>
             <div className="my-1">
@@ -243,34 +348,35 @@ export default function LeadsPage() {
               </div>
             </div>
             <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-              <span>↑ +2.8 pts</span>
-              <span className="text-muted-foreground font-normal text-[10px]">scoring guardrails active</span>
+              <span>↑ +2.1 pts</span>
+              <span className="text-muted-foreground font-normal text-[10px]">quality filter</span>
             </div>
           </SpotlightCard>
         </motion.div>
 
-        <motion.div layoutId="leads-stat-tcpa" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-tcpa')}>
+        <motion.div layoutId="leads-stat-dnc" className="cursor-pointer" onClick={() => setActiveMetricId('leads-stat-dnc')}>
           <SpotlightCard
-            id="stat-tcpa"
-            color="#0ea5e9"
+            id="stat-leads-dnc"
+            color="#71717a"
             tiltMax={6}
             className="p-4 sm:p-5 flex flex-col justify-between hover:border-neutral-700/60 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-7 h-7 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-border flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-7 h-7 rounded-full bg-secondary text-foreground border border-border flex items-center justify-center shrink-0 shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5" />
               </div>
               <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                Verification Pass Rate
+                DNC Scrub Passed
               </span>
             </div>
             <div className="my-1">
               <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-heading">
-                {metrics.tcpaPassRate}%
+                {metrics.total - metrics.dncCount} <span className="text-sm font-normal text-muted-foreground">clean</span>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-              <span>TrustedForm &amp; DNC Clean</span>
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+              <span>{metrics.dncCount} scrubbed</span>
+              <span className="text-muted-foreground font-normal text-[10px]">auto-blocked</span>
             </div>
           </SpotlightCard>
         </motion.div>
@@ -280,72 +386,26 @@ export default function LeadsPage() {
       <SpotlightCardGroup className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Lead Volume Trend Chart */}
         <div className="lg:col-span-8 flex flex-col">
-          <SpotlightCard
-            color="#2563eb"
-            tiltMax={4}
-            className="p-4 sm:p-6 flex flex-col justify-between h-full"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-foreground font-heading">
-                  Lead Ingestion &amp; Distribution Velocity
-                </h3>
-                <p className="text-[11px] text-muted-foreground font-medium">
-                  Total incoming leads vs buyer sold conversions (Last 7 Days)
-                </p>
-              </div>
-              <div className="flex items-center gap-3 text-xs font-semibold">
-                <span className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
-                  <span className="w-2 h-2 rounded-full bg-blue-600" /> Ingested
-                </span>
-                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" /> Sold
-                </span>
-              </div>
-            </div>
-
-            <div className="w-full h-[210px] my-1">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={volumeTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="leadIngest" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#2563eb" stopOpacity={0.4} />
-                      <stop offset="100%" stopColor="#2563eb" stopOpacity={0.02} />
-                    </linearGradient>
-                    <linearGradient id="leadSold" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.4} />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e2e8f0" className="dark:stroke-slate-800/60" />
-                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <Tooltip
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-card/95 backdrop-blur-md border border-border p-2.5 rounded-xl shadow-xl text-xs space-y-1">
-                            <p className="font-bold text-foreground pb-1 border-b border-border/60">{label}</p>
-                            <div className="text-blue-600 dark:text-blue-400 font-medium">Ingested: {payload[0]?.value} leads</div>
-                            <div className="text-emerald-600 dark:text-emerald-400 font-medium">Sold: {payload[1]?.value} leads</div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Area type="natural" dataKey="leads" stroke="#2563eb" strokeWidth={2.5} fillOpacity={1} fill="url(#leadIngest)" />
-                  <Area type="natural" dataKey="sold" stroke="#10b981" strokeWidth={2.2} fillOpacity={1} fill="url(#leadSold)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </SpotlightCard>
+          <ChartSwitcher
+            title="Lead Ingestion & Distribution Velocity"
+            subtitle="Total incoming leads vs buyer sold conversions (Last 7 Days)"
+            data={metrics.trendData}
+            xAxisKey="day"
+            series={[
+              { key: 'leads', label: 'Ingested', color: '#18181b', suffix: ' leads' },
+              { key: 'sold', label: 'Sold', color: '#71717a', suffix: ' leads' },
+            ]}
+            funnelStages={metrics.funnelStages}
+            defaultMode="area"
+            height={210}
+            spotlightColor="#71717a"
+          />
         </div>
 
         {/* Lead Status Distribution Radial Ring */}
         <div className="lg:col-span-4 flex flex-col">
           <SpotlightCard
-            color="#10b981"
+            color="#71717a"
             tiltMax={4}
             className="p-4 sm:p-6 flex flex-col justify-between h-full"
           >
@@ -363,22 +423,40 @@ export default function LeadsPage() {
             <div className="my-auto py-1 flex items-center justify-center">
               <ChartContainer config={radialChartConfig} className="mx-auto aspect-square w-full max-h-[160px]">
                 <RadialBarChart
-                  data={[{ status: 'sold', count: metrics.soldRate, fill: '#10b981' }]}
+                  data={[{ status: 'sold', count: Math.min(100, Math.max(0, metrics.soldRate)) }]}
                   startAngle={0}
-                  endAngle={Math.max(20, Math.round((metrics.soldRate / 100) * 360))}
+                  endAngle={Math.min(360, Math.max(0, Math.round((Math.min(100, metrics.soldRate) / 100) * 360)))}
                   outerRadius={75}
                   innerRadius={62}
                 >
-                  <PolarGrid gridType="circle" radialLines={false} stroke="none" className="first:fill-muted/40 last:fill-background" polarRadius={[75, 62]} />
-                  <RadialBar dataKey="count" background={{ fill: 'currentColor' }} className="[&_.recharts-radial-bar-background-sector]:fill-slate-100 dark:[&_.recharts-radial-bar-background-sector]:fill-slate-800/80" cornerRadius={10} />
+                  <PolarGrid gridType="circle" radialLines={false} stroke="none" className="first:fill-muted/20 last:fill-background" polarRadius={[75, 62]} />
+                  <RadialBar
+                    dataKey="count"
+                    background={{ fill: 'currentColor' }}
+                    className="fill-zinc-900 dark:fill-white [&_.recharts-radial-bar-background-sector]:fill-zinc-200/90 dark:[&_.recharts-radial-bar-background-sector]:fill-zinc-800/90"
+                    cornerRadius={10}
+                  />
                   <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
                     <Label
                       content={({ viewBox }) => {
                         if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                          const rateStr = `${metrics.soldRate}%`;
+                          const fontSize =
+                            rateStr.length > 5
+                              ? '18px'
+                              : rateStr.length > 4
+                              ? '22px'
+                              : '28px';
+
                           return (
                             <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                              <tspan x={viewBox.cx} y={(viewBox.cy || 0) - 4} className="fill-foreground text-2xl sm:text-3xl font-extrabold font-heading">
-                                {metrics.soldRate}%
+                              <tspan
+                                x={viewBox.cx}
+                                y={(viewBox.cy || 0) - 4}
+                                style={{ fontSize }}
+                                className="fill-foreground font-extrabold font-heading tracking-tight"
+                              >
+                                {rateStr}
                               </tspan>
                               <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 16} className="fill-muted-foreground text-[10px] font-bold uppercase tracking-wider">
                                 Sold Ratio
@@ -398,19 +476,19 @@ export default function LeadsPage() {
                 <span className="flex items-center gap-2 text-foreground font-semibold">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Sold
                 </span>
-                <span className="font-bold text-foreground font-mono">{metrics.statusCounts.sold}</span>
+                <span className="font-bold text-foreground font-mono">{metrics.sold}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-foreground font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Verified
+                  <ShieldCheck className="w-3.5 h-3.5 text-foreground" /> Clean DNC
                 </span>
-                <span className="font-bold text-foreground font-mono">{metrics.statusCounts.verified}</span>
+                <span className="font-bold text-foreground font-mono">{metrics.total - metrics.dncCount}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-foreground font-semibold">
                   <Copy className="w-3.5 h-3.5 text-amber-500" /> Duplicate
                 </span>
-                <span className="font-bold text-foreground font-mono">{metrics.statusCounts.duplicate}</span>
+                <span className="font-bold text-foreground font-mono">0</span>
               </div>
             </div>
           </SpotlightCard>
@@ -419,21 +497,21 @@ export default function LeadsPage() {
 
       {/* Filter Control Bar */}
       <SpotlightCard
-        color="#2563eb"
+        color="#71717a"
         tiltMax={2}
         enableShimmer={false}
         className="p-4 flex flex-wrap items-center justify-between gap-4"
       >
         <div className="flex flex-wrap items-center gap-3 flex-1">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground mr-2">
-            <SlidersHorizontal className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <SlidersHorizontal className="w-4 h-4 text-foreground" />
             <span>Filters:</span>
           </div>
 
           <select
             value={brandFilter}
             onChange={(e) => setBrandFilter(e.target.value)}
-            className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer transition-colors"
+            className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-foreground cursor-pointer transition-colors"
           >
             <option value="all">All Brands</option>
             {Array.from(new Set(leads.map((l) => l.brand_name).filter(Boolean))).map((bName) => (
@@ -444,7 +522,7 @@ export default function LeadsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer transition-colors"
+            className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-foreground cursor-pointer transition-colors"
           >
             <option value="all">All Statuses</option>
             <option value="new">New</option>
@@ -456,9 +534,9 @@ export default function LeadsPage() {
           </select>
 
           <select
-            value={minScoreFilter}
-            onChange={(e) => setMinScoreFilter(e.target.value)}
-            className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer transition-colors"
+            value={String(scoreMin)}
+            onChange={(e) => setScoreMin(Number(e.target.value))}
+            className="bg-secondary border border-border text-xs font-semibold text-foreground py-2 px-3 rounded-xl outline-none focus:border-foreground cursor-pointer transition-colors"
           >
             <option value="0">Min Score: Any</option>
             <option value="50">Min Score: 50+</option>
@@ -474,14 +552,14 @@ export default function LeadsPage() {
 
       {/* Main Filterable Data Table */}
       <SpotlightCard
-        color="#3b82f6"
+        color="#71717a"
         tiltMax={2}
         className="p-0 overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-border bg-slate-50/70 dark:bg-neutral-900/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-border bg-slate-100/90 dark:bg-neutral-900/60 text-[11px] font-bold text-slate-700 dark:text-neutral-300 uppercase tracking-wider">
                 <th className="py-3.5 px-4">Lead ID</th>
                 <th className="py-3.5 px-4">Brand</th>
                 <th className="py-3.5 px-4">Contact Info</th>
@@ -512,23 +590,25 @@ export default function LeadsPage() {
                   </td>
                 </tr>
               ) : (
-                filteredLeads.map((lead) => (
-                  <motion.tr
-                    key={lead.id}
-                    layoutId={`lead-row-${lead.id}`}
-                    onClick={() => setSelectedLead(lead)}
-                    className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 cursor-pointer transition-colors group"
-                  >
-                    <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
-                      {lead.id.substring(0, 8)}
-                    </td>
-                    <td className="py-3.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{lead.brand_name}</td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex flex-col">
-                        <span className="text-slate-900 dark:text-slate-100 font-bold">{lead.full_name}</span>
-                        <span className="text-[10px] text-muted-foreground">{lead.email}</span>
-                      </div>
-                    </td>
+                filteredLeads.map((lead) => {
+                  const contact = getContactInfo(lead);
+                  return (
+                    <motion.tr
+                      key={lead.id}
+                      layoutId={`lead-row-${lead.id}`}
+                      onClick={() => setSelectedLead(lead)}
+                      className="admin-table-row hover:bg-slate-50/80 dark:hover:bg-neutral-900/50 cursor-pointer transition-colors group"
+                    >
+                      <td className="py-3.5 px-4 font-mono font-bold text-foreground">
+                        {lead.id.substring(0, 8)}
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-foreground">{lead.brand_name}</td>
+                      <td className="py-3.5 px-4">
+                        <div className="flex flex-col">
+                          <span className="text-foreground font-bold">{contact.name}</span>
+                          <span className="text-[11px] text-slate-600 dark:text-neutral-400 font-medium">{contact.email}</span>
+                        </div>
+                      </td>
                     <td className="py-3.5 px-4">
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
@@ -571,37 +651,41 @@ export default function LeadsPage() {
                         ]}
                       />
                     </td>
-                    <td className="py-3.5 px-4 text-muted-foreground font-mono text-[11px]">
+                    <td className="py-3.5 px-4 text-slate-700 dark:text-neutral-300 font-mono text-xs font-semibold">
                       {String(lead.subid_params?.utm_source || 'direct')}
                     </td>
-                    <td className="py-3.5 px-4 text-foreground font-semibold">
+                    <td className="py-3.5 px-4 text-foreground font-bold">
                       {lead.sold_to_buyer_name || (lead.sold ? 'Buyer Assigned' : 'Unsold')}
                     </td>
                     <td className="py-3.5 px-4">
                       {lead.trustedform_cert_url ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
-                          <ShieldCheck className="w-3 h-3" />
-                          Verified
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>Verified</span>
                         </span>
                       ) : (
-                        <span className="text-[10px] text-muted-foreground font-medium">Standard</span>
+                        <span className="text-xs text-muted-foreground font-medium">Standard</span>
                       )}
                     </td>
                     <td className="py-3.5 px-4">
                       {lead.dnc_flagged ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-200 dark:border-rose-800">
-                          <ShieldAlert className="w-3 h-3" />
-                          Flagged
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-500">
+                          <ShieldAlert className="w-3.5 h-3.5" />
+                          <span>Flagged</span>
                         </span>
                       ) : (
-                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Clear</span>
+                        <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <span>Clear</span>
+                        </span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-muted-foreground text-[11px]">
+                    <td className="py-3.5 px-4 text-slate-700 dark:text-neutral-300 text-xs font-semibold">
                       {new Date(lead.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </td>
-                  </motion.tr>
-                ))
+                    </motion.tr>
+                  );
+                })
               )}
             </tbody>
           </table>

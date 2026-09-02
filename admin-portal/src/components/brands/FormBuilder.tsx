@@ -46,7 +46,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
 
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const primaryColor = brand.theme_config?.primary_color || '#2563eb';
+  const primaryColor = brand.theme_config?.primary_color || '#18181b';
   const fontFamily = brand.theme_config?.font_style || 'Inter, sans-serif';
 
   const addField = (type: string) => {
@@ -96,7 +96,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
 
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-xs shadow-blue-500/20 transition-all duration-200 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 font-semibold rounded-xl text-xs shadow-xs transition-all duration-200 cursor-pointer"
             >
               {savedSuccess ? (
                 <>
@@ -130,9 +130,9 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
                 <button
                   key={t.type}
                   onClick={() => addField(t.type)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary hover:bg-blue-50 dark:hover:bg-blue-950/60 border border-border hover:border-blue-300 text-foreground hover:text-blue-600 dark:hover:text-blue-400 text-xs font-semibold transition-all duration-200 cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-border text-foreground text-xs font-semibold transition-all duration-200 cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <Plus className="w-3.5 h-3.5 text-foreground" />
                   <span>{t.label}</span>
                 </button>
               ))}
@@ -144,13 +144,13 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className="p-4 rounded-2xl bg-secondary/50 border border-border hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200 space-y-3 group"
+                className="p-4 rounded-2xl bg-secondary/50 border border-border transition-all duration-200 space-y-3 group"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <GripVertical className="w-4 h-4 text-muted-foreground cursor-move" />
                     <span className="text-xs font-mono font-bold text-muted-foreground">#{index + 1}</span>
-                    <span className="text-xs font-bold uppercase text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
+                    <span className="text-xs font-bold uppercase text-foreground bg-secondary px-2 py-0.5 rounded-md border border-border">
                       {field.type}
                     </span>
                   </div>
@@ -172,7 +172,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
                       type="text"
                       value={field.label}
                       onChange={(e) => updateField(field.id, 'label', e.target.value)}
-                      className="w-full px-3 py-1.5 bg-card border border-border rounded-xl outline-none focus:border-blue-500 font-medium text-foreground placeholder:text-muted-foreground"
+                      className="w-full px-3 py-1.5 bg-card border border-border rounded-xl outline-none focus:border-foreground font-medium text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
 
@@ -184,7 +184,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
                       type="text"
                       value={field.placeholder || ''}
                       onChange={(e) => updateField(field.id, 'placeholder', e.target.value)}
-                      className="w-full px-3 py-1.5 bg-card border border-border rounded-xl outline-none focus:border-blue-500 font-medium text-foreground placeholder:text-muted-foreground"
+                      className="w-full px-3 py-1.5 bg-card border border-border rounded-xl outline-none focus:border-foreground font-medium text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
                 </div>
@@ -204,7 +204,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
                           e.target.value.split(',').map((s) => s.trim())
                         )
                       }
-                      className="w-full px-3 py-1.5 bg-card border border-border rounded-xl outline-none focus:border-blue-500 font-medium text-foreground placeholder:text-muted-foreground"
+                      className="w-full px-3 py-1.5 bg-card border border-border rounded-xl outline-none focus:border-foreground font-medium text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
                 )}
@@ -216,15 +216,14 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
 
       {/* Right Column: Live Form Preview in Brand Theme (5 Cols) */}
       <div className="lg:col-span-5">
-        <div className="sticky top-24 admin-card p-6 border-2 border-blue-100 dark:border-blue-900 bg-card">
+        <div className="sticky top-24 admin-card p-6 border border-border bg-card">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
             <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <Eye className="w-4 h-4 text-foreground" />
               <h4 className="text-sm font-bold text-foreground font-heading">Interactive Live Preview</h4>
             </div>
             <span
-              className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full text-white shadow-2xs"
-              style={{ backgroundColor: primaryColor }}
+              className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full text-foreground bg-secondary border border-border shadow-2xs"
             >
               {brand.name} Theme
             </span>
@@ -256,15 +255,15 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
                       {f.options?.map((opt: string, i: number) => (
                         <label
                           key={i}
-                          className="flex items-center gap-2.5 p-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground cursor-pointer hover:border-blue-400"
+                          className="flex items-center gap-2.5 p-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground cursor-pointer hover:border-foreground"
                         >
-                          <input type="radio" name={f.id} className="accent-blue-600" />
+                          <input type="radio" name={f.id} className="accent-foreground" />
                           <span>{opt}</span>
                         </label>
                       ))}
                     </div>
                   ) : f.type === 'select' ? (
-                    <select className="w-full p-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-blue-500">
+                    <select className="w-full p-2.5 bg-card border border-border rounded-xl text-xs font-semibold text-foreground outline-none focus:border-foreground">
                       {f.options?.map((opt: string, i: number) => (
                         <option key={i}>{opt}</option>
                       ))}
@@ -273,7 +272,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ brand, onSave }) => {
                     <input
                       type={f.type === 'phone' ? 'tel' : f.type === 'zip' ? 'text' : f.type}
                       placeholder={f.placeholder}
-                      className="w-full p-2.5 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-blue-500 placeholder:text-muted-foreground"
+                      className="w-full p-2.5 bg-card border border-border rounded-xl text-xs text-foreground outline-none focus:border-foreground placeholder:text-muted-foreground"
                     />
                   )}
                 </div>
